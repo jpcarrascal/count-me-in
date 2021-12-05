@@ -59,7 +59,7 @@
                 var stepID = this.getAttribute("id");
                 var value = this.checked;
                 console.log({ id: stepID, value: value});
-                socket.emit('step value', { id: stepID, value: value} );
+                socket.emit('step value', { id: stepID, value: value, channel: 0} );
             });
         }
 

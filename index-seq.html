@@ -4,6 +4,7 @@
     <title>Socket.IO chat</title>
     <style>
         body {
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             display:flex;
             flex-direction: column;
             align-items: center;
@@ -24,40 +25,79 @@
             height: 3em;
         }
 
+        #matrix {
+          border-collapse: collapse;
+        }
+
+        td {
+          padding: 5px;
+        }
+
     </style>
   </head>
   <body>
-    <div id="channel">
-        <table id="steps">
-            <tr>
-                <td><input type="checkbox" id="step00" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step01" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step02" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step03" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step04" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step05" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step06" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step07" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step08" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step09" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step10" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step11" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step12" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step13" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step14" class="step" disabled="true"/></td>
-                <td><input type="checkbox" id="step15" class="step" disabled="true"/></td>
-            </tr>
+    <div id="sequencer">
+        <table id="matrix">
         </table>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        var numChannels = 8;
+        var numSteps = 16;
+        colors = ["cyan","green","mediumpurple","magenta","blue","yellow","red","orange"];
+        // Node stuff:
         var socket = io();
         socket.on('step value', function(msg) {
-          var step = document.getElementById(msg.id);
+          console.log(msg);
+          var stepID = "ch"+msg.channel+"-"+msg.id;
+          var step = document.getElementById(stepID);
           step.checked = msg.value;
         });
-    </script>
 
+        // UI stuff:
+        var matrix = document.getElementById("matrix");
+        // Header
+        var tr = document.createElement("tr");
+        var th = document.createElement("th");
+        var text = document.createTextNode("");
+        th.append(text);
+        tr.appendChild(th);
+        for(var j=0; j<numSteps; j++) {
+          var th = document.createElement("th");
+          var text = document.createTextNode(j);
+          th.append(text);
+          tr.appendChild(th);
+        }
+        matrix.appendChild(tr);
+        // Channels:
+        for(var i=0; i<numChannels; i++) {
+          var tr = document.createElement("tr");
+          var chID = "ch"+i;
+          tr.setAttribute("id",chID);
+          tr.style.backgroundColor = colors[i];
+          var td = document.createElement("td");
+          var text = document.createTextNode("Channel "+ (i+1) );
+          td.append(text);
+          tr.appendChild(td);
+          for(var j=0; j<numSteps; j++) {
+            var td = document.createElement("td");
+            var check = document.createElement("input");
+            check.setAttribute("type","checkbox");
+            check.setAttribute("id",chID+"-step"+pad(j));
+            check.classList.add("step");
+            td.appendChild(check);
+            tr.appendChild(td);
+          }
+          matrix.appendChild(tr);
+        }
+
+        function pad(num) {
+          num = num.toString();
+          while (num.length < 2) num = "0" + num;
+          return num;
+        }
+    </script>
+    
 
   </body>
 </html>
