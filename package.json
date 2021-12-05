@@ -1,0 +1,9 @@
+{
+    "name": "InControl",
+    "version": "0.0.1",
+    "description": "Audience loop control",
+    "dependencies": {
+        "express": "^4.17.1",
+        "socket.io": "^4.4.0"
+    }
+}

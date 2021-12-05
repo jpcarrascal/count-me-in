@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+        body {
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #channel {
+            width: 90%;
+            background-color: blueviolet;
+            display:flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step {
+            width: 3em;
+            height: 3em;
+        }
+
+    </style>
+  </head>
+  <body>
+    <div id="channel">
+        <table id="steps">
+            <tr>
+                <td><input type="checkbox" id="step00" class="step"/></td>
+                <td><input type="checkbox" id="step01" class="step"/></td>
+                <td><input type="checkbox" id="step02" class="step"/></td>
+                <td><input type="checkbox" id="step03" class="step"/></td>
+                <td><input type="checkbox" id="step04" class="step"/></td>
+                <td><input type="checkbox" id="step05" class="step"/></td>
+                <td><input type="checkbox" id="step06" class="step"/></td>
+                <td><input type="checkbox" id="step07" class="step"/></td>
+                <td><input type="checkbox" id="step08" class="step"/></td>
+                <td><input type="checkbox" id="step09" class="step"/></td>
+                <td><input type="checkbox" id="step10" class="step"/></td>
+                <td><input type="checkbox" id="step11" class="step"/></td>
+                <td><input type="checkbox" id="step12" class="step"/></td>
+                <td><input type="checkbox" id="step13" class="step"/></td>
+                <td><input type="checkbox" id="step14" class="step"/></td>
+                <td><input type="checkbox" id="step15" class="step"/></td>
+            </tr>
+        </table>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        var steps = document.querySelectorAll(".step");
+
+        for(i=0;i<steps.length;i++) {
+            steps[i].addEventListener('click', function(e) {
+                var stepID = this.getAttribute("id");
+                var value = this.checked;
+                console.log({ id: stepID, value: value});
+                socket.emit('step value', { id: stepID, value: value} );
+            });
+        }
+
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+
+
+  </body>
+</html>
