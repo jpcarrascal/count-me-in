@@ -8,7 +8,6 @@ onColor = "#444";
 offColor = "white";
 
 function createTrack(i) {
-    console.log(i)
     var tr = document.createElement("tr");
     var trackID = "track"+i;
     tr.setAttribute("id",trackID);
@@ -92,4 +91,19 @@ function getCookie(name) {
 }
 function eraseCookie(name) {   
     document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+// GET parameter access, from: https://stackoverflow.com/questions/5448545/how-to-retrieve-get-parameters-from-javascript
+
+function findGetParameter(parameterName) {
+  var result = null,
+      tmp = [];
+  location.search
+      .substr(1)
+      .split("&")
+      .forEach(function (item) {
+        tmp = item.split("=");
+        if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+      });
+  return result;
 }

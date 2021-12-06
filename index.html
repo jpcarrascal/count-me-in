@@ -6,68 +6,271 @@
   </head>
   <body>
     <div id="sequencer">
+
         <table id="matrix">
-            <tr>
-                <th></th>
-                <th>1</th>
-                <th>2</th>
-                <th>3</th>
-                <th>4</th>
-                <th>5</th>
-                <th>6</th>
-                <th>7</th>
-                <th>8</th>
-                <th>9</th>
-                <th>10</th>
-                <th>11</th>
-                <th>12</th>
-                <th>13</th>
-                <th>14</th>
-                <th>15</th>
-                <th>16</th>
-            </tr>
         </table>
+
+        <div id="controls">
+          <button id="play" class="controls">&#9654;</button>
+          <button id="stop" class="controls">&#9724;</button>
+          <div id="tempo" class="controls">120</div>
+          <div id="tempoUpDown">
+            <button class="tempoButton" id="tempoUp">&#9651;</button>
+            <button class="tempoButton" id="tempoDown">&#9661;</button>
+          </div>
+          <span class="controls">BPM</span>
+          <div class="controls" id="currentStep" ></div>
+          <div class="controls" id="deviceSelect" >
+            <label for="devices">MIDI device:</label>
+            <select name="devices" id="devices">
+            </select>
+          </div>
+        </div>
+
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="scripts/include.js"></script>
     <script>
+        // Am I a sequencer?
+        var isSeq = findGetParameter("seq");
+        if(isSeq)
+          console.log("I am a sequencer");
+        else
+          console.log("not a sequencer...");
+
+        // Node stuff:
         var socket = io();
+        var mySocketID;
         socket.on("connect", () => {
-          console.log(socket.id);
+          console.log("Connected, socket.id:" + socket.id);
+          mySocketID = socket.id;
         });
 
-        document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === 'visible') {
+        socket.on('step value', function(msg) {
+          console.log(msg);
+          var stepID = "track"+msg.track+"-step"+msg.step;
+          console.log(stepID)
+          var step = document.getElementById(stepID);
+          step.setAttribute("value",msg.value);
+          if(msg.value == 0) step.style.backgroundColor = offColor;
+          else step.style.backgroundColor = onColor;
+        });
 
-            } else {
+        socket.on('clear track', function(msg) {
+          var trackClass = ".track"+msg.track;
+          var steps = document.querySelectorAll(trackClass);
+          steps.forEach(step =>{
+            step.setAttribute("value",0);
+            step.style.backgroundColor = offColor;
+          });
+        });
 
+        socket.on('create track', function(msg) {
+            if(!isSeq) {
+                removeTrack();
+                console.log("Got my track: " + (msg.track+1));
+                var track = msg.track;
+                var tr = createTrack(track);
+                var matrix = document.getElementById("matrix");
+                matrix.appendChild(tr);
             }
         });
 
-        var steps = document.querySelectorAll(".step");
-
-        socket.on('allocate track', function(msg) {
+        socket.on('destroy track', function(msg) {
             removeTrack();
-            console.log("My track is: " + (msg.track+1));
-            var track = msg.track;
-            var tr = createTrack(track);
-            var matrix = document.getElementById("matrix");
-            matrix.appendChild(tr);
         });
 
-        socket.on('deallocate track', function(msg) {
-            removeTrack();
+        socket.on('play', function(msg) {
+            if(msg.socketID != mySocketID) {
+              console.log("Remote play!" + msg.socketID)
+              if(isSeq) playSequence();
+            }
+        });
+
+        socket.on('stop', function(msg) {
+            if(msg.socketID != mySocketID) {
+              console.log("Remote stop!" + msg.socketID)
+              stopSequence();
+            }
         });
 
         function removeTrack() {
-            console.log("Lost my track :(");
-            document.querySelectorAll(".track").forEach(track => {
-                track.remove();
+            if(!isSeq) {
+                console.log("Lost my track :(");
+                document.querySelectorAll(".track").forEach(track => {
+                    track.remove();
+                });
+            }
+        }
+
+        // UI stuff:
+        var matrix = document.getElementById("matrix");
+        // Header
+        var tr = document.createElement("tr");
+        var th = document.createElement("th");
+        var text = document.createTextNode("");
+        th.append(text);
+        tr.appendChild(th);
+        for(var j=0; j<NUM_STEPS; j++) {
+          var th = document.createElement("th");
+          var text = document.createTextNode(j+1);
+          th.append(text);
+          tr.appendChild(th);
+        }
+        matrix.appendChild(tr);
+
+        if(isSeq) { // Stuff only for the full sequencer:
+          document.getElementById("controls").style.display = "flex";
+          // tracks:
+          for(var i=NUM_TRACKS-1; i>=0; i--) {
+            var tr = createTrack(i);
+            matrix.appendChild(tr);
+          }
+
+          // MIDI Stuff:
+          var MIDIport;
+          if (navigator.requestMIDIAccess) {
+            console.log('Browser supports MIDI!');
+            navigator.requestMIDIAccess().then(success, failure);
+          }
+
+          function success(midi) {
+            var selectList = document.getElementById("devices");
+            selectList.addEventListener("change", function(e) {
+              MIDIport = midi.outputs.get(this.value);
+              console.log(MIDIport + " selected.");
+              setCookie("MIDIdevice",this.value,1000);
             });
+            var selectedDevice = getCookie("MIDIdevice");
+            var outputs = midi.outputs.values();
+            var numDevices = 0;
+            // outputs is an Iterator
+            for (var output = outputs.next(); output && !output.done; output = outputs.next()) {
+                var option = document.createElement("option");
+                option.value = output.value.id;
+                option.text = output.value.name;
+                if(selectedDevice == output.value.id) option.selected = true;
+                selectList.appendChild(option);
+                numDevices++;
+            }
+            let changeEvent = new Event('change');
+            selectList.dispatchEvent(changeEvent);
+
+            if(numDevices == 0) {
+              var option = document.createElement("option");
+              option.value = "";
+              option.text = "No MIDI devices found...";
+              selectList.appendChild(option);
+            }
+          }
+
+          function failure(){ console.log("MIDI not supported :(")};
+        } else {
+          socket.on('step tick', function(msg) {
+            console.log("remote tick:")
+            console.log(msg)
+            updateCursor(msg.counter, msg.prev);
+          });
+        }
+        // Seq stuff:
+        var tempo = document.getElementById("tempo").innerText;
+        var playing = false;
+        var interval = 60000/(4*tempo);
+        var timer;
+        var counter = 0;
+        var prev = 15;
+        document.querySelector("#stop").addEventListener("click", function(e){
+          if(playing) {
+            socket.emit('stop', { socketID: mySocketID });
+            stopSequence();
+          }
+        });
+
+        function stopSequence() {
+          clearTimeout(timer);
+          playing = false;
+          updateCursor(-1, -1);
+        }
+
+        document.querySelector("#play").addEventListener("click", function(e){
+          if(!playing) {
+            socket.emit('play', { socketID: mySocketID });
+            playSequence();
+          }
+        });
+        
+        function playSequence() {
+          counter = 0;
+          prev = 15;
+          updateCursor(counter, prev);
+          playStepNotes(counter);
+          socket.emit('step tick', { counter: counter, prev: prev } );
+          timer = setTimeout(function next(){
+            if(counter < NUM_STEPS-1) {
+              counter++;
+              prev = counter - 1;
+            } else {
+              counter = 0;
+              prev = 15;
+            }
+            updateCursor(counter, prev);
+            playStepNotes(counter);
+            socket.emit('step tick', { counter: counter, prev: prev } );
+            timer = setTimeout(next, interval);
+          }, interval);
+          playing = true;
+        }
+
+        document.querySelectorAll(".tempoButton").forEach(button => {
+          button.addEventListener("click", function(e){
+            var id = this.getAttribute("id");
+            var tempoElem = document.getElementById("tempo");
+            var newTempo = parseInt(tempoElem.innerText);
+            if(id == "tempoUp") {
+              newTempo = newTempo + 1;
+            } else {
+              newTempo = newTempo - 1;
+            }
+            tempoElem.innerText = newTempo;
+            tempo = newTempo;
+            interval = 60000/(4*tempo);
+          });
+        });
+
+
+        function updateCursor(counter, prev) {
+          if(counter >=0) {
+            var currentStepNum = document.getElementById("currentStep");
+            //currentStepNum.innerHTML = counter+1;
+            var stepPos = document.querySelectorAll(".step"+counter);
+            var prevPos = document.querySelectorAll(".step"+prev);
+            prevPos.forEach(step => {
+              step.parentElement.classList.remove("cursor");
+            })
+            stepPos.forEach(step => {
+              step.parentElement.classList.add("cursor");
+            });
+          } else {
+            var all = document.querySelectorAll(".step");
+            all.forEach(step => {
+              step.parentElement.classList.remove("cursor");
+            })
+          }
+        }
+
+        function playStepNotes(counter) {
+          var stepPos = document.querySelectorAll(".step"+counter);
+          stepPos.forEach(step => {
+              var value = step.getAttribute("value");
+              var track = parseInt(step.getAttribute("track"));
+              if(value > 0) {
+                playNote(36+track,MIDIport);
+              }
+          });
         }
 
     </script>
-
+    
 
   </body>
 </html>
