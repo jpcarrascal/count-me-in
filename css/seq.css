@@ -1,0 +1,67 @@
+body {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #444;
+    color: white;
+}
+
+td {
+    color: #444;
+}
+
+#channel {
+    width: 100%;
+    height: 100px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.step {
+    width: 2em;
+    height: 2em;
+    background-color: white;
+    border-radius: 8%;
+    border: 4px solid white;
+    margin: 8px;
+}
+
+.trackName {
+    padding: 10px;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+#sequencer {
+    width: 100%;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#controls {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+}
+
+.controls {
+    margin: 5px;
+}
+
+.cursor {
+    background-color: #444;
+}

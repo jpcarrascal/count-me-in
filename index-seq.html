@@ -1,57 +1,43 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket.IO chat</title>
-    <style>
-        body {
-            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-            display:flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #channel {
-            width: 90%;
-            background-color: aqua;
-            display:flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .step {
-            width: 3em;
-            height: 3em;
-        }
-
-        #matrix {
-          border-collapse: collapse;
-        }
-
-        td {
-          padding: 5px;
-        }
-
-    </style>
+    <title>You're in control</title>
+    <link rel="stylesheet" href="css/seq.css">
   </head>
   <body>
     <div id="sequencer">
+      
+      <div id="controls">
+        <button id="play" class="controls">&#9654;</button><!-- &#9724; -->
+        <div id="tempo" class="controls">60</div>
+        <div id="currentStep" class="controls"></div>
+      </div>
+
         <table id="matrix">
         </table>
     </div>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="scripts/include.js"></script>
     <script>
-        var numChannels = 8;
-        var numSteps = 16;
-        colors = ["cyan","green","mediumpurple","magenta","blue","yellow","red","orange"];
         // Node stuff:
         var socket = io();
         socket.on('step value', function(msg) {
           console.log(msg);
-          var stepID = "ch"+msg.channel+"-"+msg.id;
+          var stepID = "track"+msg.track+"-step"+msg.step;
+          console.log(stepID)
           var step = document.getElementById(stepID);
-          step.checked = msg.value;
+          step.setAttribute("value",msg.value);
+          if(msg.value == 0) step.style.backgroundColor = offColor;
+          else step.style.backgroundColor = onColor;
+        });
+
+        socket.on('clear track', function(msg) {
+          var trackClass = ".track"+msg.track;
+          var steps = document.querySelectorAll(trackClass);
+          steps.forEach(step =>{
+            step.setAttribute("value",0);
+            step.style.backgroundColor = offColor;
+          });
         });
 
         // UI stuff:
@@ -62,40 +48,107 @@
         var text = document.createTextNode("");
         th.append(text);
         tr.appendChild(th);
-        for(var j=0; j<numSteps; j++) {
+        for(var j=0; j<NUM_STEPS; j++) {
           var th = document.createElement("th");
-          var text = document.createTextNode(j);
+          var text = document.createTextNode(j+1);
           th.append(text);
           tr.appendChild(th);
         }
         matrix.appendChild(tr);
-        // Channels:
-        for(var i=0; i<numChannels; i++) {
-          var tr = document.createElement("tr");
-          var chID = "ch"+i;
-          tr.setAttribute("id",chID);
-          tr.style.backgroundColor = colors[i];
-          var td = document.createElement("td");
-          var text = document.createTextNode("Channel "+ (i+1) );
-          td.append(text);
-          tr.appendChild(td);
-          for(var j=0; j<numSteps; j++) {
-            var td = document.createElement("td");
-            var check = document.createElement("input");
-            check.setAttribute("type","checkbox");
-            check.setAttribute("id",chID+"-step"+pad(j));
-            check.classList.add("step");
-            td.appendChild(check);
-            tr.appendChild(td);
-          }
+
+        // tracks:
+        for(var i=0; i<NUM_TRACKS; i++) {
+          var tr = createTrack(i);
           matrix.appendChild(tr);
         }
 
-        function pad(num) {
-          num = num.toString();
-          while (num.length < 2) num = "0" + num;
-          return num;
+        // MIDI Stuff:
+        var MIDIport;
+        if (navigator.requestMIDIAccess) {
+          console.log('Browser supports MIDI!');
+          navigator.requestMIDIAccess().then(success, failure);
         }
+
+        function success(midi) {
+          var outputs = midi.outputs.values();
+          // outputs is an Iterator
+          for (var output = outputs.next(); output && !output.done; output = outputs.next()) {
+              if (output.value.name == "IAC Driver Bus 2: notes")
+              {
+                //console.log(output.value);
+                MIDIport = midi.outputs.get(output.value.id);
+                console.log(MIDIport);
+              }
+          }
+        }
+        function failure(){ console.log("MIDI not supported :(")};
+        // Seq stuff:
+        var tempo = document.getElementById("tempo").innerText;
+        var playing = false;
+        var interval = 60000/(4*tempo);
+        var timer;
+        var counter = 0;
+        var prev = 15;
+        var stepPos = document.querySelectorAll(".step"+counter);
+        var prevPos = document.querySelectorAll(".step"+prev);
+        document.querySelector("#play").addEventListener("click", function(e){
+          if(playing) { // stop
+            this.innerHTML = "&#9654;";
+            clearInterval(timer);
+            playing = false;
+            updateCursor(-1, -1);
+          } else { // play
+            counter = 0;
+            prev = 15;
+            updateCursor(counter, prev);
+            playStepNotes(counter);
+            timer = setInterval(function(){
+              if(counter < NUM_STEPS-1) {
+                counter++;
+                prev = counter - 1;
+              } else {
+                counter = 0;
+                prev = 15;
+              }
+              updateCursor(counter, prev);
+              playStepNotes(counter);
+            }, interval);
+            this.innerHTML = "&#9724;";
+            playing = true;
+          }
+        });
+
+        function updateCursor(counter, prev) {
+          if(counter >=0) {
+            var currentStepNum = document.getElementById("currentStep");
+            currentStepNum.innerHTML = counter+1;
+            var stepPos = document.querySelectorAll(".step"+counter);
+            var prevPos = document.querySelectorAll(".step"+prev);
+            prevPos.forEach(step => {
+              step.parentElement.classList.remove("cursor");
+            })
+            stepPos.forEach(step => {
+              step.parentElement.classList.add("cursor");
+            });
+          } else {
+            var all = document.querySelectorAll(".step");
+            all.forEach(step => {
+              step.parentElement.classList.remove("cursor");
+            })
+          }
+        }
+
+        function playStepNotes(counter) {
+          var stepPos = document.querySelectorAll(".step"+counter);
+          stepPos.forEach(step => {
+              var value = step.getAttribute("value");
+              var track = parseInt(step.getAttribute("track"));
+              if(value > 0) {
+                playNote(36+track,MIDIport);
+              }
+          });
+        }
+
     </script>
     
 
