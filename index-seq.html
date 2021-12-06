@@ -6,15 +6,26 @@
   </head>
   <body>
     <div id="sequencer">
-      
-      <div id="controls">
-        <button id="play" class="controls">&#9654;</button><!-- &#9724; -->
-        <div id="tempo" class="controls">60</div>
-        <div id="currentStep" class="controls"></div>
-      </div>
 
         <table id="matrix">
         </table>
+
+        <div id="controls">
+          <button id="play" class="controls">&#9654;</button><!-- &#9724; -->
+          <div id="tempo" class="controls">120</div>
+          <div id="tempoUpDown">
+            <button class="tempoButton" id="tempoUp">&#9651;</button>
+            <button class="tempoButton" id="tempoDown">&#9661;</button>
+          </div>
+          <span class="controls">BPM</span>
+          <div class="controls" id="currentStep" ></div>
+          <div class="controls" id="deviceSelect" >
+            <label for="devices">MIDI device:</label>
+            <select name="devices" id="devices">
+            </select>
+          </div>
+        </div>
+
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="scripts/include.js"></script>
@@ -57,7 +68,7 @@
         matrix.appendChild(tr);
 
         // tracks:
-        for(var i=0; i<NUM_TRACKS; i++) {
+        for(var i=NUM_TRACKS-1; i>=0; i--) {
           var tr = createTrack(i);
           matrix.appendChild(tr);
         }
@@ -70,17 +81,37 @@
         }
 
         function success(midi) {
+          var selectList = document.getElementById("devices");
+          selectList.addEventListener("change", function(e) {
+            MIDIport = midi.outputs.get(this.value);
+            console.log(MIDIport + " selected.");
+            setCookie("MIDIdevice",this.value,1000);
+          });
+          var selectedDevice = getCookie("MIDIdevice");
           var outputs = midi.outputs.values();
+          var numDevices = 0;
           // outputs is an Iterator
           for (var output = outputs.next(); output && !output.done; output = outputs.next()) {
-              if (output.value.name == "IAC Driver Bus 2: notes")
-              {
-                //console.log(output.value);
-                MIDIport = midi.outputs.get(output.value.id);
-                console.log(MIDIport);
-              }
+              var option = document.createElement("option");
+              option.value = output.value.id;
+              option.text = output.value.name;
+              if(selectedDevice == output.value.id) option.selected = true;
+              selectList.appendChild(option);
+              //console.log(output.value);
+              //MIDIport = midi.outputs.get(output.value.id);
+              numDevices++;
+          }
+          let changeEvent = new Event('change');
+          selectList.dispatchEvent(changeEvent);
+
+          if(numDevices == 0) {
+            var option = document.createElement("option");
+            option.value = "";
+            option.text = "No MIDI devices found...";
+            selectList.appendChild(option);
           }
         }
+
         function failure(){ console.log("MIDI not supported :(")};
         // Seq stuff:
         var tempo = document.getElementById("tempo").innerText;
@@ -89,12 +120,10 @@
         var timer;
         var counter = 0;
         var prev = 15;
-        var stepPos = document.querySelectorAll(".step"+counter);
-        var prevPos = document.querySelectorAll(".step"+prev);
         document.querySelector("#play").addEventListener("click", function(e){
           if(playing) { // stop
             this.innerHTML = "&#9654;";
-            clearInterval(timer);
+            clearTimeout(timer);
             playing = false;
             updateCursor(-1, -1);
           } else { // play
@@ -102,7 +131,7 @@
             prev = 15;
             updateCursor(counter, prev);
             playStepNotes(counter);
-            timer = setInterval(function(){
+            timer = setTimeout(function next(){
               if(counter < NUM_STEPS-1) {
                 counter++;
                 prev = counter - 1;
@@ -112,16 +141,34 @@
               }
               updateCursor(counter, prev);
               playStepNotes(counter);
+              timer = setTimeout(next, interval);
             }, interval);
             this.innerHTML = "&#9724;";
             playing = true;
           }
         });
+        
+        document.querySelectorAll(".tempoButton").forEach(button => {
+          button.addEventListener("click", function(e){
+            var id = this.getAttribute("id");
+            var tempoElem = document.getElementById("tempo");
+            var newTempo = parseInt(tempoElem.innerText);
+            if(id == "tempoUp") {
+              newTempo = newTempo + 1;
+            } else {
+              newTempo = newTempo - 1;
+            }
+            tempoElem.innerText = newTempo;
+            tempo = newTempo;
+            interval = 60000/(4*tempo);
+          });
+        });
+
 
         function updateCursor(counter, prev) {
           if(counter >=0) {
             var currentStepNum = document.getElementById("currentStep");
-            currentStepNum.innerHTML = counter+1;
+            //currentStepNum.innerHTML = counter+1;
             var stepPos = document.querySelectorAll(".step"+counter);
             var prevPos = document.querySelectorAll(".step"+prev);
             prevPos.forEach(step => {

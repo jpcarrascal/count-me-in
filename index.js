@@ -12,8 +12,6 @@ function getAvailableTrack(name) {
     for(var i=0; i<tracks.length; i++) {
         if(tracks[i] == "") {
             tracks[i] = name;
-            console.log("Track IN, status:")
-            console.log(tracks);
             return(i);
         }
     }

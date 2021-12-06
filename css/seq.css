@@ -60,6 +60,28 @@ table {
 
 .controls {
     margin: 5px;
+    font-size: 2em;
+}
+
+#tempoUpDown {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tempoButton {
+    font-size: 0.5em;
+    height: 2   em;
+}
+
+#tempo {
+    width: 2em;
+    text-align: right;
+}
+
+#deviceSelect {
+    margin-left: 2em;
 }
 
 .cursor {
