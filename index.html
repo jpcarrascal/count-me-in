@@ -81,17 +81,17 @@
         });
 
         socket.on('play', function(msg) {
-            if(msg.socketID != mySocketID) {
-              console.log("Remote play!" + msg.socketID)
-              if(isSeq) playSequence();
-            }
+            console.log("Remote play!" + msg.socketID)
+            if(isSeq) playSequence();
         });
 
         socket.on('stop', function(msg) {
-            if(msg.socketID != mySocketID) {
-              console.log("Remote stop!" + msg.socketID)
-              stopSequence();
-            }
+            console.log("Remote stop!" + msg.socketID)
+            stopSequence();
+        });
+
+        socket.on('step tick', function(msg) {
+            updateCursor(msg.counter, msg.prev);
         });
 
         function removeTrack() {
@@ -164,14 +164,9 @@
             }
           }
 
-          function failure(){ console.log("MIDI not supported :(")};
-        } else {
-          socket.on('step tick', function(msg) {
-            console.log("remote tick:")
-            console.log(msg)
-            updateCursor(msg.counter, msg.prev);
-          });
+        function failure(){ console.log("MIDI not supported :(")};
         }
+        
         // Seq stuff:
         var tempo = document.getElementById("tempo").innerText;
         var playing = false;
@@ -241,7 +236,6 @@
         function updateCursor(counter, prev) {
           if(counter >=0) {
             var currentStepNum = document.getElementById("currentStep");
-            //currentStepNum.innerHTML = counter+1;
             var stepPos = document.querySelectorAll(".step"+counter);
             var prevPos = document.querySelectorAll(".step"+prev);
             prevPos.forEach(step => {

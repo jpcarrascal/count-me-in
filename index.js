@@ -83,14 +83,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('play', (msg) => {
-        console.log(msg);
         //io.emit('play', msg);
         socket.broadcast.emit('play', msg);
         console.log("Playing...");
     });
 
     socket.on('stop', (msg) => {
-        console.log("getting this..." + msg);
         //io.emit('stop', msg);
         socket.broadcast.emit('stop', msg);
         console.log("Stopped.");
