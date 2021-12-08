@@ -3,7 +3,20 @@ const NUM_STEPS = 16;
 const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
+const DEFAULT_ROOM = 999;
 colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold"];
+/*
+36. Kick Drum
+38. Snare Drum
+39. Hand Clap
+41. Floor Tom 2
+42. Hi-Hat Closed
+43. Floor Tom 1
+45. Low Tom
+46. Hi-Hat Open
+49. Crash Cymbal
+*/
+notes = [36, 38, 39, 41, 43, 45, 42, 46];
 onColor = "#444";
 offColor = "white";
 
@@ -11,11 +24,13 @@ function createTrack(i) {
     var tr = document.createElement("tr");
     var trackID = "track"+i;
     tr.setAttribute("id",trackID);
+    tr.setAttribute("note",notes[i]);
     tr.classList.add("track");
     tr.style.backgroundColor = colors[i];
     var td = document.createElement("td");
-    var text = document.createTextNode("Track "+ (i+1) );
-    td.classList.add("trackName");
+    var text = document.createTextNode("---");
+    td.classList.add("track-name");
+    td.setAttribute("id","track"+i+"-name");
     td.append(text);
     tr.appendChild(td);
     for(var j=0; j<NUM_STEPS; j++) {

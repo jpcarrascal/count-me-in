@@ -6,6 +6,18 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 var tracks = ["","","","","","","",""];
+/*
+var tracksObj = [
+    {socketID:"", initials:""},
+    {socketID:"", initials:""},
+    {socketID:"", initials:""},
+    {socketID:"", initials:""},
+    {socketID:"", initials:""},
+    {socketID:"", initials:""},
+    {socketID:"", initials:""},
+    {socketID:"", initials:""},
+];
+*/
 var seq = false;
 var seqID = "";
 function allocateAvailableTrack(name) {
@@ -35,15 +47,21 @@ function getTrackNumber(name) {
 }
 
 app.get('/', (req, res) => {
-    if(req.query.seq == "sequencer") {
-        page = '/index-seq.html';
-        seq = true;
-    }
-    else {
-        page = '/index.html'
-        seq = false;
-    }
+    // req.query.seq
+    seq = false;
     page = '/index.html';
+    res.sendFile(__dirname + page);
+});
+
+app.get('/sequencer', (req, res) => {
+    seq = true;
+    page = '/seq.html';
+    res.sendFile(__dirname + page);
+});
+
+app.get('/track', (req, res) => {
+    seq = false;
+    page = '/seq.html';
     res.sendFile(__dirname + page);
 });
 
@@ -52,8 +70,12 @@ app.use('/css', express.static(__dirname + '/css/'));
 
 io.on('connection', (socket) => {
     if(!seq) {
-        console.log("Joined: " + socket.id);
+        var initials = socket.handshake.query.initials;
+        console.log("Joined: " + initials);
         var track = allocateAvailableTrack(socket.id);
+        if(true) {
+            socket.broadcast.to(seqID).emit('track initials', { initials: initials, track:track });
+        }
         socket.on('disconnect', () => {
             var track2del = getTrackNumber(socket.id);
             releaseTrack(socket.id);
