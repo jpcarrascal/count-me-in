@@ -8,6 +8,10 @@
   <body>
     <div id="sequencer">
 
+        <div id="instrument">
+          <img id="instrument-icon" />
+        </div>
+
         <table id="matrix">
         </table>
 
@@ -22,12 +26,10 @@
           </div>
           -->
           <span class="controls">BPM</span>
-          <div class="controls" id="currentStep" ></div>
-          <div class="controls" id="deviceSelect" >
-            <label for="devices">MIDI device:</label>
+          <div class="controls" id="currentStep"></div>
+            <label for="devices" id="devices-label">MIDI device:</label>
             <select name="devices" id="devices">
             </select>
-          </div>
         </div>
 
     </div>
@@ -79,6 +81,8 @@
 
         socket.on('create track', function(msg) {
           if(!isSeq) {
+              var icon = document.getElementById("instrument-icon");
+              icon.setAttribute("src","images/"+msg.track+".png");
               removeTrack();
               console.log("Got my track: " + (msg.track+1));
               var track = msg.track;
@@ -128,21 +132,7 @@
 
         // UI stuff:
         var matrix = document.getElementById("matrix");
-        // Header
-        var tr = document.createElement("tr");
-        var th = document.createElement("th");
-        th.classList.add("name-header");
-        var text = document.createTextNode("☺");
-        th.append(text);
-        tr.appendChild(th);
-        for(var j=0; j<NUM_STEPS; j++) {
-          var th = document.createElement("th");
-          th.classList.add("step-header");
-          var text = document.createTextNode(j+1);
-          th.append(text);
-          tr.appendChild(th);
-        }
-        matrix.appendChild(tr);
+        createHeader(matrix);
 
         if(isSeq) { // Stuff only for the full sequencer:
           document.getElementById("control-panel").style.display = "flex";
@@ -189,6 +179,8 @@
             }
           }
           function failure(){ console.log("MIDI not supported :(")};
+        } else {
+          document.getElementById("instrument").style.display = "block";
         }
         
         // Seq stuff:
@@ -256,24 +248,6 @@
           }, interval);
           playing = true;
         }
-
-        /*
-        document.querySelectorAll(".tempoButton").forEach(button => {
-          button.addEventListener("click", function(e){
-            var id = this.getAttribute("id");
-            var tempoElem = document.getElementById("tempo");
-            var newTempo = parseInt(tempoElem.innerText);
-            if(id == "tempoUp") {
-              newTempo = newTempo + 1;
-            } else {
-              newTempo = newTempo - 1;
-            }
-            tempoElem.innerText = newTempo;
-            tempo = newTempo;
-            interval = 60000/(4*tempo);
-          });
-        });
-        */
 
         document.getElementById("tempo").addEventListener("change",function(e){
           this.setAttribute('value', this.value);

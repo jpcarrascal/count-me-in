@@ -100,8 +100,8 @@ th, td {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding-top: 0.2em;
-    padding-bottom: 0.2em;
+    padding-top: 0.3vw;
+    padding-bottom: 0.3vw;
 }
 
 .step {
@@ -114,33 +114,32 @@ th, td {
     margin-bottom: .5em;
 }
 
+.track-icon {
+    width: 4vw;
+}
+
 #control-panel {
     display:none;
+    width: 100%;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     margin: 20px;
 }
 
-.controls {
-    margin: 5px;
-    font-size: 2em;
-    height: 1em;
+#instrument-icon {
+    filter: invert(1);
 }
 
-/*
-#tempoUpDown {
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.controls, #devices, #devices-label {
+    margin-left: 1vw;
+    font-size: 3vw;
+    height: 3.5vw;
 }
 
-.tempoButton {
-    font-size: 0.5em;
-    height: 2   em;
+#devices-label {
+    margin-left: 3vw;
 }
-*/
 
 #tempo {
     width: 2.3em;

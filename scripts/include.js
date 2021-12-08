@@ -20,6 +20,26 @@ notes = [36, 38, 39, 41, 43, 45, 42, 46];
 onColor = "#444";
 offColor = "white";
 
+function createHeader(table) {
+  // Header
+  var tr = document.createElement("tr");
+  var th = document.createElement("th");
+  tr.appendChild(th);
+  th = document.createElement("th");
+  th.classList.add("name-header");
+  var text = document.createTextNode("☺");
+  th.append(text);
+  tr.appendChild(th);
+  for(var j=0; j<NUM_STEPS; j++) {
+    var th = document.createElement("th");
+    th.classList.add("step-header");
+    var text = document.createTextNode(j+1);
+    th.append(text);
+    tr.appendChild(th);
+  }
+  table.appendChild(tr);
+}
+
 function createTrack(i) {
     var tr = document.createElement("tr");
     var trackID = "track"+i;
@@ -27,7 +47,16 @@ function createTrack(i) {
     tr.setAttribute("note",notes[i]);
     tr.classList.add("track");
     tr.style.backgroundColor = colors[i];
+
     var td = document.createElement("td");
+    var img = document.createElement("img");
+    img.setAttribute("src","images/"+i+".png");
+    img.classList.add("track-icon");
+    td.appendChild(img);
+    td.classList.add("track-icon-td");
+    tr.appendChild(td);
+
+    td = document.createElement("td");
     var text = document.createTextNode("---");
     td.classList.add("track-name");
     td.setAttribute("id","track"+i+"-name");

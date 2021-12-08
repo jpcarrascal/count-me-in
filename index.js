@@ -67,6 +67,7 @@ app.get('/track', (req, res) => {
 
 app.use('/scripts', express.static(__dirname + '/scripts/'));
 app.use('/css', express.static(__dirname + '/css/'));
+app.use('/images', express.static(__dirname + '/images/'));
 
 io.on('connection', (socket) => {
     var room = socket.handshake.query.room;
@@ -80,7 +81,7 @@ io.on('connection', (socket) => {
             var track2del = getTrackNumber(socket.id);
             releaseTrack(socket.id);
             io.to(socket.id).emit('destroy track');
-            io.emit('clear track', {track: track2del});
+            io.to(room).emit('clear track', {track: track2del});
             console.log(initials + ' disconnected, clearing track ' + track2del);
         });
         io.to(socket.id).emit('create track', {track: track});
@@ -91,27 +92,21 @@ io.on('connection', (socket) => {
         });
     }
 
-    socket.on('step value', (msg) => { // Update step values
+    socket.on('step value', (msg) => { // Send step values
         io.to(room).emit('step value', msg);
         console.log(msg);
     });
 
-    socket.on('step tick', (msg) => {
-        //if(msg.counter%4 == 0)
-          //  console.log(">");
-        //else
-            //console.log(".");
+    socket.on('step tick', (msg) => { // Visual sync
         socket.broadcast.to(room).emit('step tick', msg);
     });
 
     socket.on('play', (msg) => {
-        //io.emit('play', msg);
         socket.broadcast.to(room).emit('play', msg);
         console.log("Playing...");
     });
 
     socket.on('stop', (msg) => {
-        //io.emit('stop', msg);
         socket.broadcast.to(room).emit('stop', msg);
         console.log("Stopped.");
     });
