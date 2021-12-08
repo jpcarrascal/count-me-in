@@ -35,17 +35,21 @@
     <script src="scripts/include.js"></script>
     <script>
         // Am I a sequencer?
-        //var isSeq = findGetParameter("seq");
         var isSeq = location.pathname.includes("sequencer");
+        var initials = "";
+        var room = findGetParameter("room")
+        if(!room) room = DEFAULT_ROOM;
         if(isSeq)
           console.log("I am a sequencer");
         else
           console.log("not a sequencer...");
         if (!isSeq)
-          var initials = findGetParameter("initials")
+          initials = findGetParameter("initials") || "?";
+        else
+          initials = "SQ";
 
         // Node stuff:
-        var socket = io("", {query:"initials="+initials});
+        var socket = io("", {query:{initials:initials, room:room}});
         var mySocketID;
         socket.on("connect", () => {
           console.log("Connected, socket.id:" + socket.id);

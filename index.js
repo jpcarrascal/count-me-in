@@ -69,30 +69,30 @@ app.use('/scripts', express.static(__dirname + '/scripts/'));
 app.use('/css', express.static(__dirname + '/css/'));
 
 io.on('connection', (socket) => {
+    var room = socket.handshake.query.room;
+    var initials = socket.handshake.query.initials;
+    socket.join(room);
+    console.log(initials + " joined room " + room);
     if(!seq) {
-        var initials = socket.handshake.query.initials;
-        console.log("Joined: " + initials);
         var track = allocateAvailableTrack(socket.id);
-        if(true) {
-            socket.broadcast.to(seqID).emit('track initials', { initials: initials, track:track });
-        }
+        socket.broadcast.to(room).emit('track initials', { initials: initials, track:track });
         socket.on('disconnect', () => {
             var track2del = getTrackNumber(socket.id);
             releaseTrack(socket.id);
             io.to(socket.id).emit('destroy track');
             io.emit('clear track', {track: track2del});
-            console.log('user ' + socket.id + ' disconnected, clearing track ' + track2del);
-            console.log("Seq id:" + seqID)
+            console.log(initials + ' disconnected, clearing track ' + track2del);
         });
         io.to(socket.id).emit('create track', {track: track});
     } else {
-        console.log("Joined: " + socket.id + " (server)");
         seqID = socket.id;
-        console.log("Sequencer, no track allocated: " + seqID)
+        socket.on('disconnect', () => {
+            console.log(initials + ' disconnected (sequencer).');
+        });
     }
 
     socket.on('step value', (msg) => { // Update step values
-        io.emit('step value', msg);
+        io.to(room).emit('step value', msg);
         console.log(msg);
     });
 
@@ -101,18 +101,18 @@ io.on('connection', (socket) => {
           //  console.log(">");
         //else
             //console.log(".");
-        socket.broadcast.emit('step tick', msg);
+        socket.broadcast.to(room).emit('step tick', msg);
     });
 
     socket.on('play', (msg) => {
         //io.emit('play', msg);
-        socket.broadcast.emit('play', msg);
+        socket.broadcast.to(room).emit('play', msg);
         console.log("Playing...");
     });
 
     socket.on('stop', (msg) => {
         //io.emit('stop', msg);
-        socket.broadcast.emit('stop', msg);
+        socket.broadcast.to(room).emit('stop', msg);
         console.log("Stopped.");
     });
 
