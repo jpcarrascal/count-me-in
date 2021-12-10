@@ -4,47 +4,11 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const { AllRooms } = require("./scripts/server-functions.js");
 
-var tracks = ["","","","","","","",""];
-/*
-var tracksObj = [
-    {socketID:"", initials:""},
-    {socketID:"", initials:""},
-    {socketID:"", initials:""},
-    {socketID:"", initials:""},
-    {socketID:"", initials:""},
-    {socketID:"", initials:""},
-    {socketID:"", initials:""},
-    {socketID:"", initials:""},
-];
-*/
+var rooms = new AllRooms();
 var seq = false;
 var seqID = "";
-function allocateAvailableTrack(name) {
-    for(var i=0; i<tracks.length; i++) {
-        if(tracks[i] == "") {
-            tracks[i] = name;
-            return(i);
-        }
-    }
-    return -1;
-}
-
-function releaseTrack(name) {
-    for(var i=0; i<tracks.length; i++) {
-        if(tracks[i] == name)
-            tracks[i] = "";
-    }
-}
-
-function getTrackNumber(name) {
-    for(var i=0; i<tracks.length; i++) {
-        if(tracks[i] == name) {
-            return(i);
-        }
-    }
-    return -1;
-}
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -73,16 +37,17 @@ io.on('connection', (socket) => {
     var room = socket.handshake.query.room;
     var initials = socket.handshake.query.initials;
     socket.join(room);
+    rooms.addRoom(room);
     console.log(initials + " joined room " + room);
     if(!seq) {
-        var track = allocateAvailableTrack(socket.id);
+        var track = rooms.allocateAvailableTrack(room, socket.id);
         socket.broadcast.to(room).emit('track initials', { initials: initials, track:track });
         socket.on('disconnect', () => {
-            var track2del = getTrackNumber(socket.id);
-            releaseTrack(socket.id);
+            var track2delete = rooms.getTrackNumber(room, socket.id);
+            rooms.releaseTrack(room, socket.id);
             io.to(socket.id).emit('destroy track');
-            io.to(room).emit('clear track', {track: track2del});
-            console.log(initials + ' disconnected, clearing track ' + track2del);
+            io.to(room).emit('clear track', {track: track2delete});
+            console.log(initials + ' disconnected, clearing track ' + track2delete);
         });
         io.to(socket.id).emit('create track', {track: track});
     } else {

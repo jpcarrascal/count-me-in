@@ -23,7 +23,9 @@ offColor = "white";
 function createHeader(table) {
   // Header
   var tr = document.createElement("tr");
+  tr.classList.add("track-header-tr");
   var th = document.createElement("th");
+  th.classList.add("name-header");
   tr.appendChild(th);
   th = document.createElement("th");
   th.classList.add("name-header");
@@ -58,12 +60,13 @@ function createTrack(i) {
 
     td = document.createElement("td");
     var text = document.createTextNode("---");
-    td.classList.add("track-name");
+    td.classList.add("track-name-td");
     td.setAttribute("id","track"+i+"-name");
     td.append(text);
     tr.appendChild(td);
     for(var j=0; j<NUM_STEPS; j++) {
       var td = document.createElement("td");
+      td.classList.add("step-td");
       var step = document.createElement("div");
       step.classList.add("step");
       step.classList.add("step"+j);

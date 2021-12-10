@@ -27,11 +27,24 @@ body {
     font-size: 4vw;
 }
 
-#initials, #go {
+#intro-div {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.intro-form, #go {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-size: 4vw;
-    width: 1.5em;
+    width: 1.8em;
+    margin: 0.5vw;
 }
+
+.intro-room-hide {
+    display: none;
+}
+
 #go {
     width: 4em;
     background-color: dodgerblue;
@@ -42,8 +55,8 @@ body {
     display: block;
 }
 
-table {
-    border-collapse: collapse;
+#intro-form-table {
+    
 }
 
 #sequencer {
@@ -54,8 +67,9 @@ table {
     justify-content: center;
 }
 
-#matrix {
+table#matrix {
     width: 100%;
+    border-collapse: collapse;
 }
 
 #channel {
@@ -67,7 +81,7 @@ table {
     justify-content: center;
 }
 
-.name-header, .track-name {
+.name-header, .track-name-td {
     width: 8vw;
     padding-bottom: 0em;
     padding-top: 0em;
@@ -81,18 +95,18 @@ table {
     font-weight: 100;
 }
 
-.track-name {
+.track-name-td {
     color: black;
 }
 
-tr {
+tr.track, tr.track-header-tr {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
 }
 
-th, td {
+.name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
     color: white;
     text-align: center;
     width: 5vw;

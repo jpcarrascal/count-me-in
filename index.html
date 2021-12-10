@@ -8,16 +8,27 @@
   <body>
     <div id="form-container">
       <form id="intro" action="track" method="get">
-          <label for="initials">Enter your initials:</label>
-          <input type="text" name="initials" id="initials" maxlength="2" />
-          <input type="hidden" name="room" id="room" value="0" />
-          <input type="submit" id="go" value="Go!" />
+        <div id="intro-div">
+          <table id="intro-form-table">
+            <tr>
+              <td><label for="initials">Enter your initials:</label></td>
+              <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" /></td>
+            </tr>
+            <tr>
+              <td><label for="room" class="intro-room-hide">Room to join:</label></td>
+              <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" /></td>
+            </tr>
+            </table>
+            <input type="submit" id="go" value="Go!" />
+          </div>
       </form>
     </div>
     <script src="scripts/include.js"></script>
     <script>
       var room = findGetParameter("room");
-      if(!room) room = DEFAULT_ROOM;
+      if(!room) document.querySelectorAll(".intro-room-hide").forEach(elem => {
+        elem.style.display = "block";
+      });
       document.getElementById("room").value = room;
     </script>
   </body>
