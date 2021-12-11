@@ -41,6 +41,14 @@ body {
     margin: 0.5vw;
 }
 
+#restart {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 2vw;
+    margin: 3vw;
+    padding-left: 1vw;
+    padding-right: 1vw;
+}
+
 .intro-room-hide {
     display: none;
 }
@@ -147,23 +155,30 @@ tr.track, tr.track-header-tr {
     filter: invert(1);
 }
 
-.controls, #devices, #devices-label {
+.controls, #device-select, #devices-label {
     margin-left: 1vw;
     font-size: 3vw;
-    height: 3.5vw;
+    height: 1.3em;
 }
 
-#devices-label {
+#device-label {
     margin-left: 3vw;
 }
 
 #tempo {
+    height: 1.3em;
+    border: 0;
+    padding: 0;
     width: 2.3em;
     text-align: right;
 }
 
-#deviceSelect {
+#device-select-control {
     margin-left: 2em;
+}
+
+#device-select {
+    width: 6em;
 }
 
 .cursor {
@@ -175,6 +190,7 @@ tr.track, tr.track-header-tr {
 }
 
 #play, #stop {
-    height: 1.2em;
-    line-height: 1.2em;
+    height: 1.3em;
+    width: 1.3em;
+    padding-top: 0em;
 }

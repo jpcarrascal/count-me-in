@@ -19,18 +19,14 @@
           <button id="play" class="controls">&#9654;</button>
           <button id="stop" class="controls">&#9724;</button>
           <input id="tempo" type="number" class="controls" value=120 />
-          <!---
-          <div id="tempoUpDown">
-            <button class="tempoButton" id="tempoUp">&#9651;</button>
-            <button class="tempoButton" id="tempoDown">&#9661;</button>
-          </div>
-          -->
           <span class="controls">BPM</span>
-          <div class="controls" id="currentStep"></div>
+          <div class="controls" id="device-select-control"></div>
             <label for="devices" id="devices-label">MIDI device:</label>
-            <select name="devices" id="devices">
+            <select name="devices" id="device-select">
             </select>
         </div>
+
+        <button id="restart" class="ui-button">Restart</button>
 
     </div>
     <script src="/socket.io/socket.io.js"></script>
@@ -150,7 +146,7 @@
           }
 
           function success(midi) {
-            var selectList = document.getElementById("devices");
+            var selectList = document.getElementById("device-select");
             selectList.addEventListener("change", function(e) {
               MIDIport = midi.outputs.get(this.value);
               console.log(MIDIport + " selected.");
@@ -181,6 +177,11 @@
           function failure(){ console.log("MIDI not supported :(")};
         } else {
           document.getElementById("instrument").style.display = "block";
+          var restart = document.getElementById("restart");
+          restart.style.display = "block";
+          restart.addEventListener("click", function(e){
+            window.location.href = "/?room="+room;
+          });
         }
         
         // Seq stuff:
@@ -257,7 +258,6 @@
 
         function updateCursor(counter, prev) {
           if(counter >=0) {
-            var currentStepNum = document.getElementById("currentStep");
             var stepPos = document.querySelectorAll(".step"+counter);
             var prevPos = document.querySelectorAll(".step"+prev);
             prevPos.forEach(step => {
