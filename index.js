@@ -8,23 +8,19 @@ const { AllRooms } = require("./scripts/server-functions.js");
 
 var rooms = new AllRooms();
 var seq = false;
-var seqID = "";
 
 app.get('/', (req, res) => {
     // req.query.seq
-    seq = false;
     page = '/index.html';
     res.sendFile(__dirname + page);
 });
 
 app.get('/sequencer', (req, res) => {
-    seq = true;
     page = '/seq.html';
     res.sendFile(__dirname + page);
 });
 
 app.get('/track', (req, res) => {
-    seq = false;
     page = '/seq.html';
     res.sendFile(__dirname + page);
 });
@@ -34,29 +30,41 @@ app.use('/css', express.static(__dirname + '/css/'));
 app.use('/images', express.static(__dirname + '/images/'));
 
 io.on('connection', (socket) => {
+    var seq = false;
+    if(socket.handshake.headers.referer.includes("sequencer"))
+        seq = true;
     var room = socket.handshake.query.room;
     var initials = socket.handshake.query.initials;
     socket.join(room);
     rooms.addRoom(room);
-    console.log(initials + " joined room " + room);
     if(!seq) {
-        var track = rooms.allocateAvailableTrack(room, socket.id);
-        socket.broadcast.to(room).emit('track initials', { initials: initials, track:track });
-        socket.on('disconnect', () => {
-            var track2delete = rooms.getTrackNumber(room, socket.id);
-            rooms.releaseTrack(room, socket.id);
-            io.to(socket.id).emit('destroy track');
-            io.to(room).emit('clear track', {track: track2delete});
-            console.log(initials + ' disconnected, clearing track ' + track2delete);
-        });
-        io.to(socket.id).emit('create track', {track: track});
+        if(rooms.isReady(room)) {
+            console.log(initials + " joined room " + room);
+            var track = rooms.allocateAvailableTrack(room, socket.id);
+            console.log(rooms.rooms[0])
+            socket.broadcast.to(room).emit('track initials', { initials: initials, track:track });
+            socket.on('disconnect', () => {
+                var track2delete = rooms.getTrackNumber(room, socket.id);
+                rooms.releaseTrack(room, socket.id);
+                //io.to(socket.id).emit('exit session');
+                io.to(room).emit('clear track', {track: track2delete});
+                console.log(initials + ' disconnected, clearing track ' + track2delete);
+            });
+            io.to(socket.id).emit('create track', {track: track});
+        } else {
+            io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
+        }
     } else {
-        seqID = socket.id;
+        console.log("Sequencer joined room " + room);
+        rooms.setSeqID(room,socket.id);
+        console.log(rooms.rooms[0])
         socket.on('disconnect', () => {
-            console.log(initials + ' disconnected (sequencer).');
+            console.log(initials + ' disconnected (sequencer). Clearing room...');
+            socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
+            rooms.clearRoom(room);
+            console.log(rooms.rooms[0])
         });
     }
-
     socket.on('step value', (msg) => { // Send step values
         io.to(room).emit('step value', msg);
         console.log(msg);

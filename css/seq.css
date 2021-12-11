@@ -34,6 +34,12 @@ body {
     justify-content: center;
 }
 
+#disconnect-message {
+    color:red;
+    margin: 1em;
+    margin-top: -2em;
+}
+
 .intro-form, #go {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-size: 4vw;
@@ -47,6 +53,7 @@ body {
     margin: 3vw;
     padding-left: 1vw;
     padding-right: 1vw;
+    display: none;
 }
 
 .intro-room-hide {

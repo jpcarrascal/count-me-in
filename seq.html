@@ -47,7 +47,7 @@
           initials = "SQ";
 
         // Node stuff:
-        var socket = io("", {query:{initials:initials, room:room}});
+        var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq}});
         var mySocketID;
         socket.on("connect", () => {
           console.log("Connected, socket.id:" + socket.id);
@@ -99,9 +99,13 @@
           }
         });
 
-        socket.on('destroy track', function(msg) {
+        socket.on('exit session', function(msg) {
           if(!isSeq) {
             removeTrack();
+            var reason = "";
+            if(msg.reason)
+              reason = "&exitreason=" + msg.reason;
+            window.location.href = "/?room="+room+reason;
           }
         });
 

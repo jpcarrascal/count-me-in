@@ -9,10 +9,11 @@
     <div id="form-container">
       <form id="intro" action="track" method="get">
         <div id="intro-div">
+          <span id="disconnect-message"></span>
           <table id="intro-form-table">
             <tr>
               <td><label for="initials">Enter your initials:</label></td>
-              <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" /></td>
+              <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" placeholder="?"/></td>
             </tr>
             <tr>
               <td><label for="room" class="intro-room-hide">Room to join:</label></td>
@@ -30,6 +31,9 @@
         elem.style.display = "block";
       });
       document.getElementById("room").value = room;
+      var reason = findGetParameter("exitreason");
+      if(reason && reason != "")
+        document.getElementById("disconnect-message").innerText = reason;
     </script>
   </body>
 </html>

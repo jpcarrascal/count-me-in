@@ -2,6 +2,7 @@ class Room {
     constructor(roomName)  {
         this.name = roomName;
         this.tracks = ["", "", "", "", "", "", "", ""];
+        this.seqID = "";
     }
     
     allocateAvailableTrack(socketID) {
@@ -29,15 +30,24 @@ class Room {
         }
         return -1;
     }
+
+    releaseAllTracks() {
+        for(var i=0; i<this.tracks.length; i++) {
+            this.tracks[i] == "";
+        }
+    }
 }
 
 class AllRooms {
-    constructor(roomName)  {
+    constructor()  {
         this.rooms = Array();
     }
     addRoom(roomName) {
-        let newRoom = new Room(roomName);
-        this.rooms.push(newRoom);
+        var exists = this.findRoom(roomName);
+        if(exists == -1) {
+            let newRoom = new Room(roomName);
+            this.rooms.push(newRoom);
+        }
     }
 
     findRoom(roomName) {
@@ -46,6 +56,28 @@ class AllRooms {
                 return i;
         }
         return -1;
+    }
+
+    setSeqID(roomName, seqID) {
+        var roomId = this.findRoom(roomName);
+        this.rooms[roomId].seqID = seqID;
+    }
+
+    clearSeqID(roomName) {
+        var roomId = this.findRoom(roomName);
+        this.rooms[roomId].seqID = "";
+    }
+
+    isReady(roomName) {
+        var roomId = this.findRoom(roomName);
+        if(this.rooms[roomId].seqID != "") return true;
+        return false;
+    }
+
+    clearRoom(roomName) {
+        var roomId = this.findRoom(roomName);
+        this.rooms[roomId].seqID = "";
+        this.rooms[roomId].releaseAllTracks();
     }
 
     removeRoom(roomName) {
