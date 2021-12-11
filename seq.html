@@ -288,7 +288,7 @@
           stepPos.forEach(step => {
               var value = step.getAttribute("value");
               var note = parseInt(step.parentNode.parentNode.getAttribute("note"));
-              if(value > 0) {
+              if(value > 0 && MIDIport) {
                 playNote(note,MIDIport);
               }
           });

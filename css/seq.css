@@ -88,6 +88,7 @@ table#matrix {
     margin: 0;
     font-size: 3vw;
     font-weight: 100;
+    padding: 0;
 }
 
 .name-header, .step-header {
@@ -97,6 +98,7 @@ table#matrix {
 
 .track-name-td {
     color: black;
+    padding: 0;
 }
 
 tr.track, tr.track-header-tr {
