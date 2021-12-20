@@ -7,25 +7,29 @@
   </head>
   <body>
     <div id="form-container">
-      <form id="intro" action="track" method="get">
+      
         <div id="intro-div">
           <span id="disconnect-message"></span>
-          <table id="intro-form-table">
-            <tr>
-              <td><label for="initials">Enter your initials:</label></td>
-              <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" placeholder="?"/></td>
-            </tr>
-            <tr>
-              <td><label for="room" class="intro-room-hide">Room to join:</label></td>
-              <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" /></td>
-            </tr>
+          <form id="intro" action="track" method="get"></form>
+            <table id="intro-form-table">
+              <tr>
+                <td><label for="initials">Enter your initials:</label></td>
+                <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" placeholder="?"/></td>
+              </tr>
+              <tr>
+                <td><label for="room" class="intro-room-hide">Room to join:</label></td>
+                <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" /></td>
+              </tr>
             </table>
-            <input type="submit" id="go" class="ui-button" value="Go!" />
-          </div>
-      </form>
+          </form>
+          <button id="go" class="ui-button" value="Go!">Go!</button>
+        </div>
+      
     </div>
     <script src="scripts/include.js"></script>
     <script>
+      var initials = getCookie("initials");
+      document.getElementById("initials").value = initials;
       var room = findGetParameter("room");
       if(!room) document.querySelectorAll(".intro-room-hide").forEach(elem => {
         elem.style.display = "block";
@@ -34,6 +38,15 @@
       var reason = findGetParameter("exitreason");
       if(reason && reason != "")
         document.getElementById("disconnect-message").innerText = reason;
+      
+      var form = document.getElementById("intro");
+      document.getElementById("go").addEventListener("click", function(e){
+        var initials = document.getElementById("initials").value;
+        console.log(initials);
+        if(initials != "?" && initials != "")
+          setCookie("initials",initials);
+        form.submit();
+      });
     </script>
   </body>
 </html>
