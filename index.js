@@ -4,24 +4,24 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-const { AllRooms } = require("./scripts/server-functions.js");
+const { AllRooms } = require("./scripts/rooms.js");
 
 var rooms = new AllRooms();
 var seq = false;
 
 app.get('/', (req, res) => {
     // req.query.seq
-    page = '/index.html';
+    page = '/html/index.html';
     res.sendFile(__dirname + page);
 });
 
 app.get('/sequencer', (req, res) => {
-    page = '/seq.html';
+    page = '/html/sequencer.html';
     res.sendFile(__dirname + page);
 });
 
 app.get('/track', (req, res) => {
-    page = '/seq.html';
+    page = '/html/track.html';
     res.sendFile(__dirname + page);
 });
 

@@ -17,7 +17,7 @@ colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange"
 49. Crash Cymbal
 */
 notes = [36, 38, 39, 41, 43, 45, 42, 46];
-onColor = "#444";
+onColor = "rgb(128,128,128)";
 offColor = "white";
 
 function createHeader(table) {
@@ -65,18 +65,31 @@ function createTrack(i) {
     td.append(text);
     tr.appendChild(td);
     for(var j=0; j<NUM_STEPS; j++) {
+      var stepID = trackID+"-step"+j;
       var td = document.createElement("td");
       td.classList.add("step-td");
       var step = document.createElement("div");
       step.classList.add("step");
       step.classList.add("step"+j);
       step.classList.add(trackID);
-      step.setAttribute("id",trackID+"-step"+j);
+      step.setAttribute("id",stepID);
       step.setAttribute("track",i);
       step.setAttribute("step",j);
       step.setAttribute("value","0");
       step.addEventListener('click', stepClick);
       td.appendChild(step);
+      var fader = document.createElement("input");
+      fader.classList.add("fader");
+      fader.setAttribute("type","range");
+      fader.setAttribute("min","0");
+      fader.setAttribute("max","127");
+      fader.setAttribute("value","0");
+      fader.setAttribute("step",1);
+      fader.setAttribute("stepID",stepID);
+      fader.setAttribute("id",stepID+"fader");
+      fader.addEventListener("mouseup",updateStepVelocity);
+      fader.addEventListener("touchend",updateStepVelocity);
+      td.appendChild(fader);
       tr.appendChild(td);
     }
     return(tr);
@@ -84,21 +97,42 @@ function createTrack(i) {
 
   function stepClick(e) {
     var track = this.getAttribute("track");
+    var fader = document.getElementById(this.getAttribute("id") + "fader");
     var step = this.getAttribute("step");
     var value = this.getAttribute("value");
     var sendValue = -1;
     if(value == 0) {
-        this.setAttribute("value",1);
+        this.setAttribute("value",63);
         this.style.backgroundColor = onColor;
-        sendValue = 1;
+        value = 63;
+        sendValue = 63;
     } else {
         this.setAttribute("value",0);
         this.style.backgroundColor = offColor;
+        value = 0;
         sendValue = 0;
     }
+    fader.value = value;
     console.log({ track: track, step: step, value: sendValue });
     socket.emit('step value', { track: track, step: step, value: sendValue } );
-    }
+  }
+
+  function updateStepVelocity(e) {
+    var stepID = this.getAttribute("stepID");
+    var value = this.value;
+    var stepElem = document.getElementById(stepID);
+    stepElem.setAttribute("value",value);
+    var color = colorToValue(value);
+    stepElem.style.backgroundColor = color;
+    var step = stepElem.getAttribute("step");
+    var track = stepElem.getAttribute("track");
+    socket.emit('step value', { track: track, step: step, value: value } );
+  }
+
+  function colorToValue(value) {
+    var tmp = 255 - value*2;
+    return "rgb("+[tmp,tmp,tmp].join(",")+")";
+  }
 
   function cleartrack(track) {
   }

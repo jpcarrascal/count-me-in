@@ -135,6 +135,21 @@ tr.track, tr.track-header-tr {
     padding-bottom: 0.3vw;
 }
 
+.step-td {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.fader {
+    display: none;
+    margin: 4vw;
+    width: 8vw;
+    transform: rotate(270deg);
+    background-color: white;
+}
+
 .step {
     width: 50%;
     padding-bottom: 50%;

@@ -1,7 +1,7 @@
         // Am I a sequencer?
         var isSeq = location.pathname.includes("sequencer");
         var initials = "";
-        var room = findGetParameter("room")
+        var room = findGetParameter("room");
         if(!room) room = DEFAULT_ROOM;
         if(isSeq)
           console.log("I am a sequencer");
@@ -23,11 +23,12 @@
         socket.on('step value', function(msg) {
           console.log(msg);
           var stepID = "track"+msg.track+"-step"+msg.step;
-          console.log(stepID)
           var step = document.getElementById(stepID);
+          var fader = document.getElementById(stepID+"fader");
           step.setAttribute("value",msg.value);
-          if(msg.value == 0) step.style.backgroundColor = offColor;
-          else step.style.backgroundColor = onColor;
+          var value = step.getAttribute("value");
+          step.style.backgroundColor = colorToValue(value);
+          fader.value = value;
         });
 
         socket.on('clear track', function(msg) {
@@ -41,37 +42,11 @@
           });
         });
 
-        socket.on('create track', function(msg) {
-          if(!isSeq) {
-              var icon = document.getElementById("instrument-icon");
-              icon.setAttribute("src","images/"+msg.track+".png");
-              removeTrack();
-              console.log("Got my track: " + (msg.track+1));
-              var track = msg.track;
-              var tr = createTrack(track);
-              //document.querySelector("body").style.backgroundColor = colors[track];
-              var matrix = document.getElementById("matrix");
-              matrix.appendChild(tr);
-              var track = document.getElementById("track"+msg.track+"-name");
-              track.innerText = initials;
-          }
-        });
-
         socket.on('track initials', function(msg) {
           if(isSeq) {
             console.log("Got initials for track "+msg.track)
             var track = document.getElementById("track"+msg.track+"-name");
             track.innerText = msg.initials;
-          }
-        });
-
-        socket.on('exit session', function(msg) {
-          if(!isSeq) {
-            removeTrack();
-            var reason = "";
-            if(msg.reason)
-              reason = "&exitreason=" + msg.reason;
-            window.location.href = "/?room="+room+reason;
           }
         });
 
