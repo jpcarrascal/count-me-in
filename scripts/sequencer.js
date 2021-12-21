@@ -207,9 +207,7 @@
             var prevPos = document.querySelectorAll(".step"+prev);
             prevPos.forEach(step => {
               step.parentElement.classList.remove("cursor");
-              if(step.getAttribute("value") > 0){
-                step.style.backgroundColor = onColor;
-              }
+              step.style.backgroundColor = colorToValue(step.getAttribute("value"));
             })
             stepPos.forEach(step => {
               var c = parseInt(step.getAttribute("track"))+1;
@@ -236,7 +234,7 @@
               var note = parseInt(step.parentNode.parentNode.getAttribute("note"));
               if(value > 0) {
                 if(MIDIport) playNote(note,MIDIport);
-                else playDrum(i);
+                else playDrum(i, value);
               }
               i++;
           });

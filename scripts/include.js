@@ -113,7 +113,6 @@ function createTrack(i) {
         sendValue = 0;
     }
     fader.value = value;
-    console.log({ track: track, step: step, value: sendValue });
     socket.emit('step value', { track: track, step: step, value: sendValue } );
   }
 
