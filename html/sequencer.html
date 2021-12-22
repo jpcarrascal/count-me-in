@@ -20,10 +20,16 @@
           <button id="stop" class="controls">&#9724;</button>
           <input id="tempo" type="number" class="controls" value=120 />
           <span class="controls">BPM</span>
-          <div class="controls" id="device-select-control"></div>
+          <div class="controls" id="device-select-control">
             <label for="devices" id="devices-label">MIDI device:</label>
             <select name="devices" id="device-select">
+              <option value="0">Internal sounds</option>
             </select>
+          </div>
+
+          <span id="debug1"></span><br />
+          <span id="debug2"></span>
+
         </div>
 
         <button id="restart" class="ui-button">Restart</button>
