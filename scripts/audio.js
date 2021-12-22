@@ -19,7 +19,7 @@ if(isSeq) {
         drums[i] = new Audio('sounds/' + drumSamples[i]);
     }
 
-    function playDrum(i, vel) {
+    function AudioPlayDrum(i, vel) {
         drums[7-i].currentTime = 0
         drums[7-i].volume = vel/127;
         drums[7-i].play();

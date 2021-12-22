@@ -84,7 +84,7 @@
           }
 
           // MIDI Stuff:
-          var MIDIport;
+          var MIDIport = null;
           if (navigator.requestMIDIAccess) {
             console.log('Browser supports MIDI!');
             navigator.requestMIDIAccess().then(success, failure);
@@ -233,9 +233,14 @@
               var value = step.getAttribute("value");
               var note = parseInt(step.parentNode.parentNode.getAttribute("note"));
               if(value > 0) {
-                if(MIDIport) playNote(note,MIDIport);
-                else playDrum(i, value);
+                if(MIDIport) MIDIplayNote(note, value, MIDIport);
+                else AudioPlayDrum(i, value);
               }
               i++;
           });
+        }
+
+        function MIDIplayNote (note, vel, out) {
+          out.send([NOTE_ON, note, vel]);
+          setTimeout(out.send([NOTE_OFF, note, 0x00]), NOTE_DURATION);
         }

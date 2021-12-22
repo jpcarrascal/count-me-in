@@ -10,6 +10,7 @@ body {
     width: 100%;
     background-color: #444;
     color: white;
+    overflow: hidden;
 }
 
 #form-container {
@@ -135,6 +136,10 @@ tr.track, tr.track-header-tr {
     padding-bottom: 0.3vw;
 }
 
+.track-name-td {
+    color: black;
+}
+
 .step-td {
     display: flex;
     flex-direction: column;
@@ -144,8 +149,8 @@ tr.track, tr.track-header-tr {
 
 .fader {
     display: none;
-    margin: 4vw;
-    width: 8vw;
+    margin: 8vw;
+    width: 16vw;
     transform: rotate(270deg);
     background-color: white;
 }
@@ -175,6 +180,7 @@ tr.track, tr.track-header-tr {
 
 #instrument-icon {
     filter: invert(1);
+    width: 4em;
 }
 
 .controls, #device-select, #devices-label {
