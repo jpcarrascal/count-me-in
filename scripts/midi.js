@@ -34,10 +34,13 @@
     selectList.dispatchEvent(changeEvent);
 
     if(numDevices == 0) {
+      console.log("No MIDI devices found...");
+      /*
       var option = document.createElement("option");
       option.value = "";
       option.text = "No MIDI devices found...";
       selectList.appendChild(option);
+      */
     }
   }
   function failure(){ console.log("MIDI not supported :(")};

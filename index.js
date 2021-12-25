@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
             console.log(initials + " joined room " + room);
             var track = rooms.allocateAvailableTrack(room, socket.id);
             console.log(rooms.rooms[0])
-            socket.broadcast.to(room).emit('track initials', { initials: initials, track:track });
+            socket.broadcast.to(room).emit('track joined', { initials: initials, track:track });
             socket.on('disconnect', () => {
                 var track2delete = rooms.getTrackNumber(room, socket.id);
                 rooms.releaseTrack(room, socket.id);

@@ -139,9 +139,6 @@ function createTrack(i) {
     return "rgb("+[tmp,tmp,tmp].join(",")+")";
   }
 
-  function cleartrack(track) {
-  }
-
   function pad(num) {
     num = num.toString();
     while (num.length < 2) num = "0" + num;

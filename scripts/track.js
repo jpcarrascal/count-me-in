@@ -1,5 +1,3 @@
-console.log("track functions")
-
 function removeTrack() {
     console.log("Lost my track :(");
     document.querySelectorAll(".track").forEach(track => {
@@ -11,7 +9,7 @@ socket.on('create track', function(msg) {
     var icon = document.getElementById("instrument-icon");
     icon.setAttribute("src","images/"+msg.track+".png");
     removeTrack();
-    console.log("Got my track: " + (msg.track+1));
+    console.log("Got my track: " + (msg.track));
     var track = msg.track;
     var tr = createTrack(track);
     //document.querySelector("body").style.backgroundColor = colors[track];

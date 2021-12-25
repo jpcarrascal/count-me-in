@@ -42,10 +42,9 @@ class DrumSequencer {
     }
     
     clearTrack(i) {
-        this.tracks[i].name = "";
-        this.tracks[i].initials = "";
+        console.log("Clearing track " + i)
         for(var j=0; j<this.nSteps; j++) {
-            this.tracks[i].track[j].vel = 0;
+            this.tracks[i].notes[j].vel = 0;
         }
     }
 }

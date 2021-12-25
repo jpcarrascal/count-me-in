@@ -5,7 +5,6 @@ var initials = "";
 var room = findGetParameter("room");
 if(!room) room = DEFAULT_ROOM;
 if(isSeq) {
-  console.log("I am a sequencer");
   var drumSequencer = new DrumSequencer(NUM_TRACKS, NUM_STEPS, notes);
 }
 else
@@ -19,7 +18,7 @@ else
 var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq}});
 var mySocketID;
 socket.on("connect", () => {
-  console.log("Connected, socket.id:" + socket.id);
+  //console.log("Connected, socket.id:" + socket.id);
   mySocketID = socket.id;
 });
 
@@ -35,25 +34,30 @@ socket.on('step value', function(msg) {
 });
 
 socket.on('clear track', function(msg) {
-  var trackClass = ".track"+msg.track;
-  var steps = document.querySelectorAll(trackClass);
   var name = document.getElementById("track"+msg.track+"-name");
   name.innerText = "---";
+  clearTrack(msg.track);
+});
+
+socket.on('track joined', function(msg) {
+  if(isSeq) {
+    console.log(msg.initials + " joined on track " + msg.track)
+    var track = document.getElementById("track" + msg.track+"-name");
+    track.innerText = msg.initials;
+    drumSequencer.setTrackInitials(msg.track, msg.initials);
+    clearTrack(msg.track);
+  }
+});
+
+function clearTrack(track) {
+  drumSequencer.clearTrack(track);
+  var trackClass = ".track"+track;
+  var steps = document.querySelectorAll(trackClass);
   steps.forEach(step =>{
     step.setAttribute("value",0);
     step.style.backgroundColor = offColor;
   });
-  drumSequencer.clearTrack(msg.track);
-});
-
-socket.on('track initials', function(msg) {
-  if(isSeq) {
-    console.log("Got initials for track "+msg.track)
-    var track = document.getElementById("track"+msg.track+"-name");
-    track.innerText = msg.initials;
-    drumSequencer.setTrackInitials(msg.track, msg.initials);
-  }
-});
+}
 
 socket.on('play', function(msg) {
     console.log("Remote play!" + msg.socketID)
