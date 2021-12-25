@@ -14,6 +14,10 @@ body {
     user-select: none;
 }
 
+audio {
+    display: none;
+}
+
 #form-container {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     display:flex;
@@ -60,6 +64,13 @@ body {
 
 .intro-room-hide {
     display: none;
+}
+
+#button-cel {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 
 #go {
@@ -132,6 +143,9 @@ tr.track, tr.track-header-tr {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+}
+tr.track {
+    background-color: #888;
 }
 
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {

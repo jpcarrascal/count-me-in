@@ -12,13 +12,13 @@ socket.on('create track', function(msg) {
     console.log("Got my track: " + (msg.track));
     var track = msg.track;
     var tr = createTrack(track);
-    //document.querySelector("body").style.backgroundColor = colors[track];
     document.getElementById("track-header").style.backgroundColor = colors[track];
     var matrix = document.getElementById("matrix");
     matrix.appendChild(tr);
-    var track = document.getElementById("track"+msg.track+"-name");
+    tr.style.backgroundColor = colors[track];
+    var trackName = document.getElementById("track"+msg.track+"-name");
     var bigInitials = document.getElementById("big-initials");
-    track.innerText = initials;
+    trackName.innerText = initials;
     bigInitials.innerText = initials;
     document.querySelectorAll(".fader").forEach(element => {
         element.style.display = "block";

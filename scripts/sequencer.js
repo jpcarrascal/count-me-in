@@ -37,16 +37,20 @@ socket.on('step value', function(msg) {
 });
 
 socket.on('clear track', function(msg) {
-  var name = document.getElementById("track"+msg.track+"-name");
-  name.innerText = "---";
+  var trackName = document.getElementById("track"+msg.track+"-name");
+  var track = document.getElementById("track"+msg.track);
+  track.style.backgroundColor = EMPTY_COLOR;
+  trackName.innerText = "---";
   clearTrack(msg.track);
 });
 
 socket.on('track joined', function(msg) {
   if(isSeq) {
     console.log(msg.initials + " joined on track " + msg.track)
-    var track = document.getElementById("track" + msg.track+"-name");
-    track.innerText = msg.initials;
+    var trackName = document.getElementById("track" + msg.track+"-name");
+    var track = document.getElementById("track" + msg.track);
+    trackName.innerText = msg.initials;
+    track.style.backgroundColor = colors[msg.track];
     drumSequencer.setTrackInitials(msg.track, msg.initials);
     clearTrack(msg.track);
   }

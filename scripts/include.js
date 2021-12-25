@@ -4,6 +4,7 @@ const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
 const DEFAULT_ROOM = 999;
+const EMPTY_COLOR = "#888"
 colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold"];
 /*
 36. Kick Drum
@@ -48,7 +49,6 @@ function createTrack(i) {
     tr.setAttribute("id",trackID);
     tr.setAttribute("note",notes[i]);
     tr.classList.add("track");
-    tr.style.backgroundColor = colors[i];
 
     var td = document.createElement("td");
     var img = document.createElement("img");
