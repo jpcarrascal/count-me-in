@@ -13,10 +13,13 @@ socket.on('create track', function(msg) {
     var track = msg.track;
     var tr = createTrack(track);
     //document.querySelector("body").style.backgroundColor = colors[track];
+    document.getElementById("track-header").style.backgroundColor = colors[track];
     var matrix = document.getElementById("matrix");
     matrix.appendChild(tr);
     var track = document.getElementById("track"+msg.track+"-name");
+    var bigInitials = document.getElementById("big-initials");
     track.innerText = initials;
+    bigInitials.innerText = initials;
     document.querySelectorAll(".fader").forEach(element => {
         element.style.display = "block";
     });
@@ -29,4 +32,5 @@ socket.on('exit session', function(msg) {
     if(msg.reason)
     reason = "&exitreason=" + msg.reason;
     window.location.href = "/?room="+room+reason;
-  });
+});
+

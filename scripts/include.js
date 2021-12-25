@@ -56,11 +56,13 @@ function createTrack(i) {
     img.classList.add("track-icon");
     td.appendChild(img);
     td.classList.add("track-icon-td");
+    td.classList.add("track-meta");
     tr.appendChild(td);
 
     td = document.createElement("td");
     var text = document.createTextNode("---");
     td.classList.add("track-name-td");
+    td.classList.add("track-meta");
     td.setAttribute("id","track"+i+"-name");
     td.append(text);
     tr.appendChild(td);

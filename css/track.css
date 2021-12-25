@@ -1,0 +1,7 @@
+.track-meta, .name-header {
+    display: none;
+}
+
+#track-header {
+    color: black;
+}
