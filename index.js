@@ -36,8 +36,8 @@ io.on('connection', (socket) => {
         seq = true;
     var room = socket.handshake.query.room;
     var initials = socket.handshake.query.initials;
+    var allocationMethod = socket.handshake.query.method || "sequential";
     socket.join(room);
-    rooms.addRoom(room);
     if(!seq) {
         if(rooms.isReady(room)) {
             console.log(initials + " joined room " + room);
@@ -56,6 +56,7 @@ io.on('connection', (socket) => {
             io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
         }
     } else {
+        rooms.addRoom(room, allocationMethod);
         console.log("Sequencer joined room " + room);
         rooms.setSeqID(room,socket.id);
         console.log(rooms.rooms[0])

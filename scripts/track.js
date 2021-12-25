@@ -30,4 +30,3 @@ socket.on('exit session', function(msg) {
     reason = "&exitreason=" + msg.reason;
     window.location.href = "/?room="+room+reason;
   });
-

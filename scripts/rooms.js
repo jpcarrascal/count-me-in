@@ -1,18 +1,37 @@
 class Room {
-    constructor(roomName)  {
+    constructor(roomName, allocationMethod)  {
         this.name = roomName;
         this.tracks = ["", "", "", "", "", "", "", ""];
         this.seqID = "";
+        this.allocationMethod = allocationMethod;
     }
     
     allocateAvailableTrack(socketID) {
-        for(var i=0; i<this.tracks.length; i++) {
-            if(this.tracks[i] == "") {
-                this.tracks[i] = socketID;
-                return(i);
+        if(this.allocationMethod == "random") {
+            var available = this.getAvailableTracks();
+            var index = Math.floor(Math.random()*available.length);
+            this.tracks[index] = socketID;
+            console.log("Random: " + index);
+            return available[index];
+        } else {
+            for(var i=0; i<this.tracks.length; i++) {
+                if(this.tracks[i] == "") {
+                    this.tracks[i] = socketID;
+                    return(i);
+                }
             }
         }
         return -1;
+    }
+
+    getAvailableTracks() {
+        var available = new Array();
+        for(var i=0; i<this.tracks.length; i++) {
+            if(this.tracks[i] == "") {
+                available.push(i);
+            }
+        }
+        return available;
     }
     
     releaseTrack(socketID) {
@@ -42,11 +61,13 @@ class AllRooms {
     constructor()  {
         this.rooms = Array();
     }
-    addRoom(roomName) {
+    addRoom(roomName, allocationMethod) {
         var exists = this.findRoom(roomName);
         if(exists == -1) {
-            let newRoom = new Room(roomName);
+            let newRoom = new Room(roomName, allocationMethod);
             this.rooms.push(newRoom);
+        } else {
+            this.rooms[exists].allocationMethod = allocationMethod || "sequential";
         }
     }
 

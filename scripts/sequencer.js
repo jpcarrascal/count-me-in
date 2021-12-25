@@ -3,9 +3,11 @@
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
 var room = findGetParameter("room");
+var method;
 if(!room) room = DEFAULT_ROOM;
 if(isSeq) {
   var drumSequencer = new DrumSequencer(NUM_TRACKS, NUM_STEPS, notes);
+  method = findGetParameter("method") || "sequential";
 }
 else
   console.log("not a sequencer...");
@@ -14,8 +16,9 @@ if (!isSeq)
 else
   initials = "SQ";
 
+
 // Node stuff:
-var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq}});
+var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, method:method}});
 var mySocketID;
 socket.on("connect", () => {
   //console.log("Connected, socket.id:" + socket.id);
