@@ -107,11 +107,13 @@ function createTrack(i) {
     if(value == 0) {
         this.setAttribute("value",63);
         this.style.backgroundColor = onColor;
+        this.style.borderRadius = "50%";
         value = 63;
         sendValue = 63;
     } else {
         this.setAttribute("value",0);
         this.style.backgroundColor = offColor;
+        this.style.borderRadius = "8%";
         value = 0;
         sendValue = 0;
     }
@@ -129,16 +131,22 @@ function createTrack(i) {
     var value = parseInt(this.value);
     var stepElem = document.getElementById(stepID);
     stepElem.setAttribute("value",value);
-    var color = colorToValue(value);
+    var color = valueToColor(value);
     stepElem.style.backgroundColor = color;
     var step = stepElem.getAttribute("step");
     var track = stepElem.getAttribute("track");
     socket.emit('step value', { track: track, step: step, value: value } );
   }
 
-  function colorToValue(value) {
+  function valueToColor(value) {
     var tmp = 255 - value*2;
     return "rgb("+[tmp,tmp,tmp].join(",")+")";
+  }
+
+  function valueToBRadius(value) {
+    if(value > 0)
+      return "50%";
+    else return "8%";
   }
 
   function pad(num) {

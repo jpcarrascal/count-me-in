@@ -31,7 +31,8 @@ socket.on('step value', function(msg) {
   var fader = document.getElementById(stepID+"fader");
   step.setAttribute("value",msg.value);
   var value = step.getAttribute("value");
-  step.style.backgroundColor = colorToValue(value);
+  step.style.backgroundColor = valueToColor(value);
+  step.style.borderRadius = valueToBRadius(value);
   fader.value = value;
   if(isSeq) drumSequencer.tracks[msg.track].notes[msg.step].vel = value;
 });
@@ -180,7 +181,7 @@ function updateCursor(counter, prev) {
     var prevPos = document.querySelectorAll(".step"+prev);
     prevPos.forEach(step => {
       step.parentElement.classList.remove("cursor");
-      step.style.backgroundColor = colorToValue(step.getAttribute("value"));
+      step.style.backgroundColor = valueToColor(step.getAttribute("value"));
     })
     stepPos.forEach(step => {
       var c = parseInt(step.getAttribute("track"))+1;
