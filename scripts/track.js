@@ -1,5 +1,12 @@
 console.log("track functions")
 
+function removeTrack() {
+    console.log("Lost my track :(");
+    document.querySelectorAll(".track").forEach(track => {
+        track.remove();
+    });
+}
+
 socket.on('create track', function(msg) {
     var icon = document.getElementById("instrument-icon");
     icon.setAttribute("src","images/"+msg.track+".png");
@@ -25,3 +32,4 @@ socket.on('exit session', function(msg) {
     reason = "&exitreason=" + msg.reason;
     window.location.href = "/?room="+room+reason;
   });
+

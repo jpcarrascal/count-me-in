@@ -1,10 +1,13 @@
+
 // Am I a sequencer?
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
 var room = findGetParameter("room");
 if(!room) room = DEFAULT_ROOM;
-if(isSeq)
+if(isSeq) {
   console.log("I am a sequencer");
+  var drumSequencer = new DrumSequencer(NUM_TRACKS, NUM_STEPS, notes);
+}
 else
   console.log("not a sequencer...");
 if (!isSeq)
@@ -21,7 +24,6 @@ socket.on("connect", () => {
 });
 
 socket.on('step value', function(msg) {
-  console.log(msg);
   var stepID = "track"+msg.track+"-step"+msg.step;
   var step = document.getElementById(stepID);
   var fader = document.getElementById(stepID+"fader");
@@ -29,6 +31,7 @@ socket.on('step value', function(msg) {
   var value = step.getAttribute("value");
   step.style.backgroundColor = colorToValue(value);
   fader.value = value;
+  if(isSeq) drumSequencer.tracks[msg.track].notes[msg.step].vel = value;
 });
 
 socket.on('clear track', function(msg) {
@@ -40,6 +43,7 @@ socket.on('clear track', function(msg) {
     step.setAttribute("value",0);
     step.style.backgroundColor = offColor;
   });
+  drumSequencer.clearTrack(msg.track);
 });
 
 socket.on('track initials', function(msg) {
@@ -47,12 +51,13 @@ socket.on('track initials', function(msg) {
     console.log("Got initials for track "+msg.track)
     var track = document.getElementById("track"+msg.track+"-name");
     track.innerText = msg.initials;
+    drumSequencer.setTrackInitials(msg.track, msg.initials);
   }
 });
 
 socket.on('play', function(msg) {
     console.log("Remote play!" + msg.socketID)
-    if(isSeq) playSequence();
+    //if(isSeq) playSequence();
 });
 
 socket.on('stop', function(msg) {
@@ -64,12 +69,7 @@ socket.on('step tick', function(msg) {
     updateCursor(msg.counter, msg.prev);
 });
 
-function removeTrack() {
-    console.log("Lost my track :(");
-    document.querySelectorAll(".track").forEach(track => {
-        track.remove();
-    });
-}
+
 
 // UI stuff:
 var matrix = document.getElementById("matrix");
@@ -82,50 +82,6 @@ if(isSeq) { // Stuff only for the full sequencer:
     var tr = createTrack(i);
     matrix.appendChild(tr);
   }
-
-  // MIDI Stuff:
-  var MIDIport = null;
-  if (navigator.requestMIDIAccess) {
-    console.log('Browser supports MIDI!');
-    navigator.requestMIDIAccess().then(success, failure);
-  }
-
-  function success(midi) {
-    var selectList = document.getElementById("device-select");
-    selectList.addEventListener("change", function(e) {
-      if(this.value != 0) {
-        MIDIport = midi.outputs.get(this.value);
-        console.log(MIDIport.name + " selected.");
-        setCookie("MIDIdevice",this.value,1000);
-      } else {
-        MIDIport = null;
-        console.log("Internal sounds selected.");
-        setCookie("MIDIdevice",0,1000);
-      }
-    });
-    var selectedDevice = getCookie("MIDIdevice");
-    var outputs = midi.outputs.values();
-    var numDevices = 0;
-    // outputs is an Iterator
-    for (var output = outputs.next(); output && !output.done; output = outputs.next()) {
-        var option = document.createElement("option");
-        option.value = output.value.id;
-        option.text = output.value.name;
-        if(selectedDevice == output.value.id) option.selected = true;
-        selectList.appendChild(option);
-        numDevices++;
-    }
-    let changeEvent = new Event('change');
-    selectList.dispatchEvent(changeEvent);
-
-    if(numDevices == 0) {
-      var option = document.createElement("option");
-      option.value = "";
-      option.text = "No MIDI devices found...";
-      selectList.appendChild(option);
-    }
-  }
-  function failure(){ console.log("MIDI not supported :(")};
 } else {
   document.getElementById("instrument").style.display = "block";
   var restart = document.getElementById("restart");
@@ -232,21 +188,5 @@ function updateCursor(counter, prev) {
   }
 }
 
-function playStepNotes(counter) {
-  var stepPos = document.querySelectorAll(".step"+counter);
-  var i = 0;
-  stepPos.forEach(step => {
-      var value = step.getAttribute("value");
-      var note = parseInt(step.parentNode.parentNode.getAttribute("note"));
-      if(value > 0) {
-        if(MIDIport) MIDIplayNote(note, value, MIDIport);
-        else AudioPlayDrum(i, value);
-      }
-      i++;
-  });
-}
 
-function MIDIplayNote (note, vel, out) {
-  out.send([NOTE_ON, note, vel]);
-  setTimeout(out.send([NOTE_OFF, note, 0x00]), NOTE_DURATION);
-}
+

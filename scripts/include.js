@@ -76,7 +76,8 @@ function createTrack(i) {
       step.setAttribute("track",i);
       step.setAttribute("step",j);
       step.setAttribute("value","0");
-      step.addEventListener('click', stepClick);
+      step.addEventListener('mousedown', stepClick);
+      step.addEventListener('mouseover', stepMouseOver);
       td.appendChild(step);
       var fader = document.createElement("input");
       fader.classList.add("fader");
@@ -116,9 +117,14 @@ function createTrack(i) {
     socket.emit('step value', { track: track, step: step, value: sendValue } );
   }
 
+  function stepMouseOver(e) {
+    if(e.buttons == 1 || e.buttons == 3)
+      this.dispatchEvent(new Event('mousedown'));
+  }
+
   function updateStepVelocity(e) {
     var stepID = this.getAttribute("stepID");
-    var value = this.value;
+    var value = parseInt(this.value);
     var stepElem = document.getElementById(stepID);
     stepElem.setAttribute("value",value);
     var color = colorToValue(value);
