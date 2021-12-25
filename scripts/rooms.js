@@ -11,7 +11,6 @@ class Room {
             var available = this.getAvailableTracks();
             var index = Math.floor(Math.random()*available.length);
             this.tracks[index] = socketID;
-            console.log("Random: " + index);
             return available[index];
         } else {
             for(var i=0; i<this.tracks.length; i++) {

@@ -42,7 +42,6 @@ io.on('connection', (socket) => {
         if(rooms.isReady(room)) {
             console.log(initials + " joined room " + room);
             var track = rooms.allocateAvailableTrack(room, socket.id);
-            console.log(rooms.rooms[0])
             socket.broadcast.to(room).emit('track joined', { initials: initials, track:track });
             socket.on('disconnect', () => {
                 var track2delete = rooms.getTrackNumber(room, socket.id);
@@ -59,12 +58,10 @@ io.on('connection', (socket) => {
         rooms.addRoom(room, allocationMethod);
         console.log("Sequencer joined room " + room);
         rooms.setSeqID(room,socket.id);
-        console.log(rooms.rooms[0])
         socket.on('disconnect', () => {
             console.log(initials + ' disconnected (sequencer). Clearing room...');
             socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
             rooms.clearRoom(room);
-            console.log(rooms.rooms[0])
         });
     }
     socket.on('step value', (msg) => { // Send step values
