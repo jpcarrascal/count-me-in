@@ -180,13 +180,28 @@ tr.track {
 }
 
 .step {
+    /*
     width: 50%;
     padding-bottom: 50%;
+    */
     background-color: white;
     border-radius: 8%;
-    border: .2em solid white;
+    border: .3vw solid white;
     margin-top: .5em;
     margin-bottom: .5em;
+}
+
+.sw {
+    text-align: center;
+    font-size: 1.8vw;
+    width: 1.5vw;
+    height: 1.5vw;
+    margin: .6vw;
+    border-radius: 50%;
+}
+
+.sw-transparent {
+    background-color: transparent;
 }
 
 .track-icon {

@@ -25,25 +25,28 @@ socket.on("connect", () => {
   mySocketID = socket.id;
 });
 
-socket.on('step value', function(msg) {
-  var stepID = "track"+msg.track+"-step"+msg.step;
-  var step = document.getElementById(stepID);
-  var fader = document.getElementById(stepID+"fader");
-  step.setAttribute("value",msg.value);
-  var value = step.getAttribute("value");
-  step.style.backgroundColor = valueToColor(value);
-  step.style.borderRadius = valueToBRadius(value);
-  fader.value = value;
-  if(isSeq) drumSequencer.tracks[msg.track].notes[msg.step].vel = value;
-});
+if(isSeq) {
+  socket.on('step value', function(msg) {
+    var stepID = "track"+msg.track+"-step"+msg.step;
+    var step = document.getElementById(stepID);
+    var fader = document.getElementById(stepID+"fader");
+    step.setAttribute("value",msg.value);
+    var value = step.getAttribute("value");
+    step.style.backgroundColor = valueToBGColor(value);
+    var swColor = step.firstChild.getAttribute("color");
+    step.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
+    fader.value = value;
+    if(isSeq) drumSequencer.tracks[msg.track].notes[msg.step].vel = value;
+  });
 
-socket.on('clear track', function(msg) {
-  var trackName = document.getElementById("track"+msg.track+"-name");
-  var track = document.getElementById("track"+msg.track);
-  track.style.backgroundColor = EMPTY_COLOR;
-  trackName.innerText = "---";
-  clearTrack(msg.track);
-});
+  socket.on('clear track', function(msg) {
+    var trackName = document.getElementById("track"+msg.track+"-name");
+    var track = document.getElementById("track"+msg.track);
+    track.style.backgroundColor = EMPTY_COLOR;
+    trackName.innerText = "---";
+    clearTrack(msg.track);
+  });
+}
 
 socket.on('track joined', function(msg) {
   if(isSeq) {
@@ -64,6 +67,7 @@ function clearTrack(track) {
   steps.forEach(step =>{
     step.setAttribute("value",0);
     step.style.backgroundColor = offColor;
+    step.firstChild.style.backgroundColor = "transparent";
   });
 }
 
@@ -181,8 +185,8 @@ function updateCursor(counter, prev) {
     var prevPos = document.querySelectorAll(".step"+prev);
     prevPos.forEach(step => {
       step.parentElement.classList.remove("cursor");
-      step.style.backgroundColor = valueToColor(step.getAttribute("value"));
-    })
+      step.style.backgroundColor = valueToBGColor(step.getAttribute("value"));
+    });
     stepPos.forEach(step => {
       var c = parseInt(step.getAttribute("track"))+1;
       if(c>7) c = 0;

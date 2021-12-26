@@ -80,6 +80,12 @@ function createTrack(i) {
       step.setAttribute("value","0");
       step.addEventListener('mousedown', stepClick);
       step.addEventListener('mouseover', stepMouseOver);
+
+      var sw = document.createElement("div");
+      sw.setAttribute("color",colors[i]);
+      sw.classList.add("sw");
+      step.appendChild(sw);
+
       td.appendChild(step);
       var fader = document.createElement("input");
       fader.classList.add("fader");
@@ -103,22 +109,17 @@ function createTrack(i) {
     var fader = document.getElementById(this.getAttribute("id") + "fader");
     var step = this.getAttribute("step");
     var value = this.getAttribute("value");
-    var sendValue = -1;
     if(value == 0) {
-        this.setAttribute("value",63);
-        this.style.backgroundColor = onColor;
-        this.style.borderRadius = "50%";
         value = 63;
-        sendValue = 63;
     } else {
-        this.setAttribute("value",0);
-        this.style.backgroundColor = offColor;
-        this.style.borderRadius = "8%";
         value = 0;
-        sendValue = 0;
     }
+    this.setAttribute("value",value);
     fader.value = value;
-    socket.emit('step value', { track: track, step: step, value: sendValue } );
+    this.style.backgroundColor = valueToBGColor(value);
+    var swColor = this.firstChild.getAttribute("color");
+    this.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
+    socket.emit('step value', { track: track, step: step, value: value } );
   }
 
   function stepMouseOver(e) {
@@ -131,22 +132,24 @@ function createTrack(i) {
     var value = parseInt(this.value);
     var stepElem = document.getElementById(stepID);
     stepElem.setAttribute("value",value);
-    var color = valueToColor(value);
-    stepElem.style.backgroundColor = color;
+    stepElem.style.backgroundColor = valueToBGColor(value);
+    var swColor = stepElem.firstChild.getAttribute("color");
+    stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
     var step = stepElem.getAttribute("step");
     var track = stepElem.getAttribute("track");
     socket.emit('step value', { track: track, step: step, value: value } );
   }
 
-  function valueToColor(value) {
+  function valueToBGColor(value) {
     var tmp = 255 - value*2;
     return "rgb("+[tmp,tmp,tmp].join(",")+")";
   }
 
-  function valueToBRadius(value) {
-    if(value > 0)
-      return "50%";
-    else return "8%";
+  function valueToSWColor(value, c) {
+    if(value == 0)
+      return "transparent";
+    else
+      return c;
   }
 
   function pad(num) {
