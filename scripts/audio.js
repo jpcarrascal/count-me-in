@@ -67,9 +67,6 @@ function playBass(f) {
 function scheduler() {
     while(nextNotetime < audioContext.currentTime + 0.01) {
         nextNotetime += (interval/1000);
-        //console.log(counter + "-> " + (nextNotetime - audioContext.currentTime))
-        //console.log(audioContext.currentTime)
-        //nextNote.innerHTML = nextNotetime;
         playStepNotes(counter);
         socket.emit('step tick', { counter: counter, prev: prev } );
         playBass();
@@ -105,8 +102,8 @@ stopBtn.addEventListener('click', function() {
   document.querySelector("#play").classList.remove("playing");
   bassOsc.disconnect();
   clearTimeout(timerID);
-  playing = false;
   updateCursor(-1, -1);
+  playing = false;
 });
 
 if(audioContext.state === 'suspended'){

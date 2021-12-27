@@ -48,3 +48,9 @@ class DrumSequencer {
         }
     }
 }
+
+if(typeof module !== 'undefined') {
+module.exports = {
+    DrumSequencer : DrumSequencer
+  }
+}

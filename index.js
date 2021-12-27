@@ -4,10 +4,10 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-const { AllRooms } = require("./scripts/rooms.js");
+const { AllRooms } = require("./scripts/roomsObj.js");
+
 
 var rooms = new AllRooms();
-var seq = false;
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -42,11 +42,10 @@ io.on('connection', (socket) => {
         if(rooms.isReady(room)) {
             console.log(initials + " joined room " + room);
             var track = rooms.allocateAvailableTrack(room, socket.id);
-            socket.broadcast.to(room).emit('track joined', { initials: initials, track:track });
+            socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
             socket.on('disconnect', () => {
                 var track2delete = rooms.getTrackNumber(room, socket.id);
                 rooms.releaseTrack(room, socket.id);
-                //io.to(socket.id).emit('exit session');
                 io.to(room).emit('clear track', {track: track2delete});
                 console.log(initials + ' disconnected, clearing track ' + track2delete);
             });
@@ -67,6 +66,11 @@ io.on('connection', (socket) => {
     socket.on('step value', (msg) => { // Send step values
         io.to(room).emit('step value', msg);
         console.log(msg);
+    });
+
+    socket.on('track notes', (msg) => { // Send all notes from track
+        console.log(msg);
+        io.to(msg.socketid).emit('update track', msg);
     });
 
     socket.on('step tick', (msg) => { // Visual sync

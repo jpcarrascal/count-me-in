@@ -34,6 +34,22 @@ socket.on('create track', function(msg) {
 
 });
 
+socket.on('update track', function(msg) {
+    var notes = msg.notes;
+    var trackID = "track"+msg.track;
+    for(var i=0; i<notes.length; i++) {
+        if(notes[i].vel > 0) {
+            var value = notes[i].vel;
+            var step = document.getElementById(trackID+"-step"+i);
+            var fader = document.getElementById(trackID+"-step"+i+"fader");
+            step.style.backgroundColor = valueToBGColor(value);
+            var swColor = step.firstChild.getAttribute("color");
+            step.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
+            fader.value = value;
+        }
+    }
+});
+
 socket.on('exit session', function(msg) {
     removeTrack();
     var reason = "";

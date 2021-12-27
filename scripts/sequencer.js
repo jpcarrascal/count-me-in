@@ -27,7 +27,8 @@ socket.on('play', function(msg) {
 });
 
 socket.on('stop', function(msg) {
-  console.log("Remote stop!" + msg.socketID)
+  console.log("Remote stop!" + msg.socketID);
+  updateCursor(-1, -1);
 });
 
 socket.on('step tick', function(msg) {
@@ -60,17 +61,18 @@ if(isSeq) {
     var track = document.getElementById("track"+msg.track);
     track.style.backgroundColor = EMPTY_COLOR;
     trackName.innerText = "---";
-    clearTrack(msg.track);
+    //clearTrack(msg.track);
   });
 
   socket.on('track joined', function(msg) {
-    console.log(msg.initials + " joined on track " + msg.track)
+    console.log(msg.initials + " joined on track " + msg.track);
+    socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:drumSequencer.tracks[msg.track].notes } );
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
     trackName.innerText = msg.initials;
     track.style.backgroundColor = colors[msg.track];
     drumSequencer.setTrackInitials(msg.track, msg.initials);
-    clearTrack(msg.track);
+    //clearTrack(msg.track);
   });
 
   document.addEventListener("keydown", event => {
@@ -84,12 +86,27 @@ if(isSeq) {
     }
   });
 
-  document.getElementById("control-panel").style.display = "flex";
   // tracks:
   for(var i=NUM_TRACKS-1; i>=0; i--) {
     var tr = createTrack(i);
     matrix.appendChild(tr);
   }
+
+  // Seq stuff:
+  var tempo = document.getElementById("tempo").value;
+  var playing = false;
+  var interval = 60000/(4*tempo);
+  var timer;
+  var counter = 0;
+  var prev = 15;
+
+  document.getElementById("tempo").addEventListener("change",function(e){
+    this.setAttribute('value', this.value);
+    tempo = this.value;
+    interval = 60000/(4*tempo);
+  });
+
+
 
 }
 
@@ -104,19 +121,6 @@ function clearTrack(track) {
   });
 }
 
-// Seq stuff:
-var tempo = document.getElementById("tempo").value;
-var playing = false;
-var interval = 60000/(4*tempo);
-var timer;
-var counter = 0;
-var prev = 15;
-
-document.getElementById("tempo").addEventListener("change",function(e){
-  this.setAttribute('value', this.value);
-  tempo = this.value;
-  interval = 60000/(4*tempo);
-});
 
 function updateCursor(counter, prev) {
   if(counter >=0) {
@@ -125,22 +129,24 @@ function updateCursor(counter, prev) {
     prevPos.forEach(step => {
       step.parentElement.classList.remove("cursor");
       step.style.backgroundColor = valueToBGColor(step.getAttribute("value"));
-      //step.style.borderColor = "white";
+      step.style.borderRadius = "10%";
     });
     stepPos.forEach(step => {
-      var c = parseInt(step.getAttribute("track"))+1;
+      var c = parseInt(step.getAttribute("track"));
       if(c>7) c = 0;
       var hlColor = colors[c]
       step.parentElement.classList.add("cursor");
       if(step.getAttribute("value") > 0){
         step.style.backgroundColor = hlColor;
-        //step.style.borderColor = hlColor;
+        step.style.borderRadius = "50%";
       }
     });
   } else {
     var all = document.querySelectorAll(".step");
     all.forEach(step => {
       step.parentElement.classList.remove("cursor");
+      step.style.backgroundColor = valueToBGColor(step.getAttribute("value"));
+      step.style.borderRadius = "10%";
     })
   }
 }

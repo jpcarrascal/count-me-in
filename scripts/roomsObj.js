@@ -125,7 +125,10 @@ class AllRooms {
     }
 }
 
-module.exports = {
-    Room : Room,
-    AllRooms : AllRooms
-  }
+
+if(typeof module !== 'undefined') {
+    module.exports = {
+        Room : Room,
+        AllRooms : AllRooms
+    }
+}

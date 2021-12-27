@@ -4,8 +4,8 @@ const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
 const DEFAULT_ROOM = 999;
-const EMPTY_COLOR = "#888"
-colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold"];
+const EMPTY_COLOR = "#AAA"
+const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold"];
 /*
 36. Kick Drum
 38. Snare Drum
@@ -17,9 +17,9 @@ colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange"
 46. Hi-Hat Open
 49. Crash Cymbal
 */
-notes = [36, 38, 39, 41, 43, 45, 42, 46];
-onColor = "rgb(128,128,128)";
-offColor = "white";
+const notes = [36, 38, 39, 41, 43, 45, 42, 46];
+const onColor = "rgb(128,128,128)";
+const offColor = "white";
 
 function createHeader(table) {
   // Header
@@ -98,6 +98,7 @@ function createTrack(i) {
       fader.setAttribute("id",stepID+"fader");
       fader.addEventListener("mouseup",updateStepVelocity);
       fader.addEventListener("touchend",updateStepVelocity);
+      fader.addEventListener("input",updateFaderMove);
       td.appendChild(fader);
       tr.appendChild(td);
     }
@@ -131,13 +132,19 @@ function createTrack(i) {
     var stepID = this.getAttribute("stepID");
     var value = parseInt(this.value);
     var stepElem = document.getElementById(stepID);
-    stepElem.setAttribute("value",value);
-    stepElem.style.backgroundColor = valueToBGColor(value);
     var swColor = stepElem.firstChild.getAttribute("color");
+    stepElem.setAttribute("value",value);
     stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
     var step = stepElem.getAttribute("step");
     var track = stepElem.getAttribute("track");
     socket.emit('step value', { track: track, step: step, value: value } );
+  }
+
+  function updateFaderMove(e) {
+    var stepID = this.getAttribute("stepID");
+    var value = parseInt(this.value);
+    var stepElem = document.getElementById(stepID);
+    stepElem.style.backgroundColor = valueToBGColor(value);
   }
 
   function valueToBGColor(value) {
