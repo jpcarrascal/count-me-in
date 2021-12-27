@@ -14,7 +14,7 @@
             <table id="intro-form-table">
               <tr>
                 <td><label for="initials">Enter your initials:</label></td>
-                <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" placeholder="?"/></td>
+                <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" placeholder="?" style="text-transform:uppercase"/></td>
               </tr>
               <tr>
                 <td><label for="room" class="intro-room-hide">Room to join:</label></td>
@@ -33,23 +33,30 @@
     <script src="scripts/include.js"></script>
     <script>
       var initials = getCookie("initials");
-      document.getElementById("initials").value = initials;
+      var initialsElem = document.getElementById("initials");
+      initialsElem.value = initials;
+      initialsElem.addEventListener("keyup", function (e) {
+        this.value = this.value.toUpperCase();
+      });
+
       var room = findGetParameter("room");
       if(!room) document.querySelectorAll(".intro-room-hide").forEach(elem => {
         elem.style.display = "block";
       });
+
       document.getElementById("room").value = room;
+
       var reason = findGetParameter("exitreason");
       if(reason && reason != "")
         document.getElementById("disconnect-message").innerText = reason;
       
       var form = document.getElementById("intro");
       document.getElementById("go").addEventListener("click", function(e){
-        var initials = document.getElementById("initials").value;
+        var initialsValue = initialsElem.value;
         console.log(document.querySelector("#room").value)
-        console.log(initials);
-        if(initials != "?" && initials != "")
-          setCookie("initials",initials);
+        console.log(initialsValue);
+        if(initialsValue != "?" && initialsValue != "")
+          setCookie("initials",initialsValue);
         form.submit();
       });
     </script>

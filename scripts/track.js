@@ -1,3 +1,11 @@
+document.getElementById("instrument").style.display = "block";
+var restart = document.getElementById("restart");
+restart.style.display = "block";
+restart.addEventListener("click", function(e){
+  window.location.href = "/?room="+room;
+});
+
+
 function removeTrack() {
     console.log("Lost my track :(");
     document.querySelectorAll(".track").forEach(track => {

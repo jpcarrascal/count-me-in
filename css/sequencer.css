@@ -144,8 +144,9 @@ tr.track, tr.track-header-tr {
     align-items: center;
     justify-content: center;
 }
+
 tr.track {
-    background-color: #888;
+    background-color: #AAA;
 }
 
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
@@ -197,7 +198,7 @@ tr.track {
     width: 1.5vw;
     height: 1.5vw;
     margin: .6vw;
-    border-radius: 50%;
+    border-radius: 8%;
 }
 
 .sw-transparent {
