@@ -1,3 +1,17 @@
+var loopsInRoom = 10;
+var timeToPlay = 30;
+var counter = document.getElementById("counter");
+
+socket.on('step tick', function(msg) {
+    if(msg.counter == 15) {
+        loopsInRoom--;
+        if(loopsInRoom < 0)
+            window.location.href = "/?room="+room+"&exitreason=CountMeIn again?";
+        else
+            counter.innerText = loopsInRoom;
+    }
+  });
+
 document.getElementById("instrument").style.display = "block";
 var restart = document.getElementById("restart");
 restart.style.display = "block";

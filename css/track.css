@@ -17,3 +17,7 @@
     margin: .6vw;
     border-radius: 10%;
 }
+
+#counter {
+    font-size: 2.5vw;
+}

@@ -5,7 +5,7 @@ var room = findGetParameter("room") || DEFAULT_ROOM;
 var method;
 if(isSeq) {
   var drumSequencer = new DrumSequencer(NUM_TRACKS, NUM_STEPS, notes);
-  method = findGetParameter("method") || "sequential";
+  method = findGetParameter("method") || "random";
   initials = "SQ";
 } else {
   console.log("not a sequencer...");
