@@ -5,3 +5,15 @@
 #track-header {
     color: black;
 }
+
+.name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
+    width: 5.8vw;
+}
+
+.sw {
+    text-align: center;
+    width: 3vw;
+    height: 3vw;
+    margin: .6vw;
+    border-radius: 10%;
+}
