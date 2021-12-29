@@ -25,6 +25,12 @@ app.get('/track', (req, res) => {
     res.sendFile(__dirname + page);
 });
 
+app.get('/favicon.ico', (req, res) => {
+    // req.query.seq
+    page = '/images/favicon.ico';
+    res.sendFile(__dirname + page);
+});
+
 app.use('/scripts', express.static(__dirname + '/scripts/'));
 app.use('/css', express.static(__dirname + '/css/'));
 app.use('/images', express.static(__dirname + '/images/'));
@@ -36,7 +42,7 @@ io.on('connection', (socket) => {
         seq = true;
     var room = socket.handshake.query.room;
     var initials = socket.handshake.query.initials;
-    var allocationMethod = socket.handshake.query.method || "sequential";
+    var allocationMethod = socket.handshake.query.method || "random";
     socket.join(room);
     if(!seq) {
         if(rooms.isReady(room)) {
@@ -69,7 +75,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('track notes', (msg) => { // Send all notes from track
-        console.log(msg);
         io.to(msg.socketid).emit('update track', msg);
     });
 

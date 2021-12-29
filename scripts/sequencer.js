@@ -1,10 +1,8 @@
-
 // Am I a sequencer?
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
-var room = findGetParameter("room");
+var room = findGetParameter("room") || DEFAULT_ROOM;
 var method;
-if(!room) room = DEFAULT_ROOM;
 if(isSeq) {
   var drumSequencer = new DrumSequencer(NUM_TRACKS, NUM_STEPS, notes);
   method = findGetParameter("method") || "sequential";
@@ -105,9 +103,6 @@ if(isSeq) {
     tempo = this.value;
     interval = 60000/(4*tempo);
   });
-
-
-
 }
 
 function clearTrack(track) {

@@ -39,9 +39,6 @@ function playStepNotes(counter) {
 }
 
 function AudioPlayDrum(i, vel) {
-    //var drum = document.getElementById(drumSamples[i]);
-    //drum.currentTime = 0;
-    //drum.play();
     drums[i].currentTime = 0
     drums[i].volume = vel/127;
     drums[i].play();
