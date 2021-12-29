@@ -114,6 +114,7 @@ function createTrack(i) {
   }
 
   function stepClick(e) {
+    if(!counting) counting = true;
     var value = this.getAttribute("value");
     if(value == 0) {
         value = 63;

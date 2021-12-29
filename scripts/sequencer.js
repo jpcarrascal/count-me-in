@@ -11,6 +11,7 @@ if(isSeq) {
   console.log("not a sequencer...");
   initials = findGetParameter("initials") || "?";
 }
+var counting = false;
 
 // Node stuff:
 var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, method:method}});
