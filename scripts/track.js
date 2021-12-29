@@ -6,7 +6,7 @@ socket.on('step tick', function(msg) {
     if(msg.counter == 15 && counting) {
         loopsInRoom--;
         if(loopsInRoom < 0)
-            window.location.href = "/?room="+999+"&exitreason=CountMeIn again?";
+            window.location.href = "/?room="+room+"&exitreason=CountMeIn again?";
         else
             counter.innerText = loopsInRoom;
     }
