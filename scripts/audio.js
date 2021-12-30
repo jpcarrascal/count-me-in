@@ -2,14 +2,14 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 var audioContext = new AudioContext();
  
-var drumSamples = ["BD.WAV",
-            "SD.WAV",
-            "CP.WAV",
-            "HC.WAV",
-            "LC.WAV",
-            "LT.WAV",
-            "CH.WAV",
-            "OH.WAV"];
+var drumSamples = ["/sounds/BD.WAV",
+            "/sounds/SD.WAV",
+            "/sounds/CP.WAV",
+            "/sounds/HC.WAV",
+            "/sounds/LC.WAV",
+            "/sounds/LT.WAV",
+            "/sounds/CH.WAV",
+            "/sounds/OH.WAV"];
 /*
             "CY.WAV",
             "HT.WAV",
@@ -18,18 +18,13 @@ var drumSamples = ["BD.WAV",
 */
 var drums = new Array();
 const mainMix = audioContext.createGain();
-for(var i=0; i<drumSamples.length; i++) {
-    var a = document.getElementById(drumSamples[i]);
-    drums[i] = a;
-    track = audioContext.createMediaElementSource(a);
-    const gainNode = audioContext.createGain();
-    track.connect(gainNode);
-    gainNode.gain.value = 0.5;
-    gainNode.connect(mainMix);
-}
+
+
+bufferLoader = new BufferLoader(audioContext, drumSamples);
+
+bufferLoader.load();
 
 mainMix.connect(audioContext.destination);
-
 
 function playStepNotes(counter) {
   var notesToPlay = drumSequencer.getStepNotes(counter);
@@ -44,9 +39,14 @@ function playStepNotes(counter) {
 }
 
 function AudioPlayDrum(i, vel) {
-    drums[i].currentTime = 0
-    drums[i].volume = vel/127;
-    drums[i].play();
+    drums[i] = audioContext.createBufferSource();
+    drums[i].buffer = bufferLoader.bufferList[i];
+    var gainNode = audioContext.createGain();
+    drums[i].connect(gainNode);
+    gainNode.gain.value = vel/127;
+    gainNode.connect(mainMix);
+    drums[i].start(0);
+    console.log(drums[i]);
 }
 
 var nextNote = document.getElementById("debug");
