@@ -6,7 +6,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const { AllRooms } = require("./scripts/roomsObj.js");
 const NUM_TRACKS = 8;
-const MAX_NUM_ROUNDS = 20;
+const MAX_NUM_ROUNDS = 3;
 const NUM_STEPS = 16;
 
 var rooms = new AllRooms(NUM_TRACKS, MAX_NUM_ROUNDS);
@@ -46,22 +46,7 @@ io.on('connection', (socket) => {
     var initials = socket.handshake.query.initials;
     var allocationMethod = socket.handshake.query.method || "random";
     socket.join(room);
-    if(!seq) {
-        if(rooms.isReady(room)) {
-            var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-            console.log(initials + " joined room " + room + " on track " + track);
-            socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
-            socket.on('disconnect', () => {
-                var track2delete = rooms.getParticipantNumber(room, socket.id);
-                rooms.releaseParticipant(room, socket.id);
-                io.to(room).emit('clear track', {track: track2delete});
-                console.log(initials + ' disconnected, clearing track ' + track2delete);
-            });
-            io.to(socket.id).emit('create track', {track: track, maxNumRounds: MAX_NUM_ROUNDS});
-        } else {
-            io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
-        }
-    } else {
+    if(seq) {
         rooms.addRoom(room, allocationMethod);
         console.log("Sequencer joined room " + room);
         rooms.setSeqID(room,socket.id);
@@ -70,11 +55,25 @@ io.on('connection', (socket) => {
             socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
             rooms.clearRoom(room);
         });
+    } else {
+        if(rooms.isReady(room)) {
+            var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
+            console.log(initials + " joined room " + room + " on track " + track);
+            socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
+            socket.on('disconnect', () => {
+                var track2delete = rooms.getParticipantNumber(room, socket.id);
+                rooms.releaseParticipant(room, socket.id);
+                io.to(room).emit('clear track', {track: track2delete, initials: initials});
+                console.log(initials + "(" + socket.id + ") disconnected, clearing track " + track2delete);
+            });
+            io.to(socket.id).emit('create track', {track: track, maxNumRounds: MAX_NUM_ROUNDS});
+        } else {
+            io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
+        }
     }
     socket.on('step value', (msg) => { // Send step values
         io.to(room).emit('step value', msg);
         rooms.participantStartCounting(room, socket.id);
-        console.log(msg)
     });
 
     socket.on('track notes', (msg) => { // Send all notes from track
@@ -111,3 +110,13 @@ var port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log('listening on *:' + port);
 });
+
+
+function exitHandler(options, exitCode) {
+    console.log("Bye!!!")
+    if (options.cleanup) console.log('clean');
+    if (exitCode || exitCode === 0) console.log(exitCode);
+    if (options.exit) process.exit();
+}
+
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));

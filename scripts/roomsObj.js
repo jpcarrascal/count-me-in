@@ -10,9 +10,13 @@ class Room {
     allocateAvailableParticipant(socketID, initials) {
         if(this.allocationMethod == "random") {
             var available = this.getAvailableParticipants();
-            var index = Math.floor(Math.random()*available.length);
+            var randomIndex = Math.floor(Math.random()*available.length);
+            var index = available[randomIndex];
             this.participants[index] = new Participant(socketID, initials);
-            return available[index];
+            console.log(available)
+            console.log("Random index: " + randomIndex)
+            console.log("Real index: " + index)
+            return index;
         } else {
             for(var i=0; i<this.participants.length; i++) {
                 if(this.participants[i] == "") {

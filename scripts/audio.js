@@ -100,7 +100,6 @@ startBtn.addEventListener('click', function() {
 });
 
 stopBtn.addEventListener('click', function() {
-  console.log("------")
   socket.emit('stop', { socketID: mySocketID });
   document.querySelector("#play").classList.remove("playing");
   bassOsc.disconnect();

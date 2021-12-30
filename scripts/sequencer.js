@@ -17,16 +17,16 @@ var counting = false;
 var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, method:method}});
 var mySocketID;
 socket.on("connect", () => {
-  //console.log("Connected, socket.id:" + socket.id);
+  console.log("Connected, my socketid:" + socket.id);
   mySocketID = socket.id;
 });
 
 socket.on('play', function(msg) {
-  console.log("Remote play!" + msg.socketID)
+  //console.log("Remote play!" + msg.socketID);
 });
 
 socket.on('stop', function(msg) {
-  console.log("Remote stop!" + msg.socketID);
+  //console.log("Remote stop!" + msg.socketID);
   updateCursor(-1, -1);
 });
 
@@ -58,14 +58,13 @@ if(isSeq) {
   socket.on('clear track', function(msg) {
     var trackName = document.getElementById("track"+msg.track+"-name");
     var track = document.getElementById("track"+msg.track);
-    console.log(msg)
     track.style.backgroundColor = EMPTY_COLOR;
     trackName.innerText = "---";
     //clearTrack(msg.track);
   });
 
   socket.on('track joined', function(msg) {
-    console.log(msg.initials + " joined on track " + msg.track);
+    //console.log(msg.initials + " joined on track " + msg.track);
     socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:drumSequencer.tracks[msg.track].notes } );
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
