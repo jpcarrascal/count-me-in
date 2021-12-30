@@ -46,7 +46,6 @@ function AudioPlayDrum(i, vel) {
     gainNode.gain.value = vel/127;
     gainNode.connect(mainMix);
     drums[i].start(0);
-    console.log(drums[i]);
 }
 
 var nextNote = document.getElementById("debug");
@@ -99,7 +98,6 @@ startBtn.addEventListener('click', function() {
 });
 
 stopBtn.addEventListener('click', function() {
-  console.log("------")
   socket.emit('stop', { socketID: mySocketID });
   document.querySelector("#play").classList.remove("playing");
   bassOsc.disconnect();
