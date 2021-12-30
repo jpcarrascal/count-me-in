@@ -176,6 +176,7 @@ tr.track {
 
 @media screen and (orientation:portrait) {
     .fader {
+        margin: 16vw;
         width: 32vw;
     }
 }
