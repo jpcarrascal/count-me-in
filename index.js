@@ -5,9 +5,11 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const { AllRooms } = require("./scripts/roomsObj.js");
+const NUM_TRACKS = 8;
+const MAX_NUM_ROUNDS = 20;
+const NUM_STEPS = 16;
 
-
-var rooms = new AllRooms();
+var rooms = new AllRooms(NUM_TRACKS, MAX_NUM_ROUNDS);
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -46,16 +48,16 @@ io.on('connection', (socket) => {
     socket.join(room);
     if(!seq) {
         if(rooms.isReady(room)) {
-            console.log(initials + " joined room " + room);
-            var track = rooms.allocateAvailableTrack(room, socket.id);
+            var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
+            console.log(initials + " joined room " + room + " on track " + track);
             socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
             socket.on('disconnect', () => {
-                var track2delete = rooms.getTrackNumber(room, socket.id);
-                rooms.releaseTrack(room, socket.id);
+                var track2delete = rooms.getParticipantNumber(room, socket.id);
+                rooms.releaseParticipant(room, socket.id);
                 io.to(room).emit('clear track', {track: track2delete});
                 console.log(initials + ' disconnected, clearing track ' + track2delete);
             });
-            io.to(socket.id).emit('create track', {track: track});
+            io.to(socket.id).emit('create track', {track: track, maxNumRounds: MAX_NUM_ROUNDS});
         } else {
             io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
         }
@@ -71,7 +73,8 @@ io.on('connection', (socket) => {
     }
     socket.on('step value', (msg) => { // Send step values
         io.to(room).emit('step value', msg);
-        console.log(msg);
+        rooms.participantStartCounting(room, socket.id);
+        console.log(msg)
     });
 
     socket.on('track notes', (msg) => { // Send all notes from track
@@ -80,6 +83,16 @@ io.on('connection', (socket) => {
 
     socket.on('step tick', (msg) => { // Visual sync
         socket.broadcast.to(room).emit('step tick', msg);
+        var expired = new Array();
+        if(msg.counter == NUM_STEPS-1) {
+            expired = rooms.incrementAllCounters(room);
+        }
+        if(expired.length > 0) {
+            for(var i=0; i<expired.length; i++) {
+                console.log(expired[i].initials + "'s session expired!")
+                io.to(expired[i].socketID).emit('exit session', {reason: "CountMeIn again?"});
+            }
+        }
     });
 
     socket.on('play', (msg) => {

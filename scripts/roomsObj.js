@@ -1,21 +1,22 @@
 class Room {
-    constructor(roomName, allocationMethod)  {
+    constructor(roomName, allocationMethod, numTracks, maxNumRounds)  {
         this.name = roomName;
-        this.tracks = ["", "", "", "", "", "", "", ""];
+        this.participants = Array(numTracks).join(".").split(".");
         this.seqID = "";
+        this.maxNumRounds = maxNumRounds;
         this.allocationMethod = allocationMethod;
     }
     
-    allocateAvailableTrack(socketID) {
+    allocateAvailableParticipant(socketID, initials) {
         if(this.allocationMethod == "random") {
-            var available = this.getAvailableTracks();
+            var available = this.getAvailableParticipants();
             var index = Math.floor(Math.random()*available.length);
-            this.tracks[index] = socketID;
+            this.participants[index] = new Participant(socketID, initials);
             return available[index];
         } else {
-            for(var i=0; i<this.tracks.length; i++) {
-                if(this.tracks[i] == "") {
-                    this.tracks[i] = socketID;
+            for(var i=0; i<this.participants.length; i++) {
+                if(this.participants[i] == "") {
+                    this.participants[i] = new Participant(socketID, initials);
                     return(i);
                 }
             }
@@ -23,47 +24,95 @@ class Room {
         return -1;
     }
 
-    getAvailableTracks() {
+    getAvailableParticipants() {
         var available = new Array();
-        for(var i=0; i<this.tracks.length; i++) {
-            if(this.tracks[i] == "") {
+        for(var i=0; i<this.participants.length; i++) {
+            if(this.participants[i] == "") {
                 available.push(i);
             }
         }
         return available;
     }
     
-    releaseTrack(socketID) {
-        for(var i=0; i<this.tracks.length; i++) {
-            if(this.tracks[i] == socketID)
-                this.tracks[i] = "";
+    releaseParticipant(socketID) {
+        for(var i=0; i<this.participants.length; i++) {
+            if(this.participants[i].socketID == socketID)
+                this.participants[i] = "";
         }
     }
     
-    getTrackNumber(socketID) {
-        for(var i=0; i<this.tracks.length; i++) {
-            if(this.tracks[i] == socketID) {
+    getParticipantNumber(socketID) {
+        for(var i=0; i<this.participants.length; i++) {
+            if(this.participants[i].socketID == socketID) {
                 return(i);
             }
         }
         return -1;
     }
 
-    releaseAllTracks() {
-        for(var i=0; i<this.tracks.length; i++) {
-            this.tracks[i] == "";
+    releaseAllParticipants() {
+        for(var i=0; i<this.participants.length; i++) {
+            this.participants[i] == "";
         }
+    }
+
+    incrementAllCounters() {
+        var expired = new Array();
+        for(var i=0; i<this.participants.length; i++) {
+            if(this.participants[i] != "") {
+                this.participants[i].incrementRounds();
+                if(this.participants[i].rounds > this.maxNumRounds)
+                    expired.push(this.participants[i]);
+            }
+        }
+        return expired;
+    }
+
+    participantIncrementRounds(socketID) {
+        var i = this.getParticipantNumber(socketID);
+        this.participants[i].incrementParticipantRound();
+    }
+
+    participantStartCounting(socketID) {
+        var i = this.getParticipantNumber(socketID);
+        if(i>=0)
+            this.participants[i].startCountingRounds();
+    }
+}
+
+class Participant {
+    constructor(socketID, initials)  {
+        this.socketID = socketID;
+        this.initials = initials;
+        this.rounds = 0;
+        this.countingRounds = false;
+    }
+
+    startCountingRounds() {
+        this.countingRounds = true;
+        console.log(this.initials + "'s session scheduled to expire...")
+    }
+
+    incrementRounds() {
+        if(this.countingRounds)
+            this.rounds++;
+    }
+
+    getRounds() {
+        return this.rounds;
     }
 }
 
 class AllRooms {
-    constructor()  {
+    constructor(numTracks, maxNumRounds)  {
         this.rooms = Array();
+        this.numTracks = numTracks;
+        this.maxNumRounds = maxNumRounds;
     }
     addRoom(roomName, allocationMethod) {
         var exists = this.findRoom(roomName);
         if(exists == -1) {
-            let newRoom = new Room(roomName, allocationMethod);
+            let newRoom = new Room(roomName, allocationMethod, this.numTracks, this.maxNumRounds);
             this.rooms.push(newRoom);
         } else {
             this.rooms[exists].allocationMethod = allocationMethod || "sequential";
@@ -90,6 +139,7 @@ class AllRooms {
 
     isReady(roomName) {
         var roomId = this.findRoom(roomName);
+        if(roomId < 0) return false;
         if(this.rooms[roomId].seqID != "") return true;
         return false;
     }
@@ -97,7 +147,7 @@ class AllRooms {
     clearRoom(roomName) {
         var roomId = this.findRoom(roomName);
         this.rooms[roomId].seqID = "";
-        this.rooms[roomId].releaseAllTracks();
+        this.rooms[roomId].releaseAllParticipants();
     }
 
     removeRoom(roomName) {
@@ -106,29 +156,48 @@ class AllRooms {
         else throw 'Room not found!';
     }
 
-    allocateAvailableTrack(roomName, socketID) {
+    allocateAvailableParticipant(roomName, socketID, initials) {
         var roomId = this.findRoom(roomName);
-        if(roomId >=0) return(this.rooms[roomId].allocateAvailableTrack(socketID));
+        if(roomId >=0) return(this.rooms[roomId].allocateAvailableParticipant(socketID, initials));
         else throw 'Room not found!';
     }
 
-    releaseTrack(roomName, socketID) {
+    releaseParticipant(roomName, socketID) {
         var roomId = this.findRoom(roomName);
-        if(roomId >=0) return(this.rooms[roomId].releaseTrack(socketID));
+        if(roomId >=0) return(this.rooms[roomId].releaseParticipant(socketID));
         else throw 'Room not found!';
     }
 
-    getTrackNumber(roomName, socketID) {
+    getParticipantNumber(roomName, socketID) {
         var roomId = this.findRoom(roomName);
-        if(roomId >=0) return(this.rooms[roomId].getTrackNumber(socketID));
+        if(roomId >=0) return(this.rooms[roomId].getParticipantNumber(socketID));
         else throw 'Room not found!';
+    }
+
+    participantStartCounting(roomName, socketID) {
+        var roomId = this.findRoom(roomName);
+        this.rooms[roomId].participantStartCounting(socketID);
+    }
+
+    participantIncrementRounds(roomName, socketID) {
+        var roomId = this.findRoom(roomName);
+        this.rooms[roomId].incrementParticipantRound(socketID);
+    }
+
+    getAllParticipants(roomName) {
+        var roomId = this.findRoom(roomName);
+        return this.rooms[roomId].participants;
+    }
+
+    incrementAllCounters(roomName) {
+        var roomId = this.findRoom(roomName);
+        return this.rooms[roomId].incrementAllCounters();
     }
 }
 
 
 if(typeof module !== 'undefined') {
     module.exports = {
-        Room : Room,
         AllRooms : AllRooms
     }
 }

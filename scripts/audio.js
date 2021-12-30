@@ -17,14 +17,19 @@ var drumSamples = ["BD.WAV",
             "MT.WAV",
 */
 var drums = new Array();
+const mainMix = audioContext.createGain();
 for(var i=0; i<drumSamples.length; i++) {
     var a = document.getElementById(drumSamples[i]);
     drums[i] = a;
     track = audioContext.createMediaElementSource(a);
     const gainNode = audioContext.createGain();
     track.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    gainNode.gain.value = 0.5;
+    gainNode.connect(mainMix);
 }
+
+mainMix.connect(audioContext.destination);
+
 
 function playStepNotes(counter) {
   var notesToPlay = drumSequencer.getStepNotes(counter);

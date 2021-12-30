@@ -1,5 +1,6 @@
 const NUM_TRACKS = 8;
 const NUM_STEPS = 16;
+const MAX_NUM_ROUNDS = 20;
 const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
@@ -99,7 +100,6 @@ function createTrack(i) {
       fader.setAttribute("min","0");
       fader.setAttribute("max","127");
       fader.setAttribute("value","0");
-      fader.setAttribute("step",j);
       fader.setAttribute("track",trackID);
       fader.setAttribute("stepID",stepID);
       fader.setAttribute("id",stepID+"fader");
@@ -114,7 +114,6 @@ function createTrack(i) {
   }
 
   function stepClick(e) {
-    if(!counting) counting = true;
     var value = this.getAttribute("value");
     if(value == 0) {
         value = 63;
@@ -135,6 +134,7 @@ function createTrack(i) {
   function updateStep(elem, value) {
     var oldValue = elem.getAttribute("value");
     if(value != oldValue) {
+      if(!counting) counting = true;
       var track = elem.getAttribute("track");
       var fader = document.getElementById(elem.getAttribute("id") + "fader");
       var step = elem.getAttribute("step");
@@ -143,11 +143,12 @@ function createTrack(i) {
       elem.style.backgroundColor = valueToBGColor(value);
       var swColor = elem.firstChild.getAttribute("color");
       elem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
-      socket.emit('step value', { track: track, step: step, value: value } );
+      socket.emit('step value', { track: track, step: step, value: value, socketID: mySocketID } );
     }
   }
 
   function updateStepVelocity(e) {
+    if(!counting) counting = true;
     var stepID = this.getAttribute("stepID");
     var value = parseInt(this.value);
     var stepElem = document.getElementById(stepID);
@@ -156,7 +157,7 @@ function createTrack(i) {
     stepElem.setAttribute("value",value);
     var step = stepElem.getAttribute("step");
     var track = stepElem.getAttribute("track");
-    socket.emit('step value', { track: track, step: step, value: value } );
+    socket.emit('step value', { track: track, step: step, value: value, socketID: mySocketID } );
   }
 
   // From: https://stackoverflow.com/questions/62892560/change-the-value-of-input-range-when-hover-or-mousemove

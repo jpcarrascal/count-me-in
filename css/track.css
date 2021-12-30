@@ -18,6 +18,14 @@
     border-radius: 10%;
 }
 
-#counter {
-    font-size: 2.5vw;
+#remaining-rounds {
+    font-size: 3vw;
+}
+
+#restart {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 3vw;
+    margin: 3vw;
+    padding-left: 1vw;
+    padding-right: 1vw;
 }

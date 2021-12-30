@@ -1,20 +1,16 @@
-var loopsInRoom = 10;
-var timeToPlay = 30;
 var counter = document.getElementById("counter");
-
+var rounds = 0;
 socket.on('step tick', function(msg) {
     if(msg.counter == 15 && counting) {
-        loopsInRoom--;
-        if(loopsInRoom < 0)
-            window.location.href = "/?room="+room+"&exitreason=CountMeIn again?";
+        rounds--;
+        if(rounds >= 0)
+            counter.innerText = rounds;
         else
-            counter.innerText = loopsInRoom;
+            counter.innerText = ":o";
     }
-  });
+});
 
-document.getElementById("instrument").style.display = "block";
 var restart = document.getElementById("restart");
-restart.style.display = "block";
 restart.addEventListener("click", function(e){
   window.location.href = "/?room="+room;
 });
@@ -28,11 +24,14 @@ function removeTrack() {
 }
 
 socket.on('create track', function(msg) {
-    var icon = document.getElementById("instrument-icon");
+    var icon = document.getElementById("big-instrument-icon");
     icon.setAttribute("src","images/"+msg.track+".png");
     removeTrack();
     console.log("Got my track: " + (msg.track));
     var track = msg.track;
+    counter.innerText = msg.maxNumRounds;
+    counter.style.color = colors[track];
+    rounds = msg.maxNumRounds;
     var tr = createTrack(track);
     document.getElementById("track-header").style.backgroundColor = colors[track];
     var matrix = document.getElementById("matrix");
@@ -67,10 +66,10 @@ socket.on('update track', function(msg) {
 });
 
 socket.on('exit session', function(msg) {
-    removeTrack();
+    //removeTrack();
     var reason = "";
     if(msg.reason)
-    reason = "&exitreason=" + msg.reason;
+        reason = "&exitreason=" + msg.reason;
     window.location.href = "/?room="+room+reason;
 });
 

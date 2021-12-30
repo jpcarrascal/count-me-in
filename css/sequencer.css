@@ -58,14 +58,7 @@ audio {
     margin: 0.5vw;
 }
 
-#restart {
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-size: 2vw;
-    margin: 3vw;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    display: none;
-}
+
 
 .intro-room-hide {
     display: none;
@@ -181,6 +174,13 @@ tr.track {
     background-color: white;
 }
 
+@media screen and (orientation:portrait) {
+    .fader {
+        width: 32vw;
+    }
+}
+/*@media screen and (orientation:landscape) { }*/
+
 .step {
     background-color: white;
     border-radius: 10%;
@@ -215,13 +215,13 @@ tr.track {
     margin: 1vw;
 }
 
-#instrument-icon {
+#big-instrument-icon {
     /*filter: invert(1);*/
-    width: 4vw;
+    width: 7vw;
 }
 
 #big-initials {
-    font-size: 3.5vw;
+    font-size: 6vw;
     margin-left: 1vw;
 }
 
