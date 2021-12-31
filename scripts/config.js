@@ -3,7 +3,7 @@
 
 (function(window){
     var config = {
-        NUM_TRACKS      : 8,
+        NUM_TRACKS      : 9,
         NUM_STEPS       : 16,
         MAX_NUM_ROUNDS  : 20,
     };
