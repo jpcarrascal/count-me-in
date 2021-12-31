@@ -1,36 +1,21 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 var audioContext = new AudioContext();
- 
-var drumSamples = ["BD.WAV",
-            "SD.WAV",
-            "CP.WAV",
-            "HC.WAV",
-            "LC.WAV",
-            "LT.WAV",
-            "CH.WAV",
-            "OH.WAV"];
-/*
-            "CY.WAV",
-            "HT.WAV",
-            "CB.WAV",
-            "MT.WAV",
-*/
+
 var drums = new Array();
 const mainMix = audioContext.createGain();
 
-for(var i=0; i<drumSamples.length; i++) {
-    var a = document.getElementById(drumSamples[i]);
-    drums[i] = a;
-    track = audioContext.createMediaElementSource(a);
-    const gainNode = audioContext.createGain();
-    track.connect(gainNode);
-    gainNode.gain.value = 0.5;
-    gainNode.connect(mainMix);
-}
+document.querySelectorAll(".drumSamples").forEach(elem => {
+  var trackid = elem.getAttribute("track");
+  drums[trackid] = elem;
+  var track = audioContext.createMediaElementSource(elem);
+  const gainNode = audioContext.createGain();
+  track.connect(gainNode);
+  gainNode.gain.value = 0.5;
+  gainNode.connect(mainMix);
+});
 
 mainMix.connect(audioContext.destination);
-
 
 function playStepNotes(counter) {
   var notesToPlay = drumSequencer.getStepNotes(counter);

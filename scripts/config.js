@@ -1,6 +1,6 @@
+// From: https://gist.github.com/drmikecrowe/4bf0938ea73bf704790f
 'use strict';
 
-/* jshint ignore:start */
 (function(window){
     var config = {
         NUM_TRACKS      : 8,
@@ -13,4 +13,3 @@
         window.config = config;
     }
 })( this );
-/* jshint ignore:end */
