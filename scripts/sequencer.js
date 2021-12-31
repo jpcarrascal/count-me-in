@@ -87,7 +87,7 @@ if(isSeq) {
 
   // tracks:
   for(var i=NUM_TRACKS-1; i>=0; i--) {
-    var tr = createTrack(i);
+    var tr = createDrumTrack(i);
     matrix.appendChild(tr);
   }
 

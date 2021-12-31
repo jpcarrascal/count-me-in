@@ -45,9 +45,16 @@ function playStepNotes(counter) {
 }
 
 function AudioPlayDrum(i, vel) {
-    drums[i].currentTime = 0
-    drums[i].volume = vel/127;
-    drums[i].play();
+    /* bass experiment: */
+    if(i==8) {
+      bassOsc.frequency.value = noteFrequencies[vel];
+      if(vel == 0) bassGain.gain.value = 0;
+      else bassGain.gain.value = 0.01;
+    } else {
+      drums[i].currentTime = 0
+      drums[i].volume = vel/127;
+      drums[i].play();
+    }
 }
 
 var nextNote = document.getElementById("debug");
@@ -60,7 +67,11 @@ var stopBtn = document.getElementById("stop");
 var timerID;
 var playTime = 0;
 var bassOsc = audioContext.createOscillator();
+bassOsc.type = 'square';
 bassOsc.frequency.value = 0;
+var bassGain = audioContext.createGain();
+bassOsc.connect(bassGain);
+bassGain.gain.value = 0;
 bassOsc.start(audioContext.currentTime);
 
 function playBass(f) {
@@ -93,7 +104,7 @@ startBtn.addEventListener('click', function() {
   counter = 0;
   prev = 15;
   socket.emit('play', { socketID: mySocketID });
-  bassOsc.connect(audioContext.destination);
+  bassGain.connect(audioContext.destination);
   this.classList.add("playing");
   playing = true;
   scheduler();
@@ -102,7 +113,7 @@ startBtn.addEventListener('click', function() {
 stopBtn.addEventListener('click', function() {
   socket.emit('stop', { socketID: mySocketID });
   document.querySelector("#play").classList.remove("playing");
-  bassOsc.disconnect();
+  bassGain.disconnect();
   clearTimeout(timerID);
   updateCursor(-1, -1);
   playing = false;

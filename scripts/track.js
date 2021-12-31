@@ -32,7 +32,7 @@ socket.on('create track', function(msg) {
     counter.innerText = msg.maxNumRounds;
     counter.style.color = colors[track];
     rounds = msg.maxNumRounds;
-    var tr = createTrack(track);
+    var tr = createDrumTrack(track);
     document.getElementById("track-header").style.backgroundColor = colors[track];
     var matrix = document.getElementById("matrix");
     matrix.appendChild(tr);

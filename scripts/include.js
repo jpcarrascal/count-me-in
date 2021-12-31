@@ -1,12 +1,13 @@
-const NUM_TRACKS = 8;
-const NUM_STEPS = 16;
-const MAX_NUM_ROUNDS = 20;
+const NUM_TRACKS = config.NUM_TRACKS;
+const NUM_STEPS = config.NUM_STEPS;
+const MAX_NUM_ROUNDS = config.MAX_NUM_ROUNDS;
+
 const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
 const DEFAULT_ROOM = 999;
 const EMPTY_COLOR = "#AAA"
-const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold"];
+const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black"];
 /*
 36. Kick Drum
 38. Snare Drum
@@ -45,190 +46,185 @@ function createHeader(table) {
   table.appendChild(tr);
 }
 
-function createTrack(i) {
-    var tr = document.createElement("tr");
-    var trackID = "track"+i;
-    tr.setAttribute("id",trackID);
-    tr.setAttribute("note",notes[i]);
-    tr.classList.add("track");
+function createDrumTrack(i) {
+  var tr = document.createElement("tr");
+  var trackID = "track"+i;
+  tr.setAttribute("id",trackID);
+  tr.setAttribute("note",notes[i]);
+  tr.classList.add("track");
 
+  var td = document.createElement("td");
+  var img = document.createElement("img");
+  img.setAttribute("src","images/"+i+".png");
+  img.setAttribute("track",trackID);
+  img.classList.add("track-icon");
+  img.addEventListener("click", showFaders);
+  td.appendChild(img);
+  td.classList.add("track-icon-td");
+  td.classList.add("track-meta");
+  tr.appendChild(td);
+
+  td = document.createElement("td");
+  var text = document.createTextNode("---");
+  td.classList.add("track-name-td");
+  td.classList.add("track-meta");
+  td.setAttribute("id",trackID+"-name");
+  td.setAttribute("track",trackID);
+  td.addEventListener("dblclick", clearSteps);
+  td.append(text);
+  tr.appendChild(td);
+  for(var j=0; j<NUM_STEPS; j++) {
+    var stepID = trackID+"-step"+j;
     var td = document.createElement("td");
-    var img = document.createElement("img");
-    img.setAttribute("src","images/"+i+".png");
-    img.setAttribute("track",trackID);
-    img.classList.add("track-icon");
-    img.addEventListener("click", showFaders);
-    td.appendChild(img);
-    td.classList.add("track-icon-td");
-    td.classList.add("track-meta");
+    td.classList.add("step-td");
+    var step = document.createElement("div");
+    step.classList.add("step");
+    step.classList.add("step"+j);
+    step.classList.add(trackID);
+    step.setAttribute("id",stepID);
+    step.setAttribute("track",i);
+    step.setAttribute("step",j);
+    step.setAttribute("value","0");
+    step.addEventListener('mousedown', stepClick);
+    step.addEventListener('mouseover', stepHover);
+
+    var sw = document.createElement("div");
+    sw.setAttribute("color",colors[i]);
+    sw.classList.add("sw");
+    step.appendChild(sw);
+
+    td.appendChild(step);
+    var fader = document.createElement("input");
+    fader.classList.add("fader");
+    fader.classList.add(trackID);
+    fader.setAttribute("type","range");
+    fader.setAttribute("min","0");
+    fader.setAttribute("max","127");
+    fader.setAttribute("value","0");
+    fader.setAttribute("track",trackID);
+    fader.setAttribute("stepID",stepID);
+    fader.setAttribute("id",stepID+"fader");
+    fader.addEventListener("mouseup",faderDrag);
+    fader.addEventListener("touchend",faderDrag);
+    fader.addEventListener("input",faderWhileDragging);
+    fader.addEventListener("mousemove",faderHover);
+    td.appendChild(fader);
     tr.appendChild(td);
-
-    td = document.createElement("td");
-    var text = document.createTextNode("---");
-    td.classList.add("track-name-td");
-    td.classList.add("track-meta");
-    td.setAttribute("id",trackID+"-name");
-    td.setAttribute("track",trackID);
-    td.addEventListener("dblclick", clearSteps);
-    td.append(text);
-    tr.appendChild(td);
-    for(var j=0; j<NUM_STEPS; j++) {
-      var stepID = trackID+"-step"+j;
-      var td = document.createElement("td");
-      td.classList.add("step-td");
-      var step = document.createElement("div");
-      step.classList.add("step");
-      step.classList.add("step"+j);
-      step.classList.add(trackID);
-      step.setAttribute("id",stepID);
-      step.setAttribute("track",i);
-      step.setAttribute("step",j);
-      step.setAttribute("value","0");
-      step.addEventListener('mousedown', stepClick);
-      step.addEventListener('mouseover', stepMouseOver);
-
-      var sw = document.createElement("div");
-      sw.setAttribute("color",colors[i]);
-      sw.classList.add("sw");
-      step.appendChild(sw);
-
-      td.appendChild(step);
-      var fader = document.createElement("input");
-      fader.classList.add("fader");
-      fader.classList.add(trackID);
-      fader.setAttribute("type","range");
-      fader.setAttribute("min","0");
-      fader.setAttribute("max","127");
-      fader.setAttribute("value","0");
-      fader.setAttribute("track",trackID);
-      fader.setAttribute("stepID",stepID);
-      fader.setAttribute("id",stepID+"fader");
-      fader.addEventListener("mouseup",updateStepVelocity);
-      fader.addEventListener("touchend",updateStepVelocity);
-      fader.addEventListener("input",updateFaderMove);
-      fader.addEventListener("mousemove",updateFaderHover);
-      td.appendChild(fader);
-      tr.appendChild(td);
-    }
-    return(tr);
   }
+  return(tr);
+}
 
-  function stepClick(e) {
-    var value = this.getAttribute("value");
-    if(value == 0) {
-        value = 63;
-    } else {
-        value = 0;
-    }
+function stepClick(e) {
+  var value = this.getAttribute("value");
+  if(value == 0) {
+      value = 63;
+  } else {
+      value = 0;
+  }
+  updateStep(this, value);
+  mouseStepDownVal = value;
+}
+
+function stepHover(e) {
+  if(e.buttons == 1 || e.buttons == 3) {
+    value = mouseStepDownVal;
     updateStep(this, value);
-    mouseStepDownVal = value;
   }
+}
 
-  function stepMouseOver(e) {
-    if(e.buttons == 1 || e.buttons == 3) {
-      value = mouseStepDownVal;
-      updateStep(this, value);
+function faderDrag(e) {
+  //if(!counting) counting = true;
+  var stepID = this.getAttribute("stepID");
+  var value = parseInt(this.value);
+  var stepElem = document.getElementById(stepID);
+  updateStep(stepElem, value);
+}
+
+// From: https://stackoverflow.com/questions/62892560/change-the-value-of-input-range-when-hover-or-mousemove
+var valueHover = 0;
+function calcSliderPos(e) {
+    return (e.offsetX / e.target.clientWidth) *  parseInt(e.target.getAttribute('max'),10);
+}
+
+function faderHover(e) {
+  if(e.buttons == 1 || e.buttons == 3) {
+    valueHover = Math.floor(calcSliderPos(e).toFixed(2));
+    if(valueHover != this.value) {
+      var step = document.getElementById(this.getAttribute("stepid"));
+      updateStep(step, valueHover);
     }
   }
+}
 
-  function updateStep(elem, value) {
-    var oldValue = elem.getAttribute("value");
-    if(value != oldValue) {
-      if(!counting) counting = true;
-      var track = elem.getAttribute("track");
-      var fader = document.getElementById(elem.getAttribute("id") + "fader");
-      var step = elem.getAttribute("step");
-      elem.setAttribute("value",value);
-      fader.value = value;
-      elem.style.backgroundColor = valueToBGColor(value);
-      var swColor = elem.firstChild.getAttribute("color");
-      elem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
-      socket.emit('step value', { track: track, step: step, value: value, socketID: mySocketID } );
-    }
-  }
+function faderWhileDragging(e) {
+  var stepID = this.getAttribute("stepID");
+  var value = parseInt(this.value);
+  var stepElem = document.getElementById(stepID);
+  var swColor = stepElem.firstChild.getAttribute("color");
+  stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
+  stepElem.style.backgroundColor = valueToBGColor(value);
+}
 
-  function updateStepVelocity(e) {
+function updateStep(stepElem, value) {
+  var oldValue = stepElem.getAttribute("value");
+  if(value != oldValue) {
     if(!counting) counting = true;
-    var stepID = this.getAttribute("stepID");
-    var value = parseInt(this.value);
-    var stepElem = document.getElementById(stepID);
+    var track = stepElem.getAttribute("track");
+    var fader = document.getElementById(stepElem.getAttribute("id") + "fader");
+    var step = stepElem.getAttribute("step");
+    stepElem.setAttribute("value",value);
+    fader.value = value;
+    stepElem.style.backgroundColor = valueToBGColor(value);
     var swColor = stepElem.firstChild.getAttribute("color");
     stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
-    stepElem.setAttribute("value",value);
-    var step = stepElem.getAttribute("step");
-    var track = stepElem.getAttribute("track");
     socket.emit('step value', { track: track, step: step, value: value, socketID: mySocketID } );
   }
+}
 
-  // From: https://stackoverflow.com/questions/62892560/change-the-value-of-input-range-when-hover-or-mousemove
-  var valueHover = 0;
-  function calcSliderPos(e) {
-      return (e.offsetX / e.target.clientWidth) *  parseInt(e.target.getAttribute('max'),10);
-  }
+function clearSteps(e) {
+  var track = this.getAttribute("track");
+  document.querySelectorAll(".step."+track).forEach(elem => {
+    updateStep(elem, 0);
+  });
+}
 
-  function updateFaderHover(e) {
-    if(e.buttons == 1 || e.buttons == 3) {
-      valueHover = Math.floor(calcSliderPos(e).toFixed(2));
-      if(valueHover != this.value) {
-        var step = document.getElementById(this.getAttribute("stepid"));
-        updateStep(step, valueHover);
-      }
-    }
-  }
-
-  function updateFaderMove(e) {
-    var stepID = this.getAttribute("stepID");
-    var value = parseInt(this.value);
-    var stepElem = document.getElementById(stepID);
-    var swColor = stepElem.firstChild.getAttribute("color");
-    stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
-    stepElem.style.backgroundColor = valueToBGColor(value);
-  }
-
-  function clearSteps(e) {
-    var track = this.getAttribute("track");
-    document.querySelectorAll(".step."+track).forEach(elem => {
-      updateStep(elem, 0);
-    });
-  }
-
-  function showFaders(e) {
-    var track = this.getAttribute("track");
-    document.querySelectorAll(".fader."+track).forEach(elem => {
-      if(elem.style.display == "block")
-        elem.style.display = "none";
-      else
-        elem.style.display = "block";
-    });
-  }
-
-  function valueToBGColor(value) {
-    var tmp = 255 - value*2;
-    return "rgb("+[tmp,tmp,tmp].join(",")+")";
-  }
-
-  function valueToSWColor(value, c) {
-    if(value == 0)
-      return "transparent";
+function showFaders(e) {
+  var track = this.getAttribute("track");
+  document.querySelectorAll(".fader."+track).forEach(elem => {
+    if(elem.style.display == "block")
+      elem.style.display = "none";
     else
-      return c;
-  }
+      elem.style.display = "block";
+  });
+}
 
-  function pad(num) {
-    num = num.toString();
-    while (num.length < 2) num = "0" + num;
-    return num;
-  }
+function valueToBGColor(value) {
+  var tmp = 255 - value*2;
+  return "rgb("+[tmp,tmp,tmp].join(",")+")";
+}
+
+function valueToSWColor(value, c) {
+  if(value == 0)
+    return "transparent";
+  else
+    return c;
+}
+
+function pad(num) {
+  num = num.toString();
+  while (num.length < 2) num = "0" + num;
+  return num;
+}
 
 
-  function playNote (note, out) {
-    out.send([NOTE_ON, note, 0x7f]);
-    setTimeout(out.send([NOTE_OFF, note, 0x00]), NOTE_DURATION);
-  }
+function playNote (note, out) {
+  out.send([NOTE_ON, note, 0x7f]);
+  setTimeout(out.send([NOTE_OFF, note, 0x00]), NOTE_DURATION);
+}
 
 
-  // Cookies, from: https://stackoverflow.com/questions/14573223/set-cookie-and-get-cookie-with-javascript
-  function setCookie(name,value,days) {
+// Cookies, from: https://stackoverflow.com/questions/14573223/set-cookie-and-get-cookie-with-javascript
+function setCookie(name,value,days) {
     var expires = "";
     if (days) {
         var date = new Date();

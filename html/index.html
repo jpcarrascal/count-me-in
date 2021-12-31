@@ -14,7 +14,7 @@
             <table id="intro-form-table">
               <tr>
                 <td><label for="initials">Enter your initials:</label></td>
-                <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="2" placeholder="?" style="text-transform:uppercase"/></td>
+                <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="3" placeholder="---" style="text-transform:uppercase"/></td>
               </tr>
               <tr>
                 <td><label for="room" class="intro-room-hide">Room to join:</label></td>
@@ -30,6 +30,7 @@
         </div>
       
     </div>
+    <script src="scripts/config.js"></script>
     <script src="scripts/include.js"></script>
     <script>
       var initials = getCookie("initials");

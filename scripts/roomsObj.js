@@ -13,9 +13,6 @@ class Room {
             var randomIndex = Math.floor(Math.random()*available.length);
             var index = available[randomIndex];
             this.participants[index] = new Participant(socketID, initials);
-            console.log(available)
-            console.log("Random index: " + randomIndex)
-            console.log("Real index: " + index)
             return index;
         } else {
             for(var i=0; i<this.participants.length; i++) {
@@ -94,7 +91,6 @@ class Participant {
 
     startCountingRounds() {
         this.countingRounds = true;
-        console.log(this.initials + "'s session scheduled to expire...")
     }
 
     incrementRounds() {

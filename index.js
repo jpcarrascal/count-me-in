@@ -5,11 +5,9 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const { AllRooms } = require("./scripts/roomsObj.js");
-const NUM_TRACKS = 8;
-const MAX_NUM_ROUNDS = 3;
-const NUM_STEPS = 16;
+var config = require('./scripts/config.js');
 
-var rooms = new AllRooms(NUM_TRACKS, MAX_NUM_ROUNDS);
+var rooms = new AllRooms(config.NUM_TRACKS, config.MAX_NUM_ROUNDS);
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -66,7 +64,7 @@ io.on('connection', (socket) => {
                 io.to(room).emit('clear track', {track: track2delete, initials: initials});
                 console.log(initials + "(" + socket.id + ") disconnected, clearing track " + track2delete);
             });
-            io.to(socket.id).emit('create track', {track: track, maxNumRounds: MAX_NUM_ROUNDS});
+            io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
         } else {
             io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
         }
@@ -83,7 +81,7 @@ io.on('connection', (socket) => {
     socket.on('step tick', (msg) => { // Visual sync
         socket.broadcast.to(room).emit('step tick', msg);
         var expired = new Array();
-        if(msg.counter == NUM_STEPS-1) {
+        if(msg.counter == config.NUM_STEPS-1) {
             expired = rooms.incrementAllCounters(room);
         }
         if(expired.length > 0) {
