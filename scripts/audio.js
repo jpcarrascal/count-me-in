@@ -11,7 +11,7 @@ document.querySelectorAll(".drumSamples").forEach(elem => {
   var track = audioContext.createMediaElementSource(elem);
   const gainNode = audioContext.createGain();
   track.connect(gainNode);
-  gainNode.gain.value = 0.5;
+  gainNode.gain.value = 1;
   gainNode.connect(mainMix);
 });
 
