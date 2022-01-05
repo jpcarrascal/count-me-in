@@ -56,6 +56,8 @@ io.on('connection', (socket) => {
     } else {
         if(rooms.isReady(room)) {
             var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
+            /////// Remove:
+            //track = 8;
             console.log(initials + " joined room " + room + " on track " + track);
             socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
             socket.on('disconnect', () => {
@@ -69,8 +71,8 @@ io.on('connection', (socket) => {
             io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
         }
     }
-    socket.on('step value', (msg) => { // Send step values
-        io.to(room).emit('step value', msg);
+    socket.on('step update', (msg) => { // Send step values
+        io.to(room).emit('step update', msg);
         rooms.participantStartCounting(room, socket.id);
     });
 

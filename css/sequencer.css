@@ -142,6 +142,10 @@ tr.track {
     padding: 0;
 }
 
+tr.synth-track {
+    color: white;
+}
+
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
     color: white;
     text-align: center;
@@ -165,6 +169,8 @@ tr.track {
     justify-content: center;
 }
 
+/* Faders: */
+
 .fader {
     display: none;
     margin: 8vw;
@@ -180,7 +186,70 @@ tr.track {
         width: 32vw;
     }
 }
-/*@media screen and (orientation:landscape) { }*/
+
+/* Keyboard: */
+
+.keyboard {
+    display:none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+}
+
+.key {
+    margin: 0;
+    margin-top: .6vw;
+    border: .3vw solid white;
+    background-color: white;
+    height: 1.5vw;
+    width: 3.5vw;
+    border-radius: .5vw;
+}
+
+.key:hover {
+    border-color: black;
+}
+
+.key:active {
+    border-color: white;
+}
+
+.black-key {
+    background-color: #666;
+    border-color: #666;
+}
+
+.oct-controls {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.oct-button {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: .2vw solid white;
+    width: 1.5vw;
+    height: 1.5vw;
+    border-radius: 25%;
+    margin: .1vw;
+    margin-bottom: 1vw;
+    color: #666;
+    background-color: white;
+    font-size: 2em;
+}
+
+.key-on {
+    background-color:chartreuse;
+}
+
+/* Steps: */
+
 
 .step {
     background-color: white;

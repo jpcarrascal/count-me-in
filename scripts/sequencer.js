@@ -4,7 +4,7 @@ var initials = "";
 var room = findGetParameter("room") || DEFAULT_ROOM;
 var method;
 if(isSeq) {
-  var drumSequencer = new DrumSequencer(NUM_TRACKS, NUM_STEPS, notes);
+  var stepSequencer = new StepSequencer(NUM_TRACKS, NUM_STEPS, drumNotes);
   method = findGetParameter("method") || "random";
   initials = "SQ";
 } else {
@@ -34,18 +34,25 @@ socket.on('step tick', function(msg) {
   updateCursor(msg.counter, msg.prev);
 });
 
-socket.on('step value', function(msg) {
+socket.on('step update', function(msg) {
   var stepID = "track"+msg.track+"-step"+msg.step;
   var step = document.getElementById(stepID);
   if(step) {
     var fader = document.getElementById(stepID+"fader");
-    step.setAttribute("value",msg.value);
-    var value = step.getAttribute("value");
+    var kb = document.getElementById(stepID+"kb");
+    var value = msg.value;
+    var note = msg.note;
+    step.setAttribute("value", value);
+    step.setAttribute("note", note);
     step.style.backgroundColor = valueToBGColor(value);
     var swColor = step.firstChild.getAttribute("color");
     step.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
     fader.value = value;
-    if(drumSequencer) drumSequencer.tracks[msg.track].notes[msg.step].vel = value;
+    kb.setNote(note);
+    if(stepSequencer) {
+      stepSequencer.tracks[msg.track].notes[msg.step].vel = value;
+      stepSequencer.tracks[msg.track].notes[msg.step].note = note;
+    }
   }
 });
 
@@ -65,12 +72,16 @@ if(isSeq) {
 
   socket.on('track joined', function(msg) {
     //console.log(msg.initials + " joined on track " + msg.track);
-    socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:drumSequencer.tracks[msg.track].notes } );
+    socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
     trackName.innerText = msg.initials;
     track.style.backgroundColor = colors[msg.track];
-    drumSequencer.setTrackInitials(msg.track, msg.initials);
+    if(msg.track > 7) {
+      document.getElementById("track" + msg.track + "-name").style.color = "white";
+      document.getElementById("track" + msg.track + "-icon").style.filter = "invert(1)";
+    }
+    stepSequencer.setTrackInitials(msg.track, msg.initials);
     //clearTrack(msg.track);
   });
 
@@ -87,7 +98,7 @@ if(isSeq) {
 
   // tracks:
   for(var i=NUM_TRACKS-1; i>=0; i--) {
-    var tr = createDrumTrack(i);
+    var tr = createTrack(i);
     matrix.appendChild(tr);
   }
 
@@ -107,7 +118,7 @@ if(isSeq) {
 }
 
 function clearTrack(track) {
-  drumSequencer.clearTrack(track);
+  stepSequencer.clearTrack(track);
   var trackClass = ".track"+track;
   var steps = document.querySelectorAll(trackClass);
   steps.forEach(step =>{

@@ -24,16 +24,21 @@ function removeTrack() {
 }
 
 socket.on('create track', function(msg) {
-    var icon = document.getElementById("big-instrument-icon");
-    icon.setAttribute("src","images/"+msg.track+".png");
     removeTrack();
     console.log("Got my track: " + (msg.track));
     var track = msg.track;
+    var icon = document.getElementById("big-instrument-icon");
+    if(track>7) icon.setAttribute("src","images/8.png");
+    else icon.setAttribute("src","images/"+track+".png");
     counter.innerText = msg.maxNumRounds;
     counter.style.color = colors[track];
     rounds = msg.maxNumRounds;
-    var tr = createDrumTrack(track);
+    var tr = createTrack(track);
     document.getElementById("track-header").style.backgroundColor = colors[track];
+    if(track>7) {
+        document.getElementById("track-header").style.color = "white";
+        document.getElementById("big-instrument-icon").style.filter = "invert(1)";
+    }
     var matrix = document.getElementById("matrix");
     matrix.appendChild(tr);
     tr.style.backgroundColor = colors[track];
@@ -41,7 +46,9 @@ socket.on('create track', function(msg) {
     var bigInitials = document.getElementById("big-initials");
     trackName.innerText = initials;
     bigInitials.innerText = initials;
-    document.querySelectorAll(".fader").forEach(element => {
+    var selector = ".fader";
+    if(track>7) selector = ".keyboard"
+    document.querySelectorAll(selector).forEach(element => {
         element.style.display = "block";
     });
 
@@ -56,11 +63,13 @@ socket.on('update track', function(msg) {
             var value = notes[i].vel;
             var stepElem = document.getElementById(stepID);
             var fader = document.getElementById(stepID+"fader");
+            var kb = document.getElementById(stepID+"kb");
             var swColor = stepElem.firstChild.getAttribute("color");
             stepElem.setAttribute("value", value);
             stepElem.style.backgroundColor = valueToBGColor(value);
             stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
             fader.value = value;
+            kb.setNote(notes[i].note);
         }
     }
 });

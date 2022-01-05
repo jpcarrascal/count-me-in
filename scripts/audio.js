@@ -3,6 +3,9 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext = new AudioContext();
 
 var drums = new Array();
+var synthOsc = new Array();
+var synthGain = new Array();
+var synthVel = new Array();
 const mainMix = audioContext.createGain();
 
 document.querySelectorAll(".drumSamples").forEach(elem => {
@@ -15,30 +18,42 @@ document.querySelectorAll(".drumSamples").forEach(elem => {
   gainNode.connect(mainMix);
 });
 
+for(var i=0; i<NUM_TRACKS-8; i++) {
+  synthOsc[i] = audioContext.createOscillator();
+  synthOsc[i].type = 'square';
+  synthOsc[i].frequency.value = 0;
+  synthGain[i] = audioContext.createGain();
+  synthVel[i] = audioContext.createGain();
+  synthOsc[i].connect(synthVel[i]);
+  synthVel[i].connect(synthGain[i]);
+  synthVel[i].gain.value = 0;
+  synthGain[i].gain.value = 0.2;
+  synthOsc[i].start(audioContext.currentTime);
+}
+
 mainMix.connect(audioContext.destination);
 
 function playStepNotes(counter) {
-  var notesToPlay = drumSequencer.getStepNotes(counter);
-  for(var i=0; i<drumSequencer.nTracks; i++) {
+  var notesToPlay = stepSequencer.getStepNotes(counter);
+  for(var i=0; i<stepSequencer.nTracks; i++) {
     var value = notesToPlay[i].vel;
     var note = notesToPlay[i].note;
-    if(value > 0) {
-      if(MIDIport) MIDIplayNote(note, value, MIDIport);
-      else AudioPlayDrum(i, value);
-    }
+    if(MIDIport) MIDIplayNote(note, value, MIDIport);
+    else AudioPlayDrum(i, note, value);
   }
 }
 
-function AudioPlayDrum(i, vel) {
+function AudioPlayDrum(i, note, vel) {
     /* bass experiment: */
-    if(i==8) {
-      bassOsc.frequency.value = noteFrequencies[vel];
-      if(vel == 0) bassGain.gain.value = 0;
-      else bassGain.gain.value = 0.01;
+    if(i>7) {
+      synthOsc[i-8].frequency.value = noteFrequencies[note];
+      synthVel[i-8].gain.value = vel/127;
     } else {
-      drums[i].currentTime = 0
-      drums[i].volume = vel/127;
-      drums[i].play();
+      if(vel > 0) {
+        drums[i].currentTime = 0
+        drums[i].volume = vel/127;
+        drums[i].play();
+      }
     }
 }
 
@@ -51,24 +66,20 @@ var startBtn = document.getElementById("play");
 var stopBtn = document.getElementById("stop");
 var timerID;
 var playTime = 0;
-var bassOsc = audioContext.createOscillator();
-bassOsc.type = 'square';
-bassOsc.frequency.value = 0;
-var bassGain = audioContext.createGain();
-bassOsc.connect(bassGain);
-bassGain.gain.value = 0;
-bassOsc.start(audioContext.currentTime);
 
-function playBass(f) {
-  if (f) bassOsc.frequency.value = f;
+/*
+function playBass(i, f, vel) {
+  synthOsc[i].frequency.value = f;
+  synthVel[i].gain.value = vel;
 };
+*/
 
 function scheduler() {
     while(nextNotetime < audioContext.currentTime + 0.01) {
         nextNotetime += (interval/1000);
         playStepNotes(counter);
         socket.emit('step tick', { counter: counter, prev: prev } );
-        playBass();
+        //playBass();
         updateCursor(counter, prev);
         if(counter < NUM_STEPS-1) {
           counter++;
@@ -89,7 +100,9 @@ startBtn.addEventListener('click', function() {
   counter = 0;
   prev = 15;
   socket.emit('play', { socketID: mySocketID });
-  bassGain.connect(audioContext.destination);
+  for(var i=0; i<synthGain.length; i++) {
+    synthGain[i].connect(audioContext.destination);
+  }
   this.classList.add("playing");
   playing = true;
   scheduler();
@@ -98,7 +111,9 @@ startBtn.addEventListener('click', function() {
 stopBtn.addEventListener('click', function() {
   socket.emit('stop', { socketID: mySocketID });
   document.querySelector("#play").classList.remove("playing");
-  bassGain.disconnect();
+  for(var i=0; i<synthGain.length; i++) {
+    synthGain[i].disconnect();
+  }
   clearTimeout(timerID);
   updateCursor(-1, -1);
   playing = false;
