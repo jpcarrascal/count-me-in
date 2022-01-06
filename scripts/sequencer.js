@@ -68,7 +68,10 @@ if(isSeq) {
     var track = document.getElementById("track"+msg.track);
     track.style.backgroundColor = EMPTY_COLOR;
     trackName.innerText = "---";
-    //clearTrack(msg.track);
+    if(msg.track > 7) {
+      document.getElementById("track" + msg.track + "-name").style.color = "black";
+      document.getElementById("track" + msg.track + "-icon").style.filter = "";
+    }
   });
 
   socket.on('track joined', function(msg) {
