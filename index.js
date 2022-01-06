@@ -21,7 +21,10 @@ app.get('/sequencer', (req, res) => {
 });
 
 app.get('/track', (req, res) => {
-    page = '/html/track.html';
+    if(req.query.room && (req.query.initials || req.query.initials==="") )
+        page = '/html/track.html';
+    else
+        page = '/html/index-track.html';
     res.sendFile(__dirname + page);
 });
 

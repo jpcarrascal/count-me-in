@@ -51,27 +51,30 @@ audio {
     margin-top: -2em;
 }
 
-.intro-form, #go {
+.intro-form, #go, #create-room {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-size: 4vw;
+    font-size: 1em;
     width: 1.8em;
     margin: 0.5vw;
 }
 
+.centered {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
 
+#new-room-name {
+    width: 10em;
+}
 
 .intro-room-hide {
     display: none;
 }
 
-#button-cel {
-    display:flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-}
-
-#go {
+#go, #create-room {
     width: 4em;
     background-color: dodgerblue;
     color: white;
@@ -113,11 +116,9 @@ table#matrix {
 }
 
 .name-header, .track-name-td {
-    width: 8vw;
     margin: 0;
     font-size: 3vw;
     font-weight: 100;
-    padding: 0;
 }
 
 .name-header, .step-header {
@@ -149,7 +150,7 @@ tr.synth-track {
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
     color: white;
     text-align: center;
-    width: 5vw;
+    width: 4vw;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -160,6 +161,7 @@ tr.synth-track {
 
 .track-name-td {
     color: black;
+    padding-right: 1vw;
 }
 
 .step-td {
@@ -200,12 +202,12 @@ tr.synth-track {
 
 .key {
     margin: 0;
-    margin-top: .6vw;
-    border: .3vw solid white;
+    margin-top: .3vw;
+    border: .2vw solid white;
     background-color: white;
-    height: 1.5vw;
-    width: 3.5vw;
-    border-radius: .5vw;
+    height: 1vw;
+    width: 2.7vw;
+    border-radius: .3vw;
 }
 
 .key:hover {
@@ -234,14 +236,15 @@ tr.synth-track {
     align-items: center;
     justify-content: center;
     border: .2vw solid white;
-    width: 1.5vw;
-    height: 1.5vw;
+    width: 1vw;
+    height: 1vw;
     border-radius: 25%;
     margin: .1vw;
     margin-bottom: 1vw;
     color: #666;
     background-color: white;
-    font-size: 2em;
+    font-size: 2vw;
+    font-weight: bold;
 }
 
 .oct-button:hover {
@@ -263,16 +266,14 @@ tr.synth-track {
     background-color: white;
     border-radius: 10%;
     border: 0;
-    margin: 0;
-    margin-top: 0.8vw;
-    margin-bottom: 0.8vw;
+    margin: 0.6vw;
 }
 
 .sw {
     text-align: center;
-    width: 1.8vw;
-    height: 1.8vw;
-    margin: .6vw;
+    width: 2vw;
+    height: 2vw;
+    margin: .5vw;
     border-radius: 10%;
 }
 
@@ -294,7 +295,6 @@ tr.synth-track {
 }
 
 #big-instrument-icon {
-    /*filter: invert(1);*/
     width: 7vw;
 }
 
@@ -305,7 +305,7 @@ tr.synth-track {
 
 .controls, #device-select, #devices-label {
     margin-left: 1vw;
-    font-size: 3vw;
+    font-size: 2.5vw;
     height: 1.3em;
 }
 

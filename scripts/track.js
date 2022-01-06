@@ -79,6 +79,6 @@ socket.on('exit session', function(msg) {
     var reason = "";
     if(msg.reason)
         reason = "&exitreason=" + msg.reason;
-    window.location.href = "/?room="+room+reason;
+    window.location.href = "/track?room="+room+reason;
 });
 
