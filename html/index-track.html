@@ -2,20 +2,26 @@
 <html>
   <head>
     <title>You're in control</title>
-    <link rel="stylesheet" href="css/sequencer.css">
+    <link rel="stylesheet" href="css/index.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
   </head>
   <body>
     <div id="form-container">
       
         <div id="intro-div">
-          <span id="disconnect-message"></span>
           <form id="intro" action="track" method="get">
             <table id="intro-form-table">
               <tr>
                 <td colspan="2">
                   <div class="centered">
-                  <h2>COUNT ME IN</h2>
+                    <h2>COUNT·ME·IN</h2>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td colspan=2>
+                  <div class="centered">
+                  <span id="disconnect-message"></span>
                   </div>
                 </td>
               </tr>
@@ -24,8 +30,8 @@
                 <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="3" placeholder="---" style="text-transform:uppercase"/></td>
               </tr>
               <tr>
-                <td><label for="room" class="intro-room-hide">Room to join:</label></td>
-                <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" /></td>
+                <td><label for="room" class="intro-room-hide" >Room to join:</label></td>
+                <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" placeholder="[room]" /></td>
               </tr>
               <tr>
                 <td colspan="2">

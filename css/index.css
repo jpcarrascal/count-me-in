@@ -1,0 +1,81 @@
+html {
+    height: 100%;
+}
+
+body {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #444;
+    color: white;
+    overflow: hidden;
+    user-select: none;
+}
+
+#form-container {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    width: 100%;
+    background-color: #444;
+    color: white;
+    font-size: 4vw;
+}
+
+#intro-div {
+    margin-top: 10vh;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#disconnect-message {
+    color:tomato;
+    margin-top: -1em;
+}
+
+.intro-form, #go, #create-room {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 1em;
+    width: 1.8em;
+    margin: 0.5vw;
+}
+
+#room {
+    width: 5em;
+}
+
+.centered {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+#new-room-name {
+    width: 10em;
+}
+
+.intro-room-hide {
+    display: none;
+}
+
+#go, #create-room {
+    width: 4em;
+    background-color: dodgerblue;
+    color: white;
+}
+

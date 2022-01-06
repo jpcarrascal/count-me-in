@@ -6,6 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
   </head>
   <body>
+
+    <div id="room-info">
+      <div id="close-info">✕</div>
+      <div class="room-info">
+        <span id="room-title">
+        Room name: <span id="room-name"></span>
+        </span>
+      </div>
+      <div class="room-info">Use this URL to join this room</div>
+      <div class="room-info">
+        <a id="track-url" target="_blank"></a>
+      </div>
+      <div class="room-info">
+        <div id="copy">COPY TO CLIPBOARD</div>
+      </div>
+      <div class="room-info">Or scan this QR code:</div>
+      <div class="room-info">
+        <img src="#" id="qrcode" />
+      </div>
+      <textarea id="url-copy"></textarea>
+    </div>
+
     <div id="sequencer">
 
         <table id="matrix">

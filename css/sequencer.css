@@ -1,6 +1,7 @@
 html {
     height: 100%;
 }
+
 body {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     display:flex;
@@ -17,68 +18,76 @@ body {
     user-select: none;
 }
 
+#room-info {
+    display:none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: absolute;
+    margin-top: 3vh;
+    background-color: dodgerblue;
+    color: black;
+    z-index: 10;
+    box-shadow: rgba(0,0,0,0.5) 1vw 1vw;
+    border-radius: 0.5vw;
+    padding: 1vw;
+    padding-top: 2vw;
+    font-size: 2vw;
+}
+
+#room-info a {
+    color: white;
+    font-weight: bold;
+}
+
+#room-title {
+    font-weight: bold;
+}
+
+#qrcode {
+    height: 40vh;
+    width: 40vh;
+    display: block;
+}
+
+.room-info {
+    margin: 1vw;
+}
+
+#copy {
+    background-color: white;
+    color: dodgerblue;
+    width: 10em;
+    font-size: .8em;
+    margin: 0;
+    text-align: center;
+}
+
+#copy:active {
+    margin-top: 0.1vh;
+    margin-bottom: -0.1vh;
+    background-color: #EEE;
+}
+
+#url-copy {
+    display: none;
+}
+
+#close-info {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 1vw;
+    font-weight: bold;
+}
+
 audio {
     display: none;
     width: 0;
     height: 0;
 }
 
-#form-container {
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    height: 100vh;
-    width: 100%;
-    background-color: #444;
-    color: white;
-    font-size: 4vw;
-}
 
-#intro-div {
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-#disconnect-message {
-    color:red;
-    margin: 1em;
-    margin-top: -2em;
-}
-
-.intro-form, #go, #create-room {
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-size: 1em;
-    width: 1.8em;
-    margin: 0.5vw;
-}
-
-.centered {
-    display:flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
-#new-room-name {
-    width: 10em;
-}
-
-.intro-room-hide {
-    display: none;
-}
-
-#go, #create-room {
-    width: 4em;
-    background-color: dodgerblue;
-    color: white;
-}
 
 #intro {
     display: block;

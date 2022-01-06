@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
         if(expired.length > 0) {
             for(var i=0; i<expired.length; i++) {
                 console.log(expired[i].initials + "'s session expired!")
-                io.to(expired[i].socketID).emit('exit session', {reason: "CountMeIn again?"});
+                io.to(expired[i].socketID).emit('exit session', {reason: "Join again?"});
             }
         }
     });

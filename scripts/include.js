@@ -398,3 +398,10 @@ function findGetParameter(parameterName) {
       });
   return result;
 }
+
+function copyURL(id) {
+  var copyText = document.getElementById(id); /* Needs to be text area or input */
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); /* For mobile devices */
+  navigator.clipboard.writeText(copyText.value);
+}

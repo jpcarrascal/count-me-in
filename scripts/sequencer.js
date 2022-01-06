@@ -7,6 +7,26 @@ if(isSeq) {
   var stepSequencer = new StepSequencer(NUM_TRACKS, NUM_STEPS, drumNotes);
   method = findGetParameter("method") || "random";
   initials = "SQ";
+  var hideInfo = findGetParameter("hideinfo");
+  if(!hideInfo) {
+    document.getElementById("room-name").innerText = room;
+    var info = document.getElementById("room-info");
+    info.style.display = "flex";
+    var closeInfo = document.getElementById("close-info");
+    closeInfo.addEventListener("click", function() { info.style.display = "none"});
+    var trackURL = document.location.origin + "/track?room="+room;
+    var qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
+    document.getElementById("track-url").innerText = trackURL;
+    document.getElementById("url-copy").innerText = trackURL;
+    document.getElementById("qrcode").setAttribute("src",qrcode);
+    document.getElementById("track-url").setAttribute("href",trackURL);
+    document.getElementById("copy").addEventListener("click", function(e) {
+      copyURL("url-copy");
+      this.innerText = "COPIED!";
+      p=setTimeout( function() { document.getElementById("copy").innerText = "COPY TO CLIPBOARD" }, 2000);
+      console.log(p)
+    });
+  }
 } else {
   console.log("not a sequencer...");
   initials = findGetParameter("initials") || "?";
@@ -94,9 +114,11 @@ if(isSeq) {
       event.preventDefault();
       e = new Event("click");
       if(playing)
-      document.querySelector("#stop").dispatchEvent(e);
+        document.querySelector("#stop").dispatchEvent(e);
       else
         document.querySelector("#play").dispatchEvent(e);
+    } else if (event.code == "Escape") {
+      document.getElementById("room-info").style.display = "none";
     }
   });
 
