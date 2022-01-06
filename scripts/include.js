@@ -6,7 +6,11 @@ const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
 const DEFAULT_ROOM = 999;
-const EMPTY_COLOR = "#AAA"
+const EMPTY_COLOR = "#AAA";
+const MAX_OCTAVE = 6;
+const MIN_OCTAVE = 1;
+const MID_OCTAVE = 3;
+const SYNTH_DEFAULT_VEL = 63;
 const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black","black","black"];
 /*
 36. Kick Drum
@@ -87,9 +91,9 @@ function createTrack(i) {
     step.setAttribute("id",stepID);
     step.setAttribute("track",i);
     step.setAttribute("step",j);
-    step.setAttribute("value","0");
+    step.setAttribute("value",0);
     if(i<=7) step.setAttribute("note",drumNotes[i]);
-    else step.setAttribute("note",0);
+    else step.setAttribute("note",36);
     step.addEventListener('mousedown', stepClick);
     step.addEventListener('mouseover', stepHover);
     var sw = document.createElement("div");
@@ -118,26 +122,33 @@ function createKeyboard (i, j) {
   keyboard.classList.add("keyboard");
   keyboard.classList.add(trackID);
   keyboard.setAttribute("id",stepID+"kb");
+  keyboard.setAttribute("octave",MID_OCTAVE);
   var oct = document.createElement("div");
   oct.classList.add("oct-controls");
   var plus = document.createElement("div");
   var minus = document.createElement("div");
   plus.classList.add("oct-button");
   minus.classList.add("oct-button");
+  plus.setAttribute("direction","+");
+  minus.setAttribute("direction","-");
   plus.appendChild(document.createTextNode("+"));
   minus.appendChild(document.createTextNode("-"));
+  plus.setAttribute("stepID",stepID);
+  minus.setAttribute("stepID",stepID);
+  plus.setAttribute("id",stepID+"plus");
+  minus.setAttribute("id",stepID+"minus");
+  plus.addEventListener("mousedown",octaveClick);
+  minus.addEventListener("mousedown",octaveClick);
   oct.appendChild(minus);
   oct.appendChild(plus);
   keyboard.appendChild(oct);
   var noteNumber;
-  var octave = 3;
   for(var k=0; k<12; k++) {
-    noteNumber = 12-k;
+    noteNumber = 11-k;
     var key = document.createElement("div");
     key.classList.add("key");
     key.classList.add(stepID);
     key.setAttribute("note",noteNumber);
-    key.setAttribute("octave",octave);
     key.setAttribute("stepID",stepID);
     key.addEventListener("mousedown", keyClick);
     if([1,3,5,8,10].includes(k)) {
@@ -147,23 +158,68 @@ function createKeyboard (i, j) {
   }
   keyboard.setNote = function(note) {
     var children = this.children;
+    var stepID = this.getAttribute("stepID");
+    var stepElem = document.getElementById(stepID);
+    stepElem.setAttribute("note",note)
+    var octave = (note-(note%12))/12;
+    var butUp = document.getElementById(stepID+"plus");
+    var butDown = document.getElementById(stepID+"minus");
+    if(octave > MID_OCTAVE) butUp.style.backgroundColor = colors[1];
+    else butUp.style.backgroundColor = "white";
+    if(octave < MID_OCTAVE) butDown.style.backgroundColor = colors[1];
+    else butDown.style.backgroundColor = "white";
+    this.setAttribute("octave",octave);
+    note -= (octave*12);
     for(var k=0; k<children.length; k++) {
       var childNote = parseInt(children[k].getAttribute("note"));
-      var childOct = parseInt(children[k].getAttribute("octave"));
-      if(childNote+12*childOct == note)
+      if(childNote == note)
         children[k].classList.add("key-on");
       else
         children[k].classList.remove("key-on");
     }
   }
+  keyboard.unsetNote = function() {
+    var children = this.children;
+    for(var k=0; k<children.length; k++) {
+        children[k].classList.remove("key-on");
+    }
+    var butUp = document.getElementById(stepID+"plus");
+    var butDown = document.getElementById(stepID+"minus");
+    butUp.style.backgroundColor = "white";
+    butDown.style.backgroundColor = "white";
+  }
   return keyboard;
 }
 
 function keyClick(e) {
-  var step = this.getAttribute("stepID");
-  var stepElem = document.getElementById(step);
-  var note = parseInt(this.getAttribute("note")) + (12 * this.getAttribute("octave"));
-  updateStep(stepElem, note, 63);
+  var vel;
+  if(this.classList.contains("key-on")) vel = 0;
+  else vel = SYNTH_DEFAULT_VEL;
+  var stepID = this.getAttribute("stepID");
+  var kb = document.getElementById(stepID+"kb");
+  var stepElem = document.getElementById(stepID);
+  var note = parseInt(this.getAttribute("note")) + (12 * kb.getAttribute("octave"));
+  updateStep(stepElem, note, vel);
+}
+
+function octaveClick(e) {
+  var kb = this.parentNode.parentNode;
+  var curOct = parseInt(kb.getAttribute("octave"));
+  var stepID = this.getAttribute("stepID");
+  var stepElem = document.getElementById(stepID);
+  var note = parseInt(stepElem.getAttribute("note"));
+  var direction = this.getAttribute("direction");
+  if(direction == "+" && curOct < MAX_OCTAVE) {
+    curOct++;
+    kb.setAttribute("octave", curOct);
+    note += 12;
+    updateStep(stepElem, note, SYNTH_DEFAULT_VEL);
+  } else if(direction == "-" && curOct > MIN_OCTAVE) {
+    curOct--;
+    kb.setAttribute("octave", curOct);
+    note -= 12;
+    updateStep(stepElem, note, SYNTH_DEFAULT_VEL);
+  }
 }
 
 function createFader(i, j) {
@@ -189,7 +245,7 @@ function createFader(i, j) {
 function stepClick(e) {
   var value = this.getAttribute("value");
   if(value == 0) {
-      value = 63;
+      value = SYNTH_DEFAULT_VEL;
   } else {
       value = 0;
   }

@@ -27,7 +27,7 @@ for(var i=0; i<NUM_TRACKS-8; i++) {
   synthOsc[i].connect(synthVel[i]);
   synthVel[i].connect(synthGain[i]);
   synthVel[i].gain.value = 0;
-  synthGain[i].gain.value = 0.2;
+  synthGain[i].gain.value = 0.1;
   synthOsc[i].start(audioContext.currentTime);
 }
 
@@ -46,7 +46,9 @@ function playStepNotes(counter) {
 function AudioPlayDrum(i, note, vel) {
     /* bass experiment: */
     if(i>7) {
-      synthOsc[i-8].frequency.value = noteFrequencies[note];
+      //synthOsc[i-8].frequency.value = noteFrequencies[note];
+      synthOsc[i-8].frequency.setValueAtTime(20, audioContext.currentTime);
+      synthOsc[i-8].frequency.linearRampToValueAtTime(noteFrequencies[note], audioContext.currentTime + .03);
       synthVel[i-8].gain.value = vel/127;
     } else {
       if(vel > 0) {

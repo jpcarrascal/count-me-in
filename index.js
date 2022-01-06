@@ -56,8 +56,6 @@ io.on('connection', (socket) => {
     } else {
         if(rooms.isReady(room)) {
             var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-            /////// Remove:
-            //track = 8;
             console.log(initials + " joined room " + room + " on track " + track);
             socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
             socket.on('disconnect', () => {

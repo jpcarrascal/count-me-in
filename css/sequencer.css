@@ -244,6 +244,14 @@ tr.synth-track {
     font-size: 2em;
 }
 
+.oct-button:hover {
+    border-color: black;
+}
+
+.oct-button:active {
+    border-color: white;
+}
+
 .key-on {
     background-color:chartreuse;
 }

@@ -48,7 +48,8 @@ socket.on('step update', function(msg) {
     var swColor = step.firstChild.getAttribute("color");
     step.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
     fader.value = value;
-    kb.setNote(note);
+    if(value) kb.setNote(note);
+    else kb.unsetNote();
     if(stepSequencer) {
       stepSequencer.tracks[msg.track].notes[msg.step].vel = value;
       stepSequencer.tracks[msg.track].notes[msg.step].note = note;
