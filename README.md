@@ -1,2 +1,2 @@
 # Count Me In
-A Collaborative Step Sequencer for Audience Participation
+A collaborative step sequencer for audience participation
