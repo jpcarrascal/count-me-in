@@ -12,7 +12,7 @@ socket.on('step tick', function(msg) {
 
 var restart = document.getElementById("restart");
 restart.addEventListener("click", function(e){
-  window.location.href = "/?room="+room;
+  window.location.href = "/track?room="+room;
 });
 
 

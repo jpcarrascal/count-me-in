@@ -28,6 +28,13 @@
                 </td>
               </tr>
               <tr>
+                <td colspan=2>
+                  <div class="centered">
+                  <span id="disconnect-message"></span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
                 <td><label for="room">Enter a name to create a new room:</label></td>
               </tr>
               <tr>
@@ -55,10 +62,15 @@
         this.parentElement.style.backgroundColor = "transparent";
       });
 
+      var reason = findGetParameter("exitreason");
+      
+      if(reason && reason != "")
+        document.getElementById("disconnect-message").innerText = reason;
+
       document.getElementById("create-room").addEventListener("click", function(e){
         if(room.value) form.submit();
         else {
-          room.parentElement.style.backgroundColor="tomato"
+          room.parentElement.style.backgroundColor="tomato";
         } 
       });
     </script>

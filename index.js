@@ -11,26 +11,29 @@ var rooms = new AllRooms(config.NUM_TRACKS, config.MAX_NUM_ROUNDS);
 
 app.get('/', (req, res) => {
     // req.query.seq
-    page = '/html/index.html';
+    var page = '/html/index.html';
     res.sendFile(__dirname + page);
 });
 
 app.get('/sequencer', (req, res) => {
-    page = '/html/sequencer.html';
+    if(req.query.room)
+        var page = '/html/sequencer.html';
+    else
+        var page = '/html/index.html';
     res.sendFile(__dirname + page);
 });
 
 app.get('/track', (req, res) => {
     if(req.query.room && (req.query.initials || req.query.initials==="") )
-        page = '/html/track.html';
+        var page = '/html/track.html';
     else
-        page = '/html/index-track.html';
+        var page = '/html/index-track.html';
     res.sendFile(__dirname + page);
 });
 
 app.get('/favicon.ico', (req, res) => {
     // req.query.seq
-    page = '/images/favicon.ico';
+    var page = '/images/favicon.ico';
     res.sendFile(__dirname + page);
 });
 
@@ -48,14 +51,19 @@ io.on('connection', (socket) => {
     var allocationMethod = socket.handshake.query.method || "random";
     socket.join(room);
     if(seq) {
-        rooms.addRoom(room, allocationMethod);
-        console.log("Sequencer joined room " + room);
-        rooms.setSeqID(room,socket.id);
-        socket.on('disconnect', () => {
-            console.log(initials + ' disconnected (sequencer). Clearing room...');
-            socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
-            rooms.clearRoom(room);
-        });
+        const exists = rooms.findRoom(room);
+        if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "'"+room+"' exists already. Choose a different name."});
+        else {
+            rooms.addRoom(room, allocationMethod);
+            console.log("Sequencer joined room " + room);
+            rooms.setSeqID(room,socket.id);
+            socket.on('disconnect', () => {
+                console.log(initials + ' disconnected (sequencer). Clearing room ' + room);
+                socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
+                rooms.clearRoom(room);
+                console.log(rooms)
+            });
+        }
     } else {
         if(rooms.isReady(room)) {
             var track = rooms.allocateAvailableParticipant(room, socket.id, initials);

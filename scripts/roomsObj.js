@@ -147,6 +147,7 @@ class AllRooms {
     clearRoom(roomName) {
         var roomId = this.findRoom(roomName);
         this.rooms[roomId].seqID = "";
+        this.rooms[roomId].name = "";
         this.rooms[roomId].releaseAllParticipants();
     }
 

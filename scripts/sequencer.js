@@ -109,6 +109,14 @@ if(isSeq) {
     //clearTrack(msg.track);
   });
 
+  socket.on('sequencer exists', function(msg) {
+    //removeTrack();
+    var reason = "";
+    if(msg.reason)
+        reason = "?exitreason=" + msg.reason;
+    window.location.href = "/sequencer"+reason;
+  });
+
   document.addEventListener("keydown", event => {
     if (event.code == "Space") {
       event.preventDefault();
