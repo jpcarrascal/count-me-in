@@ -149,6 +149,10 @@ if(isSeq) {
     tempo = this.value;
     interval = 60000/(4*tempo);
   });
+
+  document.getElementById("show-room-link").addEventListener("click",function(e){
+    document.getElementById("room-info").style.display = "flex";
+  });
 }
 
 function clearTrack(track) {

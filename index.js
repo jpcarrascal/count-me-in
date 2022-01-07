@@ -61,7 +61,6 @@ io.on('connection', (socket) => {
                 console.log(initials + ' disconnected (sequencer). Clearing room ' + room);
                 socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
                 rooms.clearRoom(room);
-                console.log(rooms)
             });
         }
     } else {

@@ -322,6 +322,11 @@ tr.synth-track {
     height: 1.3em;
 }
 
+button.controls:active {
+    margin-top: 0.05em;
+    margin-bottom: -0.05em;
+}
+
 #device-label {
     margin-left: 3vw;
 }
