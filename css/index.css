@@ -67,6 +67,7 @@ body {
 
 #new-room-name {
     width: 10em;
+    text-align: center;
 }
 
 .intro-room-hide {
