@@ -44,10 +44,20 @@ body {
     font-weight: bold;
 }
 
+#qrcode-wrapper {
+    height: 40vh;
+    width: 40vh;
+    display: block;
+    margin: 0;
+    padding: 0;
+    background-color: white;
+}
+
 #qrcode {
     height: 40vh;
     width: 40vh;
     display: block;
+    margin: 0;
 }
 
 .room-info {

@@ -15,11 +15,14 @@ if(isSeq) {
     var closeInfo = document.getElementById("close-info");
     closeInfo.addEventListener("click", function() { info.style.display = "none"});
     var trackURL = document.location.origin + "/track?room="+room;
-    var qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
+    var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
+    var qrcode = document.createElement("img");
+    qrcode.setAttribute("src",qrcodeURL);
+    qrcode.setAttribute("id","qrcode");
+    document.getElementById("qrcode-wrapper").appendChild(qrcode);
+    document.getElementById("track-url").setAttribute("href",trackURL);
     document.getElementById("track-url").innerText = trackURL;
     document.getElementById("url-copy").innerText = trackURL;
-    document.getElementById("qrcode").setAttribute("src",qrcode);
-    document.getElementById("track-url").setAttribute("href",trackURL);
     document.getElementById("copy").addEventListener("click", function(e) {
       copyURL("url-copy");
       this.innerText = "COPIED!";
