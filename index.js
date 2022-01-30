@@ -5,7 +5,29 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const { AllRooms } = require("./scripts/roomsObj.js");
-var config = require('./scripts/config.js');
+const config = require('./scripts/config.js');
+
+
+const { createLogger, format, transports } = require('winston');
+const { combine, timestamp, label, printf } = format;
+
+const myFormat = printf(({ level, message, label, timestamp }) => {
+  return `${timestamp} ${message}`;
+});
+
+const logger = createLogger({
+  format: combine(
+    label({ label: 'countmein' }),
+    timestamp(),
+    myFormat
+  ),
+  transports: [
+      new transports.Console(),
+      new transports.File({ filename: 'info.log' })
+    ]
+});
+
+  
 
 var rooms = new AllRooms(config.NUM_TRACKS, config.MAX_NUM_ROUNDS);
 
@@ -55,10 +77,10 @@ io.on('connection', (socket) => {
         if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "'"+room+"' exists already. Choose a different name."});
         else {
             rooms.addRoom(room, allocationMethod);
-            console.log("Sequencer joined room " + room);
+            logger.info(" ["+room+"] "+"Sequencer joined room");
             rooms.setSeqID(room,socket.id);
             socket.on('disconnect', () => {
-                console.log(initials + ' disconnected (sequencer). Clearing room ' + room);
+                logger.info(" ["+room+"] "+initials + ' disconnected (sequencer). Clearing room');
                 socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
                 rooms.clearRoom(room);
             });
@@ -66,13 +88,13 @@ io.on('connection', (socket) => {
     } else {
         if(rooms.isReady(room)) {
             var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-            console.log(initials + " joined room " + room + " on track " + track);
+            logger.info(" ["+room+"] "+initials + " joined room on track " + track);
             socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
             socket.on('disconnect', () => {
                 var track2delete = rooms.getParticipantNumber(room, socket.id);
                 rooms.releaseParticipant(room, socket.id);
                 io.to(room).emit('clear track', {track: track2delete, initials: initials});
-                console.log(initials + "(" + socket.id + ") disconnected, clearing track " + track2delete);
+                logger.info(" ["+room+"] "+initials + "(" + socket.id + ") disconnected, clearing track " + track2delete);
             });
             io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
         } else {
@@ -82,6 +104,7 @@ io.on('connection', (socket) => {
     socket.on('step update', (msg) => { // Send step values
         io.to(room).emit('step update', msg);
         rooms.participantStartCounting(room, socket.id);
+        logger.info(" ["+room+"] "+ "Step updated: track: "+msg.track+" step: "+msg.step+" note: "+msg.note+" value: "+msg.value);
     });
 
     socket.on('track notes', (msg) => { // Send all notes from track
@@ -96,7 +119,7 @@ io.on('connection', (socket) => {
         }
         if(expired.length > 0) {
             for(var i=0; i<expired.length; i++) {
-                console.log(expired[i].initials + "'s session expired!")
+                logger.info(" ["+room+"] "+expired[i].initials + "'s session expired!");
                 io.to(expired[i].socketID).emit('exit session', {reason: "Join again?"});
             }
         }
@@ -104,26 +127,26 @@ io.on('connection', (socket) => {
 
     socket.on('play', (msg) => {
         socket.broadcast.to(room).emit('play', msg);
-        console.log("Playing...");
+        logger.info(" ["+room+"] "+"Playing...");
     });
 
     socket.on('stop', (msg) => {
         socket.broadcast.to(room).emit('stop', msg);
-        console.log("Stopped.");
+        logger.info(" ["+room+"] "+"Stopped.");
     });
 
 });
 
 var port = process.env.PORT || 3000;
 server.listen(port, () => {
-  console.log('listening on *:' + port);
+  logger.info('listening on *:' + port);
 });
 
 
 function exitHandler(options, exitCode) {
-    console.log("Bye!!!")
-    if (options.cleanup) console.log('clean');
-    if (exitCode || exitCode === 0) console.log(exitCode);
+    logger.info("Bye!!!")
+    if (options.cleanup) logger.info('clean');
+    if (exitCode || exitCode === 0) logger.info(exitCode);
     if (options.exit) process.exit();
 }
 

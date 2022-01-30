@@ -1,10 +1,10 @@
 {
-    "name": "InControl",
+    "name": "Count-Me-In",
     "version": "0.0.1",
-    "description": "Audience loop control",
+    "description": "Collaborative Step Sequencer",
     "dependencies": {
         "express": "^4.17.1",
-        "express-request-id": "^2.0.1",
-        "socket.io": "^4.4.0"
+        "socket.io": "^4.4.0",
+        "winston": "^3.5.0"
     }
 }
