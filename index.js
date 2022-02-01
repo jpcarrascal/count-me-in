@@ -27,8 +27,6 @@ const logger = createLogger({
     ]
 });
 
-  
-
 var rooms = new AllRooms(config.NUM_TRACKS, config.MAX_NUM_ROUNDS);
 
 app.get('/', (req, res) => {
@@ -98,7 +96,7 @@ io.on('connection', (socket) => {
             });
             io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
         } else {
-            io.to(socket.id).emit('exit session', {reason: "Sequencer not online yet..."});
+            io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
     }
     socket.on('step update', (msg) => { // Send step values

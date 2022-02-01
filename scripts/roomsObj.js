@@ -153,26 +153,22 @@ class AllRooms {
 
     removeRoom(roomName) {
         var roomId = this.findRoom(roomName);
-        if(roomId >=0) this.rooms.splice(roomId, 1);
-        else throw 'Room not found!';
+        this.rooms.splice(roomId, 1);
     }
 
     allocateAvailableParticipant(roomName, socketID, initials) {
         var roomId = this.findRoom(roomName);
-        if(roomId >=0) return(this.rooms[roomId].allocateAvailableParticipant(socketID, initials));
-        else throw 'Room not found!';
+        return(this.rooms[roomId].allocateAvailableParticipant(socketID, initials));
     }
 
     releaseParticipant(roomName, socketID) {
         var roomId = this.findRoom(roomName);
-        if(roomId >=0) return(this.rooms[roomId].releaseParticipant(socketID));
-        else throw 'Room not found!';
+        return(this.rooms[roomId].releaseParticipant(socketID));
     }
 
     getParticipantNumber(roomName, socketID) {
         var roomId = this.findRoom(roomName);
-        if(roomId >=0) return(this.rooms[roomId].getParticipantNumber(socketID));
-        else throw 'Room not found!';
+        return(this.rooms[roomId].getParticipantNumber(socketID));
     }
 
     participantStartCounting(roomName, socketID) {
