@@ -95,30 +95,34 @@ function scheduler() {
 }
 
 startBtn.addEventListener('click', function() {
-  if(audioContext.state === 'suspended'){
-    audioContext.resume();
-  };
-  nextNotetime = audioContext.currentTime;
-  counter = 0;
-  prev = 15;
-  socket.emit('play', { socketID: mySocketID });
-  for(var i=0; i<synthGain.length; i++) {
-    synthGain[i].connect(audioContext.destination);
+  if(!playing) {
+    if(audioContext.state === 'suspended'){
+      audioContext.resume();
+    };
+    nextNotetime = audioContext.currentTime;
+    counter = 0;
+    prev = 15;
+    socket.emit('play', { socketID: mySocketID });
+    for(var i=0; i<synthGain.length; i++) {
+      synthGain[i].connect(audioContext.destination);
+    }
+    this.classList.add("playing");
+    playing = true;
+    scheduler();
   }
-  this.classList.add("playing");
-  playing = true;
-  scheduler();
 });
 
 stopBtn.addEventListener('click', function() {
-  socket.emit('stop', { socketID: mySocketID });
-  document.querySelector("#play").classList.remove("playing");
-  for(var i=0; i<synthGain.length; i++) {
-    synthGain[i].disconnect();
+  if(playing) {
+    socket.emit('stop', { socketID: mySocketID });
+    document.querySelector("#play").classList.remove("playing");
+    for(var i=0; i<synthGain.length; i++) {
+      synthGain[i].disconnect();
+    }
+    clearTimeout(timerID);
+    updateCursor(-1, -1);
+    playing = false;
   }
-  clearTimeout(timerID);
-  updateCursor(-1, -1);
-  playing = false;
 });
 
 if(audioContext.state === 'suspended'){

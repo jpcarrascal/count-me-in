@@ -13,7 +13,10 @@ if(isSeq) {
     var info = document.getElementById("room-info");
     info.style.display = "flex";
     var closeInfo = document.getElementById("close-info");
-    closeInfo.addEventListener("click", function() { info.style.display = "none"});
+    closeInfo.addEventListener("click", function() {
+      info.style.display = "none";
+      if(!playing) document.getElementById("play").click();
+    });
     var trackURL = document.location.origin + "/track?room="+room;
     var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
     var qrcode = document.createElement("img");
