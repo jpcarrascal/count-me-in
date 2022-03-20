@@ -51,6 +51,15 @@ class Room {
         return -1;
     }
 
+    getParticipantInitials(socketID) {
+        for(var i=0; i<this.participants.length; i++) {
+            if(this.participants[i].socketID == socketID) {
+                return(this.participants[i].initials);
+            }
+        }
+        return -1;
+    }
+
     releaseAllParticipants() {
         for(var i=0; i<this.participants.length; i++) {
             this.participants[i] == "";
@@ -169,6 +178,11 @@ class AllRooms {
     getParticipantNumber(roomName, socketID) {
         var roomId = this.findRoom(roomName);
         return(this.rooms[roomId].getParticipantNumber(socketID));
+    }
+
+    getParticipantInitials(roomName, socketID) {
+        var roomId = this.findRoom(roomName);
+        return(this.rooms[roomId].getParticipantInitials(socketID));
     }
 
     participantStartCounting(roomName, socketID) {
