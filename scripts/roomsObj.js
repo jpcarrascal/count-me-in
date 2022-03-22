@@ -162,46 +162,55 @@ class AllRooms {
 
     removeRoom(roomName) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         this.rooms.splice(roomId, 1);
     }
 
     allocateAvailableParticipant(roomName, socketID, initials) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         return(this.rooms[roomId].allocateAvailableParticipant(socketID, initials));
     }
 
     releaseParticipant(roomName, socketID) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         return(this.rooms[roomId].releaseParticipant(socketID));
     }
 
     getParticipantNumber(roomName, socketID) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         return(this.rooms[roomId].getParticipantNumber(socketID));
     }
 
     getParticipantInitials(roomName, socketID) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         return(this.rooms[roomId].getParticipantInitials(socketID));
     }
 
     participantStartCounting(roomName, socketID) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         this.rooms[roomId].participantStartCounting(socketID);
     }
 
     participantIncrementRounds(roomName, socketID) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         this.rooms[roomId].incrementParticipantRound(socketID);
     }
 
     getAllParticipants(roomName) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         return this.rooms[roomId].participants;
     }
 
     incrementAllCounters(roomName) {
         var roomId = this.findRoom(roomName);
+        if(roomId == -1) return -1;
         return this.rooms[roomId].incrementAllCounters();
     }
 }
