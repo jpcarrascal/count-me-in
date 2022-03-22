@@ -43,10 +43,16 @@
         </table>
 
         <div id="control-panel">
+
           <button id="play" class="controls">&#9654;</button>
           <button id="stop" class="controls">&#9724;</button>
-          <input id="tempo" type="number" class="controls" value=120 min="60" max="250"/>
-          <span class="controls">BPM</span>
+
+          <span class="controls" id="ext-clock-indicator">[<span id="ext-clock">Ext Clock</span>]</span>
+
+          <div id="bpm">
+            <input id="tempo" type="number" class="controls" value=120 min="60" max="250"/>
+            <span class="controls">BPM</span>
+          </div>
 
           <button class="controls" id="show-room-link">
             Session info

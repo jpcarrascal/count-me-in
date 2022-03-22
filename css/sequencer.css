@@ -362,3 +362,7 @@ button.controls:active {
 .hidden {
     display: none;
 }
+
+#ext-clock-indicator {
+    display: none;
+}

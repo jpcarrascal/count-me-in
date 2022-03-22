@@ -6,6 +6,7 @@ var beatCounter = -1;
 var measCounter = -1;
 var MIDIoutIndex = 0;
 var MIDIinIndex = 0;
+let indicator = document.getElementById("ext-clock");
 
 if (navigator.requestMIDIAccess) {
     console.log('Browser supports MIDI. Yay!');
@@ -25,19 +26,24 @@ function success(midi) {
     if(MIDIinIndex != 0) {
         MIDIin = midi.inputs.get(MIDIinIndex);
         console.log("MIDI clock in: " + MIDIin.name);
-        MIDIin.onmidimessage = processMIDIclock;
+        MIDIin.onmidimessage = processMIDIin;
+        document.getElementById("ext-clock-indicator").style.display = "inline";
+        document.getElementById("bpm").style.display = "none";
+        document.getElementById("play").style.display = "none";
+        document.getElementById("stop").style.display = "none";
     } else {
         console.log("Using internal clock.");
     }
 }
 
-function processMIDIclock(midiMsg) {
+function processMIDIin(midiMsg) {
     if(midiMsg.data[0] == 250) { // 0xFA Start (Sys Realtime)
         midiPlaying = true;
         tickCounter = 0;
         beatCounter = 0;
         measCounter = 0;
         startBtn.click();
+        indicator.style.color = "lime";
     }
     if(midiMsg.data[0] == 252) { // 0xFC Stop (Sys Realtime)
         midiPlaying = false;
@@ -45,6 +51,7 @@ function processMIDIclock(midiMsg) {
         beatCounter = -1;
         measCounter = -1;
         stopBtn.click();
+        indicator.style.color = "white";
     }
     if(midiPlaying) {
         if(midiMsg.data[0] == 248) { // 0xF8 Timing Clock (Sys Realtime)
