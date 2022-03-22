@@ -33,12 +33,28 @@ body {
     font-size: 4vw;
 }
 
-#intro-div {
-    margin-top: 10vh;
+#intro {
     display:flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+#midi-devices {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-select, .devices-label {
+    margin-left: 1vw;
+    height: 1.3em;
+}
+
+.device-select {
+    width: 6em;
+    font-size: inherit;
 }
 
 #disconnect-message {

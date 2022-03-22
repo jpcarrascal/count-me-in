@@ -31,7 +31,7 @@ var rooms = new AllRooms(config.NUM_TRACKS, config.MAX_NUM_ROUNDS);
 
 app.get('/', (req, res) => {
     // req.query.seq
-    var page = '/html/index.html';
+    var page = '/html/index-track.html';
     res.sendFile(__dirname + page);
 });
 
@@ -39,7 +39,7 @@ app.get('/sequencer', (req, res) => {
     if(req.query.room)
         var page = '/html/sequencer.html';
     else
-        var page = '/html/index.html';
+        var page = '/html/index-sequencer.html';
     res.sendFile(__dirname + page);
 });
 

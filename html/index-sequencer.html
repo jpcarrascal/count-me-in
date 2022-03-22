@@ -16,44 +16,44 @@
   </head>
   <body>
     <div id="form-container">
-      
-        <div id="intro-div">
-          <form id="intro" action="sequencer" method="get">
-            <table id="intro-form-table">
-              <tr>
-                <td>
-                  <div class="centered">
-                    <h2>COUNT·ME·IN</h2>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td colspan=2>
-                  <div class="centered">
-                  <span id="disconnect-message"></span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td><label for="room">Enter a name to create a new session:</label></td>
-              </tr>
-              <tr>
-                <td class="centered"><input type="text" class="intro-form" name="room" id="new-room-name" placeholder="[session name]" /></td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <div class="centered">
-                    <button id="create-room" class="ui-button" value="Go!" type="button">Go!</button>
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </form>
+
+      <form id="intro" action="sequencer" method="get">
+        <div class="centered">
+          <h2>COUNT·ME·IN</h2>
         </div>
+
+        <div class="centered">
+        <span id="disconnect-message"></span>
+        </div>
+
+        <label for="room">Enter a name to create a new session:</label>
+        <input type="text" class="intro-form" name="room" id="new-room-name" placeholder="[session name]" />
+        <div class="centered">
+          <button id="create-room" class="ui-button" value="Go!" type="button">Go!</button>
+        </div>
+
+        <div id="midi-devices">
+          <div class="controls device-select-control">
+            <label for="devices" class="devices-label">MIDI out:</label>
+            <select name="devices" class="device-select" id="select-midi-out">
+              <option value="0">Internal sounds</option>
+            </select>
+          </div>
+          
+          <div class="controls device-select-control">
+            <label for="devices" class="devices-label">MIDI Clock:</label>
+            <select name="devices" class="device-select" id="select-midi-in">
+              <option value="0">Internal</option>
+            </select>
+          </div>
+        </div>
+
+      </form>
       
     </div>
     <script src="scripts/config.js"></script>
     <script src="scripts/include.js"></script>
+    <script src="scripts/midi-device-select.js"></script>
     <script>
       var form = document.getElementById("intro");
       var room = document.querySelector("#new-room-name");

@@ -326,7 +326,7 @@ tr.synth-track {
     margin-left: 1vw;
 }
 
-.controls, #device-select, #devices-label {
+.controls {
     margin-left: 1vw;
     font-size: 2.5vw;
     height: 1.3em;
@@ -337,24 +337,12 @@ button.controls:active {
     margin-bottom: -0.05em;
 }
 
-#device-label {
-    margin-left: 3vw;
-}
-
 #tempo {
     height: 1.3em;
     border: 0;
     padding: 0;
     width: 2.3em;
     text-align: right;
-}
-
-#device-select-control {
-    margin-left: 2em;
-}
-
-#device-select {
-    width: 6em;
 }
 
 .cursor {
@@ -369,4 +357,8 @@ button.controls:active {
     height: 1.3em;
     width: 1.3em;
     padding-top: 0em;
+}
+
+.hidden {
+    display: none;
 }

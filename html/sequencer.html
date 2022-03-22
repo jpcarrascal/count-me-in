@@ -47,12 +47,6 @@
           <button id="stop" class="controls">&#9724;</button>
           <input id="tempo" type="number" class="controls" value=120 min="60" max="250"/>
           <span class="controls">BPM</span>
-          <div class="controls" id="device-select-control">
-            <label for="devices" id="devices-label">MIDI device:</label>
-            <select name="devices" id="device-select">
-              <option value="0">Internal sounds</option>
-            </select>
-          </div>
 
           <button class="controls" id="show-room-link">
             Session info
@@ -76,12 +70,11 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="scripts/config.js"></script>
     <script src="scripts/include.js"></script>
-    <script src="scripts/midi.js"></script>
     <script src="scripts/sequencerObj.js"></script>
     <script src="scripts/sequencer.js"></script>
     <script src="scripts/noteFrequencies.js"></script>
     <script src="scripts/audio.js"></script>
-    
+    <script src="scripts/midi.js"></script>
 
 
   </body>

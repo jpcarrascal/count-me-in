@@ -8,31 +8,30 @@ if(isSeq) {
   method = findGetParameter("method") || "random";
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
-  if(!hideInfo) {
-    document.getElementById("room-name").innerText = room;
-    var info = document.getElementById("room-info");
+  document.getElementById("room-name").innerText = room;
+  var info = document.getElementById("room-info");
+  var trackURL = document.location.origin + "/track?room="+room;
+  var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
+  var qrcode = document.createElement("img");
+  qrcode.setAttribute("src",qrcodeURL);
+  qrcode.setAttribute("id","qrcode");
+  document.getElementById("qrcode-wrapper").appendChild(qrcode);
+  document.getElementById("track-url").setAttribute("href",trackURL);
+  document.getElementById("track-url").innerText = trackURL;
+  document.getElementById("url-copy").innerText = trackURL;
+  document.getElementById("copy").addEventListener("click", function(e) {
+    copyURL("url-copy");
+    this.innerText = "COPIED!";
+    p=setTimeout( function() { document.getElementById("copy").innerText = "COPY TO CLIPBOARD" }, 2000);
+    console.log(p)
+  });
+
+  if(hideInfo) {
+    info.style.display = "none";
+  } else {
     info.style.display = "flex";
-    var closeInfo = document.getElementById("close-info");
-    closeInfo.addEventListener("click", function() {
-      info.style.display = "none";
-      if(!playing) document.getElementById("play").click();
-    });
-    var trackURL = document.location.origin + "/track?room="+room;
-    var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
-    var qrcode = document.createElement("img");
-    qrcode.setAttribute("src",qrcodeURL);
-    qrcode.setAttribute("id","qrcode");
-    document.getElementById("qrcode-wrapper").appendChild(qrcode);
-    document.getElementById("track-url").setAttribute("href",trackURL);
-    document.getElementById("track-url").innerText = trackURL;
-    document.getElementById("url-copy").innerText = trackURL;
-    document.getElementById("copy").addEventListener("click", function(e) {
-      copyURL("url-copy");
-      this.innerText = "COPIED!";
-      p=setTimeout( function() { document.getElementById("copy").innerText = "COPY TO CLIPBOARD" }, 2000);
-      console.log(p)
-    });
   }
+  
 } else {
   console.log("not a sequencer...");
   initials = findGetParameter("initials") || "?";
@@ -123,6 +122,11 @@ if(isSeq) {
     window.location.href = "/sequencer"+reason;
   });
 
+  var closeInfo = document.getElementById("close-info");
+  closeInfo.addEventListener("click", function() {
+    hideAndPLay();
+  });
+
   document.addEventListener("keydown", event => {
     if (event.code == "Space") {
       event.preventDefault();
@@ -131,11 +135,22 @@ if(isSeq) {
         document.querySelector("#stop").dispatchEvent(e);
       else
         document.querySelector("#play").dispatchEvent(e);
-    } else if (event.code == "Escape") {
-      document.getElementById("room-info").style.display = "none";
+    } else if (event.code == "Enter") {
+      event.preventDefault();
+      hideAndPLay();
     }
   });
 
+  function hideAndPLay() {
+    var info = document.getElementById("room-info");
+    if(info.style.display == "flex") {
+      info.style.display = "none";
+      if(!playing && MIDIinIndex == 0) document.getElementById("play").click();
+    } else {
+      info.style.display = "flex";
+    }
+  }
+  
   // tracks:
   for(var i=NUM_TRACKS-1; i>=0; i--) {
     var tr = createTrack(i);

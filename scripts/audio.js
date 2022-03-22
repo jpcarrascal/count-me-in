@@ -38,7 +38,7 @@ function playStepNotes(counter) {
   for(var i=0; i<stepSequencer.nTracks; i++) {
     var value = notesToPlay[i].vel;
     var note = notesToPlay[i].note;
-    if(MIDIport) MIDIplayNote(note, value, MIDIport);
+    if(MIDIout) MIDIplayNote(note, value, MIDIout);
     else AudioPlayDrum(i, note, value);
   }
 }
@@ -79,19 +79,22 @@ function playBass(i, f, vel) {
 function scheduler() {
     while(nextNotetime < audioContext.currentTime + 0.01) {
         nextNotetime += (interval/1000);
-        playStepNotes(counter);
-        socket.emit('step tick', { counter: counter, prev: prev } );
-        //playBass();
-        updateCursor(counter, prev);
-        if(counter < NUM_STEPS-1) {
-          counter++;
-          prev = counter - 1;
-        } else {
-            counter = 0;
-            prev = 15;
-        }
+        tick();
     }
     timerID = window.setTimeout(scheduler, 0);
+}
+
+function tick() {
+  playStepNotes(counter);
+  socket.emit('step tick', { counter: counter, prev: prev } );
+  updateCursor(counter, prev);
+  if(counter < NUM_STEPS-1) {
+    counter++;
+    prev = counter - 1;
+  } else {
+      counter = 0;
+      prev = 15;
+  }
 }
 
 startBtn.addEventListener('click', function() {
@@ -108,7 +111,8 @@ startBtn.addEventListener('click', function() {
     }
     this.classList.add("playing");
     playing = true;
-    scheduler();
+    // Only start scheduler if clock is internal
+    if(MIDIinIndex == 0) scheduler();
   }
 });
 
