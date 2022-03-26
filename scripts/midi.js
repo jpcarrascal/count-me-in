@@ -28,6 +28,7 @@ function success(midi) {
         console.log("MIDI clock in: " + MIDIin.name);
         MIDIin.onmidimessage = processMIDIin;
         document.getElementById("ext-clock-indicator").style.display = "inline";
+        document.getElementById("ext-tempo").style.display = "inline";
         document.getElementById("bpm").style.display = "none";
         document.getElementById("play").style.display = "none";
         document.getElementById("stop").style.display = "none";
@@ -36,6 +37,9 @@ function success(midi) {
     }
 }
 
+var tempoMeasureSw = true;
+var startTime = 0;
+var endTime   = 0;
 function processMIDIin(midiMsg) {
     if(midiMsg.data[0] == 250) { // 0xFA Start (Sys Realtime)
         midiPlaying = true;
@@ -66,6 +70,15 @@ function processMIDIin(midiMsg) {
                     beatCounter = 0;
                 }
                 tickCounter = 0;
+                // Measure tempo:
+                if(tempoMeasureSw) {
+                    startTime = performance.now();
+                    tempoMeasureSw = false;
+                } else {
+                    var endTime = performance.now();
+                    calculateTempo(endTime - startTime);
+                    tempoMeasureSw = true;
+                }
             }
         }
     }
@@ -73,6 +86,11 @@ function processMIDIin(midiMsg) {
 
 function failure(){ console.log("MIDI not supported :(")};
 
+function calculateTempo(time) {
+    let tempoElem = document.getElementById("ext-tempo");
+    let tempo = Math.round(60000/(time*4));
+    tempoElem.innerText = tempo;
+}
 
 function MIDIplayNote (note, vel, out) {
     out.send([NOTE_ON, note, vel]);

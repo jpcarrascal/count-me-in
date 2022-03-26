@@ -337,6 +337,11 @@ button.controls:active {
     margin-bottom: -0.05em;
 }
 
+button.controls:hover {
+    background-color: black;
+    color: white;
+}
+
 #tempo {
     height: 1.3em;
     border: 0;
@@ -363,6 +368,6 @@ button.controls:active {
     display: none;
 }
 
-#ext-clock-indicator {
+#ext-clock-indicator, #ext-tempo-indicator {
     display: none;
 }
