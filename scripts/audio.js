@@ -39,11 +39,11 @@ function playStepNotes(counter) {
     var value = notesToPlay[i].vel;
     var note = notesToPlay[i].note;
     if(MIDIout) MIDIplayNote(note, value, MIDIout);
-    else AudioPlayDrum(i, note, value);
+    else audioPlayDrum(i, note, value);
   }
 }
 
-function AudioPlayDrum(i, note, vel) {
+function audioPlayDrum(i, note, vel) {
     /* bass experiment: */
     if(i>7) {
       //synthOsc[i-8].frequency.value = noteFrequencies[note];

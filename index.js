@@ -57,6 +57,12 @@ app.get('/favicon.ico', (req, res) => {
     res.sendFile(__dirname + page);
 });
 
+app.get('/latency', (req, res) => {
+    // req.query.seq
+    var page = '/html/latency.html';
+    res.sendFile(__dirname + page);
+});
+
 app.use('/scripts', express.static(__dirname + '/scripts/'));
 app.use('/css', express.static(__dirname + '/css/'));
 app.use('/images', express.static(__dirname + '/images/'));
@@ -132,6 +138,10 @@ io.on('connection', (socket) => {
     socket.on('stop', (msg) => {
         socket.broadcast.to(room).emit('stop', msg);
         logger.info(" ["+room+"] "+"Stopped.");
+    });
+
+    socket.on('ping', (msg) => {
+        io.to(socket.id).emit('pong', msg);
     });
 
 });

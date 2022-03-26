@@ -1,0 +1,53 @@
+    <!DOCTYPE html>
+     <html>
+  <head>
+    <meta charset='utf-8'/>
+  </head>
+  <body style='margin:0px' >
+
+    <table>
+    <tr>
+        <th>latency in milliseconds</th>
+        <th>hover to trigger message</th>
+    </tr>
+    <tr>
+        <td><textarea id='message' name='message' rows="20" cols="20" ></textarea></td>
+        <td><textarea id='hover' name='hover' rows="20" cols="20" ></textarea></td>
+    </tr>
+    <tr>
+      <td><button id="reset">Reset</button> </td>
+      <td id="avg"></td>
+    </tr>
+    </table>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+            var socket = io.connect();
+            var messagearea = document.getElementById("message");
+            var workarea = document.getElementById("hover");
+            workarea.onmousemove = function(){
+                var startTime = Date.now();
+                socket.emit('ping',startTime);
+
+            };
+
+            socket.on('pong', function(startTime) {
+                var latency = Date.now() - startTime;
+                messagearea.innerHTML =  messagearea.innerHTML + latency + '\n';
+                messagearea.scrollTop = messagearea.scrollHeight;
+                var values = messagearea.innerHTML.split("\n");
+                var avg = values.reduce(function(p,c,i){return p+(c-p)/(i+1)},0);
+                document.getElementById("avg").innerHTML = avg;
+            });
+
+            document.getElementById("reset").addEventListener("click", function(e){
+              messagearea.innerHTML = "";
+              document.getElementById("avg").innerHTML = "0";
+            });
+
+    </script>   
+
+  </body>
+</html>
