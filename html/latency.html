@@ -6,6 +6,13 @@
   <body style='margin:0px' >
 
     <table>
+
+    <tr>
+      <td><button id="start">Start</button></td>
+      <td><button id="stop">Stop</button></td>
+    </tr>
+
+
     <tr>
         <th>latency in milliseconds</th>
         <th>hover to trigger message</th>
@@ -42,6 +49,10 @@
             var socket = io.connect();
             var messagearea = document.getElementById("message");
             var workarea = document.getElementById("hover");
+            var start = document.getElementById("start");
+            var stop = document.getElementById("stop");
+            var intervalId;
+            var pingInterval = 100;
             workarea.onmousemove = function(){
                 var startTime = Date.now();
                 socket.emit('ping',startTime);
@@ -63,10 +74,24 @@
                 document.getElementById("min").innerHTML = values[1];
                 document.getElementById("max").innerHTML = values[values.length-1];
                 var median = values[Math.ceil(values.length/2)];
-                //console.log(values.length + "\t" + Math.ceil(values.length/2) + "\t" + values[Math.ceil(values.length/2)])
                 document.getElementById("median").innerHTML = median;
             });
 
+            start.addEventListener("click", function(e) {
+              messagearea.innerHTML = "";
+              document.getElementById("avg").innerHTML = "";
+              document.getElementById("min").innerHTML = "";
+              document.getElementById("max").innerHTML = "";
+              document.getElementById("median").innerHTML = "";
+              intervalId = setInterval(function() {
+                var startTime = Date.now();
+                socket.emit('ping',startTime);
+              }, pingInterval);
+            })
+
+            stop.addEventListener("click", function(e) {
+              clearTimeout(intervalId);
+            })
 
 
     </script>   
