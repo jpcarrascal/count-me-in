@@ -11,13 +11,29 @@
         <th>hover to trigger message</th>
     </tr>
     <tr>
-        <td><textarea id='message' name='message' rows="20" cols="20" ></textarea></td>
-        <td><textarea id='hover' name='hover' rows="20" cols="20" ></textarea></td>
+        <td><textarea id='message' name='message' rows="20" cols="20"></textarea></td>
+        <td><textarea id='hover' name='hover' rows="20" cols="20"></textarea></td>
     </tr>
     <tr>
-      <td><button id="reset">Reset</button> </td>
+      <td>Min</td>
+      <td id="min"></td>
+    </tr>
+
+    <tr>
+      <td>Max</td>
+      <td id="max"></td>
+    </tr>
+
+    <tr>
+      <td>Mean</td>
       <td id="avg"></td>
     </tr>
+
+    <tr>
+      <td>Median</td>
+      <td id="median"></td>
+    </tr>
+
     </table>
 
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -37,15 +53,18 @@
                 var latency = Date.now() - startTime;
                 messagearea.innerHTML =  messagearea.innerHTML + latency + '\n';
                 messagearea.scrollTop = messagearea.scrollHeight;
-                var values = messagearea.innerHTML.split("\n");
+                var values = messagearea.innerHTML.trim().split("\n").map(x => parseInt(x));
                 var avg = values.reduce(function(p,c,i){return p+(c-p)/(i+1)},0);
                 document.getElementById("avg").innerHTML = avg;
+                values.sort(function(a, b){return a-b});
+                document.getElementById("min").innerHTML = values[1];
+                document.getElementById("max").innerHTML = values[values.length-1];
+                var median = values[Math.ceil(values.length/2)];
+                //console.log(values.length + "\t" + Math.ceil(values.length/2) + "\t" + values[Math.ceil(values.length/2)])
+                document.getElementById("median").innerHTML = median;
             });
 
-            document.getElementById("reset").addEventListener("click", function(e){
-              messagearea.innerHTML = "";
-              document.getElementById("avg").innerHTML = "0";
-            });
+
 
     </script>   
 
