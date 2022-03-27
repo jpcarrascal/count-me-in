@@ -36,7 +36,6 @@
 
     </table>
 
-    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
 
@@ -46,7 +45,11 @@
             workarea.onmousemove = function(){
                 var startTime = Date.now();
                 socket.emit('ping',startTime);
+            };
 
+            workarea.ontouchmove = function(){
+                var startTime = Date.now();
+                socket.emit('ping',startTime);
             };
 
             socket.on('pong', function(startTime) {
