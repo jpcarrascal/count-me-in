@@ -8,12 +8,6 @@
     <table>
 
     <tr>
-      <td><button id="start">Start</button></td>
-      <td><button id="stop">Stop</button></td>
-    </tr>
-
-
-    <tr>
         <th>latency in milliseconds</th>
         <th>hover to trigger message</th>
     </tr>
@@ -41,6 +35,16 @@
       <td id="median"></td>
     </tr>
 
+    <tr>
+      <td><button id="start">Start</button></td>
+      <td><button id="stop">Stop</button></td>
+    </tr>
+
+    <tr>
+      <td>Measuring for (&#60;10 mins):</td>
+      <td id="time"></td>
+    </tr>
+
     </table>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -51,7 +55,8 @@
             var workarea = document.getElementById("hover");
             var start = document.getElementById("start");
             var stop = document.getElementById("stop");
-            var intervalId;
+            var timeElem = document.getElementById("time");
+            var measurementID, timerID;
             var pingInterval = 100;
             workarea.onmousemove = function(){
                 var startTime = Date.now();
@@ -78,20 +83,46 @@
             });
 
             start.addEventListener("click", function(e) {
+              var now = Date.now();
+              timeElem.innerHTML = "00:00:00";
               messagearea.innerHTML = "";
               document.getElementById("avg").innerHTML = "";
               document.getElementById("min").innerHTML = "";
               document.getElementById("max").innerHTML = "";
               document.getElementById("median").innerHTML = "";
-              intervalId = setInterval(function() {
+              measurementID = setInterval(function() {
                 var startTime = Date.now();
                 socket.emit('ping',startTime);
               }, pingInterval);
+
+              timerID = setInterval(function() {
+                const d = new Date();
+                let time = d.getTime();
+                timeElem.innerHTML = msToTime(Math.floor((time - now)/1000));
+                console.log("s");
+              }, 1000);
             })
 
             stop.addEventListener("click", function(e) {
-              clearTimeout(intervalId);
+              clearTimeout(timerID);
+              clearTimeout(measurementID);
             })
+
+            // from: https://stackoverflow.com/questions/9763441/milliseconds-to-time-in-javascript
+            function msToTime(secs) {
+              function pad(n, z) {
+                z = z || 2;
+                return ('00' + n).slice(-z);
+              }
+              var mins = Math.floor(secs / 60);
+              secs = secs - mins*60;
+              var hrs = Math.floor(mins / 60);
+              if(secs >= 600) {
+                clearTimeout(timerID);
+                clearTimeout(measurementID);
+              }
+              return pad(hrs) + ':' + pad(mins) + ':' + pad(secs);
+            }
 
 
     </script>   
