@@ -1,5 +1,6 @@
 var MIDIout = null;
 var MIDIin = null;
+var extClock = false;
 var midiPlaying = false;
 var tickCounter = -1;
 var beatCounter = -1;
@@ -24,6 +25,7 @@ function success(midi) {
     }
 
     if(MIDIinIndex != 0) {
+        extClock = true;
         MIDIin = midi.inputs.get(MIDIinIndex);
         console.log("MIDI clock in: " + MIDIin.name);
         MIDIin.onmidimessage = processMIDIin;
@@ -41,24 +43,28 @@ var tempoMeasureSw = true;
 var startTime = 0;
 var endTime   = 0;
 function processMIDIin(midiMsg) {
-    if(midiMsg.data[0] == 250) { // 0xFA Start (Sys Realtime)
+    // altStartMessage: used to sync when playback has already started
+    // in clock source device
+    // 0xB0 & 7 = CC, channel 8.
+    var altStartMessage = midiMsg.data[0] == 183 &&
+                         midiMsg.data[1] == 16 &&
+                         midiMsg.data[2] == 127;
+    if(midiMsg.data[0] == 250 || altStartMessage) { // 0xFA Start (Sys Realtime)
         midiPlaying = true;
         tickCounter = 0;
         beatCounter = 0;
         measCounter = 0;
         startBtn.click();
         indicator.style.color = "lime";
-    }
-    if(midiMsg.data[0] == 252) { // 0xFC Stop (Sys Realtime)
+    } else if(midiMsg.data[0] == 252) { // 0xFC Stop (Sys Realtime)
         midiPlaying = false;
         tickCounter = -1;
         beatCounter = -1;
         measCounter = -1;
         stopBtn.click();
         indicator.style.color = "white";
-    }
-    if(midiPlaying) {
-        if(midiMsg.data[0] == 248) { // 0xF8 Timing Clock (Sys Realtime)
+    } else if(midiMsg.data[0] == 248) { // 0xF8 Timing Clock (Sys Realtime)
+        if(midiPlaying) {
             if(tickCounter == 0) {
                 tick();
             }
@@ -81,6 +87,8 @@ function processMIDIin(midiMsg) {
                 }
             }
         }
+    } else {
+        //console.log(midiMsg.data)
     }
 }
 

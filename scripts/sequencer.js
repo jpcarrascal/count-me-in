@@ -128,7 +128,7 @@ if(isSeq) {
   });
 
   document.addEventListener("keydown", event => {
-    if (event.code == "Space") {
+    if (event.code == "Space" && !extClock) {
       event.preventDefault();
       e = new Event("click");
       if(playing)
@@ -145,7 +145,7 @@ if(isSeq) {
     var info = document.getElementById("room-info");
     if(info.style.display == "flex") {
       info.style.display = "none";
-      if(!playing && MIDIinIndex == 0) document.getElementById("play").click();
+      if(!playing && !extClock) document.getElementById("play").click();
     } else {
       info.style.display = "flex";
     }
