@@ -6,7 +6,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const { AllRooms } = require("./scripts/roomsObj.js");
 const config = require('./scripts/config.js');
-
+var cookie = require("cookie")
 
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, printf } = format;
@@ -77,14 +77,16 @@ io.on('connection', (socket) => {
     var allocationMethod = socket.handshake.query.method || "random";
     socket.join(room);
     if(seq) {
+        var cookief = socket.handshake.headers.cookie; 
+        var cookies = cookie.parse(socket.handshake.headers.cookie);    
         const exists = rooms.findRoom(room);
-        if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "'" + room + "' exists already. Choose a different name."});
+        if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "#" + room + " exists already. Choose a different name."});
         else {
             rooms.addRoom(room, allocationMethod);
-            logger.info(" #" + room + " "+"@sequencer joined room");
+            logger.info("#" + room + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
             rooms.setSeqID(room,socket.id);
             socket.on('disconnect', () => {
-                logger.info(" #" + room + " @" + initials + " disconnected (sequencer). Clearing room");
+                logger.info("#" + room + " @SEQUENCER disconnected (sequencer). Clearing session");
                 socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
                 rooms.clearRoom(room);
             });
@@ -92,13 +94,13 @@ io.on('connection', (socket) => {
     } else {
         if(rooms.isReady(room)) {
             var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-            logger.info(" #" + room + " @" + initials + " joined room on track " + track);
+            logger.info("#" + room + " @" + initials + " joined session on track " + track);
             socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
             socket.on('disconnect', () => {
                 var track2delete = rooms.getParticipantNumber(room, socket.id);
                 rooms.releaseParticipant(room, socket.id);
                 io.to(room).emit('clear track', {track: track2delete, initials: initials});
-                logger.info(" #" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
+                logger.info("#" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
             });
             io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
         } else {
@@ -109,7 +111,9 @@ io.on('connection', (socket) => {
         io.to(room).emit('step update', msg);
         rooms.participantStartCounting(room, socket.id);
         let initials = rooms.getParticipantInitials(room, socket.id);
-        logger.info(" #" + room + " @" + initials + " step updated: track: "+msg.track+" step: "+msg.step+" note: "+msg.note+" value: "+msg.value);
+        logger.info("#" + room + " @" + initials + " step_update event: " + msg.action +
+                        " track: " + msg.track + " step: " +msg.step +
+                        " note: " + msg.note + " value: " +msg.value);
     });
 
     socket.on('track notes', (msg) => { // Send all notes from track
@@ -124,7 +128,7 @@ io.on('connection', (socket) => {
         }
         if(expired.length > 0) {
             for(var i=0; i<expired.length; i++) {
-                logger.info(" #" + room + " @"+expired[i].initials + " session expired!");
+                logger.info("#" + room + " @"+expired[i].initials + " session expired!");
                 io.to(expired[i].socketID).emit('exit session', {reason: "Join again?"});
             }
         }
@@ -132,12 +136,12 @@ io.on('connection', (socket) => {
 
     socket.on('play', (msg) => {
         socket.broadcast.to(room).emit('play', msg);
-        logger.info(" #" + room + " "+"Playing...");
+        logger.info("#" + room + " Playing...");
     });
 
     socket.on('stop', (msg) => {
         socket.broadcast.to(room).emit('stop', msg);
-        logger.info(" #" + room + " "+"Stopped.");
+        logger.info("#" + room + " Stopped.");
     });
 
     socket.on('ping', (msg) => {

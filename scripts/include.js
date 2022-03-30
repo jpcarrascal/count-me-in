@@ -199,7 +199,7 @@ function keyClick(e) {
   var kb = document.getElementById(stepID+"kb");
   var stepElem = document.getElementById(stepID);
   var note = parseInt(this.getAttribute("note")) + (12 * kb.getAttribute("octave"));
-  updateStep(stepElem, note, vel);
+  updateStep(stepElem, note, vel, "keyClick");
 }
 
 function octaveClick(e) {
@@ -213,12 +213,12 @@ function octaveClick(e) {
     curOct++;
     kb.setAttribute("octave", curOct);
     note += 12;
-    updateStep(stepElem, note, SYNTH_DEFAULT_VEL);
+    updateStep(stepElem, note, SYNTH_DEFAULT_VEL, "octUp");
   } else if(direction == "-" && curOct > MIN_OCTAVE) {
     curOct--;
     kb.setAttribute("octave", curOct);
     note -= 12;
-    updateStep(stepElem, note, SYNTH_DEFAULT_VEL);
+    updateStep(stepElem, note, SYNTH_DEFAULT_VEL, "octDown");
   }
 }
 
@@ -249,14 +249,14 @@ function stepClick(e) {
   } else {
       value = 0;
   }
-  updateStep(this, false, value);
+  updateStep(this, false, value, "stepClick");
   mouseStepDownVal = value;
 }
 
 function stepHover(e) {
   if(e.buttons == 1 || e.buttons == 3) {
     value = mouseStepDownVal;
-    updateStep(this, false, value);
+    updateStep(this, false, value, "stepHover");
   }
 }
 
@@ -265,7 +265,7 @@ function faderDrag(e) {
   var stepID = this.getAttribute("stepID");
   var value = parseInt(this.value);
   var stepElem = document.getElementById(stepID);
-  updateStep(stepElem, false, value);
+  updateStep(stepElem, false, value, "faderDrag");
 }
 
 // From: https://stackoverflow.com/questions/62892560/change-the-value-of-input-range-when-hover-or-mousemove
@@ -279,7 +279,7 @@ function faderHover(e) {
     valueHover = Math.floor(calcSliderPos(e).toFixed(2));
     if(valueHover != this.value) {
       var step = document.getElementById(this.getAttribute("stepid"));
-      updateStep(step, false, valueHover);
+      updateStep(step, false, valueHover, "faderHover");
     }
   }
 }
@@ -293,7 +293,7 @@ function faderWhileDragging(e) {
   stepElem.style.backgroundColor = valueToBGColor(value);
 }
 
-function updateStep(stepElem, note, value) {
+function updateStep(stepElem, note, value, action) {
   var oldValue = stepElem.getAttribute("value");
   var oldNote = stepElem.getAttribute("note");
   if(value != oldValue || ( note && note != oldNote) ) {
@@ -311,14 +311,14 @@ function updateStep(stepElem, note, value) {
     stepElem.style.backgroundColor = valueToBGColor(value);
     var swColor = stepElem.firstChild.getAttribute("color");
     stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
-    socket.emit('step update', { track: track, step: step, note: note, value: value, socketID: mySocketID } );
+    socket.emit('step update', { track: track, step: step, note: note, value: value, action: action, socketID: mySocketID } );
   }
 }
 
 function clearSteps(e) {
   var track = this.getAttribute("track");
   document.querySelectorAll(".step."+track).forEach(elem => {
-    updateStep(elem, false, 0);
+    updateStep(elem, false, 0, "clearSteps");
   });
 }
 
