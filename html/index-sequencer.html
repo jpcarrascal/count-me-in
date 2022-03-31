@@ -59,12 +59,12 @@
     <script>
       var form = document.getElementById("intro");
       var room = document.querySelector("#new-room-name");
+      var reason = findGetParameter("exitreason");
+      var useMidi = findGetParameter("midi");
 
       room.addEventListener("keyup", function(e) {
           this.style.backgroundColor = "white";
       });
-
-      var reason = findGetParameter("exitreason");
       
       if(reason && reason != "")
           document.getElementById("disconnect-message").innerText = reason;
@@ -76,6 +76,11 @@
             room.style.backgroundColor="tomato";
           } 
       });
+
+      if(useMidi) {
+        document.getElementById("midi-devices").style.display = "flex";
+      }
+
     </script>
   </body>
 </html>
