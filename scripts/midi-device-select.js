@@ -6,14 +6,17 @@ if (navigator.requestMIDIAccess) {
 function success(midi) {
     var outList = document.getElementById("select-midi-out");
     var inList  = document.getElementById("select-midi-in");
+    var chList  = document.getElementById("select-midi-channel");
     var selectedOut = getCookie("MIDIout");
     var selectedIn  = getCookie("MIDIin");
+    var selectedCh = getCookie("MIDIch");
     var outputs = midi.outputs.values();
     var inputs  = midi.inputs.values();
     var numOuts = 0;
     var numIns  = 0;
     // outputs is an Iterator
-  
+    if(selectedCh) chList.value = selectedCh;
+
     for (var output = outputs.next(); output && !output.done; output = outputs.next()) {
         var option = document.createElement("option");
         option.value = output.value.id;
@@ -50,6 +53,11 @@ function success(midi) {
             console.log("Internal clock selected.");
             setCookie("MIDIin",0,1000);
         }
+    });
+
+    chList.addEventListener("change", function(e) {
+        console.log("MIDI channel: " + this.options[this.selectedIndex].text);
+        setCookie("MIDIch",this.value,1000);
     });
 
     if(numOuts == 0) {

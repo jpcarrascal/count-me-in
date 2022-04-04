@@ -148,6 +148,26 @@ io.on('connection', (socket) => {
         io.to(socket.id).emit('pong', msg);
     });
 
+    socket.on('track mute', (msg) => {
+        console.log("Mute: " + msg.value);
+    });
+
+    socket.on('track solo', (msg) => {
+        console.log("Solo: " + msg.value);
+    });
+
+    socket.on('track volume', (msg) => {
+        console.log("Vol: " + msg.value);
+    });
+
+    socket.on('hide tracks', (msg) => {
+        if(msg.value)
+            console.log("Un-hiding tracks,");
+        else
+            console.log("Hiding tracks,");
+        socket.broadcast.to(room).emit('visible', {value: msg.value});
+    });
+
 });
 
 var port = process.env.PORT || 3000;

@@ -7,6 +7,7 @@ var beatCounter = -1;
 var measCounter = -1;
 var MIDIoutIndex = 0;
 var MIDIinIndex = 0;
+var MIDIch = 0;
 let indicator = document.getElementById("ext-clock");
 
 if (navigator.requestMIDIAccess) {
@@ -17,6 +18,7 @@ if (navigator.requestMIDIAccess) {
 function success(midi) {
     MIDIoutIndex = getCookie("MIDIout");
     MIDIinIndex = getCookie("MIDIin");
+    MIDIch = getCookie("MIDIch");
     if(MIDIoutIndex != 0) {
         MIDIout = midi.outputs.get(MIDIoutIndex);
         console.log("MIDI out: " + MIDIout.name);
@@ -45,10 +47,11 @@ var endTime   = 0;
 function processMIDIin(midiMsg) {
     // altStartMessage: used to sync when playback has already started
     // in clock source device
-    // 0xB0 & 7 = CC, channel 8.
-    var altStartMessage = midiMsg.data[0] == 183 &&
+    // 0xB0 & 0x07 = CC, channel 8.
+    // Responding to altStartMessage regardless of channels
+    var altStartMessage = (midiMsg.data[0] & 240) == 176 &&
                          midiMsg.data[1] == 16 &&
-                         midiMsg.data[2] == 127;
+                         midiMsg.data[2] > 63;
     if(midiMsg.data[0] == 250 || altStartMessage) { // 0xFA Start (Sys Realtime)
         midiPlaying = true;
         tickCounter = 0;
@@ -87,7 +90,29 @@ function processMIDIin(midiMsg) {
                 }
             }
         }
-    } else {
+    } else if((midiMsg.data[0] & 240) == 176 && (midiMsg.data[0] & 15) == MIDIch) { //CC, right channel
+        var track = -1;
+        var value = -1;
+        if(midiMsg.data[1] >= 20 && midiMsg.data[1] <= 35) {
+            track = midiMsg.data[1] - 20;
+            value = midiMsg.data[2] > 63? true : false;
+            socket.emit('track mute', { track: track,  value: value} );
+        } else if(midiMsg.data[1] >= 40 && midiMsg.data[1] <= 55) {
+            track = midiMsg.data[1] - 20;
+            value = midiMsg.data[2] > 63? true : false;
+            socket.emit('track solo', { track: track,  value: value} );
+        } else if(midiMsg.data[1] >= 60 && midiMsg.data[1] <= 75) {
+            track = midiMsg.data[1] - 20;
+            value = midiMsg.data[2];
+            socket.emit('track volume', { track: track,  value: value} );
+        } else if(midiMsg.data[1] == 18) {
+            value = midiMsg.data[2] > 63? true : false;
+            if(value) document.getElementById("sequencer").style.visibility = "visible";
+            else document.getElementById("sequencer").style.visibility = "hidden";
+            socket.emit('hide tracks', { value: value} );
+        }
+    }
+     else {
         //console.log(midiMsg.data)
     }
 }

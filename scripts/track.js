@@ -10,6 +10,11 @@ socket.on('step tick', function(msg) {
     }
 });
 
+socket.on('visible', function(msg) {
+    if(msg.value) document.getElementById("matrix").style.visibility = "visible";
+    else document.getElementById("matrix").style.visibility = "hidden";
+});
+
 var restart = document.getElementById("restart");
 restart.addEventListener("click", function(e){
   window.location.href = "/track?room="+room;
