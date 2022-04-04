@@ -10,9 +10,9 @@ socket.on('step tick', function(msg) {
     }
 });
 
-socket.on('visible', function(msg) {
-    if(msg.value) document.getElementById("matrix").style.visibility = "visible";
-    else document.getElementById("matrix").style.visibility = "hidden";
+socket.on('hide toggle track', function(msg) {
+    if(msg.value > 63)
+        document.getElementById("matrix").classList.toggle("invisible");
 });
 
 var restart = document.getElementById("restart");

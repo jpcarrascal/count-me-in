@@ -371,3 +371,7 @@ button.controls:hover {
 #ext-clock-indicator, #ext-tempo-indicator {
     display: none;
 }
+
+.invisible {
+    visibility: hidden;
+}

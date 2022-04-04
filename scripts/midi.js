@@ -106,14 +106,13 @@ function processMIDIin(midiMsg) {
             value = midiMsg.data[2];
             socket.emit('track volume', { track: track,  value: value} );
         } else if(midiMsg.data[1] == 18) {
-            value = midiMsg.data[2] > 63? true : false;
-            if(value) document.getElementById("sequencer").style.visibility = "visible";
-            else document.getElementById("sequencer").style.visibility = "hidden";
-            socket.emit('hide tracks', { value: value} );
+            if(midiMsg.data[2] > 63)
+                document.getElementById("sequencer").classList.toggle("invisible");
+            socket.emit('hide toggle', { value: midiMsg.data[2] } );
         }
     }
      else {
-        //console.log(midiMsg.data)
+        console.log(midiMsg.data)
     }
 }
 

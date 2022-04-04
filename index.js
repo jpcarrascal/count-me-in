@@ -160,12 +160,9 @@ io.on('connection', (socket) => {
         console.log("Vol: " + msg.value);
     });
 
-    socket.on('hide tracks', (msg) => {
-        if(msg.value)
-            console.log("Un-hiding tracks,");
-        else
-            console.log("Hiding tracks,");
-        socket.broadcast.to(room).emit('visible', {value: msg.value});
+    socket.on('hide toggle', (msg) => {
+        console.log("Toggle hiding tracks,");
+        socket.broadcast.to(room).emit('hide toggle track', {value: msg.value});
     });
 
 });

@@ -50,4 +50,6 @@
     padding-right: 1vw;
 }
 
-
+.invisible {
+    visibility: hidden;
+}
