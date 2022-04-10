@@ -4,3 +4,7 @@
 @import "{{ site.theme }}";
 body { background-color: white; background-image: none; }
 #container { background-image: none; }
+img + em {
+  font-style: normal;
+  text-align: center;
+}
