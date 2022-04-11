@@ -1,6 +1,4 @@
-**Count-Me-In** is a collaborative music sequencer that uses a distributed Web architecture to promote audience participation in music performances, installations, and other similar contexts. Audience members take control of individual sequencer tracks using their mobile phones (or any networked device), collaboratively building a music loop or phrase. This dialog represents a disruption in the traditional role played by the audience in a music performance: instead of being passive listeners, attendees become active performers.
-
-Count-Me-In features a music sequencer that can be synchronized with any DAW or hardware device that generates MIDI Clock messages.
+**Count-Me-In** is a collaborative music sequencer that uses a distributed Web architecture to promote audience participation in music performances, installations, and other similar contexts. Audience members take control of individual sequencer tracks using their mobile phones (or any networked device), collaboratively building a music loop or phrase. This dialog represents a disruption in the traditional role played by the audience in a music performance: instead of being passive listeners, attendees become active performers. Count-Me-In can be synchronized with any DAW or hardware device that generates MIDI Clock messages, allowing seamless collaboration between performers and audience.
 
 ![image](https://user-images.githubusercontent.com/1902661/160303272-272b6496-3829-451b-bb03-e5f96321e3b2.png)
 *A Count-Me-In session.*
