@@ -4,6 +4,7 @@ var audioContext = new AudioContext();
 
 var drums = new Array();
 var synthOsc = new Array();
+var synthMute = new Array();
 var synthGain = new Array();
 var synthVel = new Array();
 const mainMix = audioContext.createGain();
@@ -12,9 +13,15 @@ document.querySelectorAll(".drumSamples").forEach(elem => {
   var trackid = elem.getAttribute("track");
   drums[trackid] = elem;
   var track = audioContext.createMediaElementSource(elem);
+  const velNode  = audioContext.createGain();
+  const muteNode = audioContext.createGain();
   const gainNode = audioContext.createGain();
-  track.connect(gainNode);
+  velNode.gain.value = 1; 
+  muteNode.gain.value = 1; 
   gainNode.gain.value = 1;
+  track.connect(velNode);
+  velNode.connect(muteNode);
+  muteNode.connect(gainNode);
   gainNode.connect(mainMix);
 });
 
@@ -22,16 +29,22 @@ for(var i=0; i<NUM_TRACKS-8; i++) {
   synthOsc[i] = audioContext.createOscillator();
   synthOsc[i].type = 'square';
   synthOsc[i].frequency.value = 0;
+  synthVel[i]  = audioContext.createGain();
+  synthMute[i] = audioContext.createGain();
   synthGain[i] = audioContext.createGain();
-  synthVel[i] = audioContext.createGain();
-  synthOsc[i].connect(synthVel[i]);
-  synthVel[i].connect(synthGain[i]);
   synthVel[i].gain.value = 0;
+  synthMute[i].gain.value = 1;
   synthGain[i].gain.value = 0.1;
+  synthOsc[i].connect(synthVel[i]);
+  synthVel[i].connect(synthMute[i]);
+  synthMute[i].connect(synthGain[i]);
   synthOsc[i].start(audioContext.currentTime);
 }
 
-mainMix.connect(audioContext.destination);
+var mainMute = audioContext.createGain();
+mainMix.connect(mainMute);
+mainMute.gain.value = 1;
+mainMute.connect(audioContext.destination);
 
 function playStepNotes(counter) {
   var notesToPlay = stepSequencer.getStepNotes(counter);
@@ -107,7 +120,7 @@ startBtn.addEventListener('click', function() {
     prev = 15;
     socket.emit('play', { socketID: mySocketID });
     for(var i=0; i<synthGain.length; i++) {
-      synthGain[i].connect(audioContext.destination);
+      synthGain[i].connect(mainMix);
     }
     this.classList.add("playing");
     playing = true;

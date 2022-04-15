@@ -161,7 +161,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('hide toggle', (msg) => {
-        console.log("Toggle hiding tracks,");
         socket.broadcast.to(room).emit('hide toggle track', {value: msg.value});
     });
 

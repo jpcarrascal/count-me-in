@@ -106,8 +106,13 @@ function processMIDIin(midiMsg) {
             value = midiMsg.data[2];
             socket.emit('track volume', { track: track,  value: value} );
         } else if(midiMsg.data[1] == 18) {
+            let seq = document.getElementById("sequencer");
             if(midiMsg.data[2] > 63)
-                document.getElementById("sequencer").classList.toggle("invisible");
+                seq.classList.toggle("invisible");
+            if(seq.classList.contains("invisible"))
+                mainMute.gain.value = 0;
+            else
+                mainMute.gain.value = 1;
             socket.emit('hide toggle', { value: midiMsg.data[2] } );
         }
     }
