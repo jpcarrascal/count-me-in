@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>COUNT·ME·IN</title>
+    <link rel="stylesheet" href="css/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5JXMQXE0QJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-5JXMQXE0QJ');
+    </script>
+  </head>
+  <body>
+    <div id="form-container">
+      
+        <div id="intro-div">
+          <form id="intro" action="conductor" method="get">
+            <table id="intro-form-table">
+              <tr>
+                <td colspan="2">
+                  <div class="centered">
+                    <h2>COUNT·ME·IN</h2>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td colspan=2>
+                  <div class="centered">
+                  <span id="disconnect-message"></span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><label for="initials">Enter your initials:</label></td>
+                <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="3" placeholder="---" style="text-transform:uppercase"/></td>
+              </tr>
+              <tr>
+                <td><label for="room" class="intro-room-hide" >Name of session to join:</label></td>
+                <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" placeholder="[session]" /></td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <div class="centered">
+                    <button id="go" class="ui-button" value="Go!">Go!</button>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </form>
+        </div>
+      
+    </div>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/include.js"></script>
+    <script>
+      var initials = getCookie("initials");
+      var initialsElem = document.getElementById("initials");
+      initialsElem.value = initials;
+      initialsElem.addEventListener("keyup", function (e) {
+        this.value = this.value.toUpperCase();
+      });
+
+      var room = findGetParameter("room");
+      if(!room) document.querySelectorAll(".intro-room-hide").forEach(elem => {
+        elem.style.display = "block";
+      });
+
+      document.getElementById("room").value = room;
+
+      var reason = findGetParameter("exitreason");
+      if(reason && reason != "")
+        document.getElementById("disconnect-message").innerText = reason;
+      
+      var form = document.getElementById("intro");
+      document.getElementById("go").addEventListener("click", function(e){
+        var initialsValue = initialsElem.value;
+        console.log(document.querySelector("#room").value)
+        console.log(initialsValue);
+        setCookie("initials",initialsValue);
+        form.submit();
+      });
+    </script>
+  </body>
+</html>

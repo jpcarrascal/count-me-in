@@ -4,25 +4,31 @@ var audioContext = new AudioContext();
 
 var drums = new Array();
 var synthOsc = new Array();
+var synthVel = new Array();
+var synthVel2 = new Array();
 var synthMute = new Array();
 var synthGain = new Array();
-var synthVel = new Array();
+var trackMute = new Array();
+var trackGain = new Array();
+
 const mainMix = audioContext.createGain();
 
+var trackCount = 0;
 document.querySelectorAll(".drumSamples").forEach(elem => {
   var trackid = elem.getAttribute("track");
   drums[trackid] = elem;
   var track = audioContext.createMediaElementSource(elem);
   const velNode  = audioContext.createGain();
-  const muteNode = audioContext.createGain();
-  const gainNode = audioContext.createGain();
+  trackMute[trackCount] = audioContext.createGain();
+  trackGain[trackCount] = audioContext.createGain();
   velNode.gain.value = 1; 
-  muteNode.gain.value = 1; 
-  gainNode.gain.value = 1;
+  trackMute[trackCount].gain.value = 1; 
+  trackGain[trackCount].gain.value = 1;
   track.connect(velNode);
-  velNode.connect(muteNode);
-  muteNode.connect(gainNode);
-  gainNode.connect(mainMix);
+  velNode.connect(trackMute[trackCount]);
+  trackMute[trackCount].connect(trackGain[trackCount]);
+  trackGain[trackCount].connect(mainMix);
+  trackCount++;
 });
 
 for(var i=0; i<NUM_TRACKS-8; i++) {
@@ -30,14 +36,17 @@ for(var i=0; i<NUM_TRACKS-8; i++) {
   synthOsc[i].type = 'square';
   synthOsc[i].frequency.value = 0;
   synthVel[i]  = audioContext.createGain();
-  synthMute[i] = audioContext.createGain();
-  synthGain[i] = audioContext.createGain();
+  synthVel2[i]  = audioContext.createGain();
+  trackMute[trackCount+i] = audioContext.createGain();
+  trackGain[trackCount+i] = audioContext.createGain();
   synthVel[i].gain.value = 0;
-  synthMute[i].gain.value = 1;
-  synthGain[i].gain.value = 0.1;
+  synthVel2[i].gain.value = 0.2;
+  trackMute[trackCount+i].gain.value = 1;
+  trackGain[trackCount+i].gain.value = 1;
   synthOsc[i].connect(synthVel[i]);
-  synthVel[i].connect(synthMute[i]);
-  synthMute[i].connect(synthGain[i]);
+  synthVel[i].connect(synthVel2[i]);
+  synthVel2[i].connect(trackMute[trackCount+i]);
+  trackMute[trackCount+i].connect(trackGain[trackCount+i]);
   synthOsc[i].start(audioContext.currentTime);
 }
 
@@ -119,8 +128,8 @@ startBtn.addEventListener('click', function() {
     counter = 0;
     prev = 15;
     socket.emit('play', { socketID: mySocketID });
-    for(var i=0; i<synthGain.length; i++) {
-      synthGain[i].connect(mainMix);
+    for(var i=NUM_DRUMS; i<NUM_TRACKS; i++) {
+      trackGain[i].connect(mainMix);
     }
     this.classList.add("playing");
     playing = true;
@@ -133,8 +142,8 @@ stopBtn.addEventListener('click', function() {
   if(playing) {
     socket.emit('stop', { socketID: mySocketID });
     document.querySelector("#play").classList.remove("playing");
-    for(var i=0; i<synthGain.length; i++) {
-      synthGain[i].disconnect();
+    for(var i=NUM_DRUMS; i<NUM_TRACKS; i++) {
+      trackGain[trackCount].disconnect();
     }
     clearTimeout(timerID);
     updateCursor(-1, -1);

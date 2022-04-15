@@ -43,6 +43,14 @@ app.get('/sequencer', (req, res) => {
     res.sendFile(__dirname + page);
 });
 
+app.get('/conductor', (req, res) => {
+    if(req.query.room)
+        var page = '/html/conductor.html';
+    else
+        var page = '/html/index-conductor.html';
+    res.sendFile(__dirname + page);
+});
+
 app.get('/track', (req, res) => {
     if(req.query.room && (req.query.initials || req.query.initials==="") )
         var page = '/html/track.html';
@@ -70,8 +78,11 @@ app.use('/sounds', express.static(__dirname + '/sounds/'));
 
 io.on('connection', (socket) => {
     var seq = false;
+    var conductor = false;
     if(socket.handshake.headers.referer.includes("sequencer"))
         seq = true;
+    else if(socket.handshake.headers.referer.includes("conductor"))
+        conductor = true;
     var room = socket.handshake.query.room;
     var initials = socket.handshake.query.initials;
     var allocationMethod = socket.handshake.query.method || "random";
@@ -90,6 +101,12 @@ io.on('connection', (socket) => {
                 socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
                 rooms.clearRoom(room);
             });
+        }
+    } else if(conductor) {
+        if(rooms.isReady(room)) {
+            logger.info("#" + room + " @" + initials + " joined session as conductor");
+        } else {
+            io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
     } else {
         if(rooms.isReady(room)) {
@@ -111,6 +128,7 @@ io.on('connection', (socket) => {
         io.to(room).emit('step update', msg);
         rooms.participantStartCounting(room, socket.id);
         let initials = rooms.getParticipantInitials(room, socket.id);
+        if(seq) initials = "seq";
         logger.info("#" + room + " @" + initials + " step_update event: " + msg.action +
                         " track: " + msg.track + " step: " +msg.step +
                         " note: " + msg.note + " value: " +msg.value);
@@ -157,7 +175,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('track volume', (msg) => {
-        console.log("Vol: " + msg.value);
+        socket.broadcast.to(room).emit('track volume', msg);
+        console.log(msg);
     });
 
     socket.on('hide toggle', (msg) => {

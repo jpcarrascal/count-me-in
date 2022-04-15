@@ -1,4 +1,5 @@
 const NUM_TRACKS = config.NUM_TRACKS;
+const NUM_DRUMS = config.NUM_DRUMS;
 const NUM_STEPS = config.NUM_STEPS;
 const MAX_NUM_ROUNDS = config.MAX_NUM_ROUNDS;
 

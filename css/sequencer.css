@@ -115,27 +115,30 @@ audio {
     justify-content: center;
 }
 
-#sequencer {
+#sequencer, #conductor {
     width: 100%;
+    height: 100%;
     position: absolute;
     z-index: 5;
     display:flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     background-color: #444;
 }
 
 #sequencer-bg {
     width: 100%;
+    height: 100%;
     position: absolute;
     z-index: 1;
     display:flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #666;
-    font-size: 30vh;
+    background-color: #666;
+    color: #444;
+    font-size: 25vh;
     font-weight: bold;
     text-align: center;
     line-height: 80%;
@@ -392,3 +395,60 @@ button.controls:hover {
 .invisible {
     visibility: hidden;
 }
+
+/* Conductor */
+
+#conductor {
+    
+}
+
+#mixer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.mix-fader-cell {
+    background-color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: .5vw;
+    margin: .5vw;
+    border-radius: 0.5vw;
+}
+
+.mix-fader-rail {
+    height: 16vw;
+    background-color: white;
+    border: 0;
+    margin: 0;
+}
+
+.mix-fader-cap {
+    text-align: center;
+    width: 2vw;
+    height: 2vw;
+    border-radius: 10%;
+    background-color: black;
+    margin: 0;
+}
+
+/*
+.step {
+    background-color: white;
+    border-radius: 10%;
+    border: 0;
+    margin: 0.6vw;
+}
+
+.sw {
+    text-align: center;
+    width: 2vw;
+    height: 2vw;
+    margin: .5vw;
+    border-radius: 10%;
+}
+*/
