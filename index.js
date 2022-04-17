@@ -167,8 +167,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('track mute', (msg) => {
-        console.log("Mute: " + msg.value);
-    });
+        console.log(msg)
+        socket.broadcast.to(room).emit('track mute', msg);
+    }); 
 
     socket.on('track solo', (msg) => {
         console.log("Solo: " + msg.value);

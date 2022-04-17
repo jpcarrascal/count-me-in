@@ -63,6 +63,10 @@ socket.on('track volume', function(msg) {
   trackGain[msg.track].gain.value = msg.value;
 });
 
+socket.on('track mute', function(msg) {
+  trackMute[msg.track].gain.value = 1 - msg.value;
+});
+
 socket.on('step update', function(msg) {
   var stepID = "track"+msg.track+"-step"+msg.step;
   var step = document.getElementById(stepID);

@@ -143,7 +143,7 @@ stopBtn.addEventListener('click', function() {
     socket.emit('stop', { socketID: mySocketID });
     document.querySelector("#play").classList.remove("playing");
     for(var i=NUM_DRUMS; i<NUM_TRACKS; i++) {
-      trackGain[trackCount].disconnect();
+      trackGain[i].disconnect();
     }
     clearTimeout(timerID);
     updateCursor(-1, -1);

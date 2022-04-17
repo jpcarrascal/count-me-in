@@ -307,7 +307,7 @@ tr.synth-track {
 
 .step {
     background-color: white;
-    border-radius: 10%;
+    border-radius: 0.3vw;
     border: 0;
     margin: 0.6vw;
 }
@@ -317,7 +317,7 @@ tr.synth-track {
     width: 2vw;
     height: 2vw;
     margin: .5vw;
-    border-radius: 10%;
+    border-radius: 0.3vw;
 }
 
 .sw-transparent {
@@ -403,12 +403,15 @@ button.controls:hover {
 }
 
 #mixer {
-    width: 100%;
     display: flex;
+    width: 100%;
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: #AAA;
 }
 
-.mix-fader-cell {
+.strip-cell  {
     background-color: white;
     text-align: center;
     display: flex;
@@ -417,38 +420,43 @@ button.controls:hover {
     justify-content: center;
     padding: .5vw;
     margin: .5vw;
-    border-radius: 0.5vw;
+    border-radius: 0.3vw;
 }
 
 .mix-fader-rail {
     height: 16vw;
-    background-color: white;
     border: 0;
     margin: 0;
 }
 
-.mix-fader-cap {
-    text-align: center;
-    width: 2vw;
-    height: 2vw;
-    border-radius: 10%;
-    background-color: black;
+.mute, .solo {
+    border: 0;
     margin: 0;
 }
 
-/*
-.step {
-    background-color: white;
-    border-radius: 10%;
-    border: 0;
-    margin: 0.6vw;
-}
-
-.sw {
+.mix-fader-cap, .mixSw {
     text-align: center;
     width: 2vw;
     height: 2vw;
-    margin: .5vw;
-    border-radius: 10%;
+    line-height: 2vw;
+    font-size: 1.2vw;
+    border-radius: 0.3vw;
+    background-color: #666;
+    margin: 0;
 }
-*/
+
+.mixSw {
+    background-color: white;
+    color: #666;
+    text-align: center;
+}
+
+.mute-on {
+    background-color: darkorange;
+    color: white;
+}
+
+.solo-on {
+    background-color: tomato;
+    color: white;
+}
