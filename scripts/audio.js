@@ -86,8 +86,8 @@ var nextNote = document.getElementById("debug");
 var nextNotetime = audioContext.currentTime;
 var clock = document.getElementById("debug1");
 var nextNote = document.getElementById("debug2");
-var startBtn = document.getElementById("play");
-var stopBtn = document.getElementById("stop");
+var playButton = document.getElementById("play");
+var stopButton = document.getElementById("stop");
 var timerID;
 var playTime = 0;
 
@@ -119,7 +119,7 @@ function tick() {
   }
 }
 
-startBtn.addEventListener('click', function() {
+playButton.addEventListener('click', function() {
   if(!playing) {
     if(audioContext.state === 'suspended'){
       audioContext.resume();
@@ -138,7 +138,7 @@ startBtn.addEventListener('click', function() {
   }
 });
 
-stopBtn.addEventListener('click', function() {
+stopButton.addEventListener('click', function() {
   if(playing) {
     socket.emit('stop', { socketID: mySocketID });
     document.querySelector("#play").classList.remove("playing");
