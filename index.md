@@ -23,4 +23,6 @@ The Web applications are:
 
 Count-Me-In can be synchronized to any DAW or hardware sequencer capable of generating MIDI Clock messages. It can also be configured to send note output to an external MIDI device. A typical scenario comprises a DAW generating a master MIDI clock and several MIDI tracks. Transport is controlled from the DAW, with the Count-Me-In sequencer synched to follow the DAW and sending MIDI note data to the DAW's MIDI tracks. A performer controls the DAWs, while MIDI notes from Count-Me-In depend on the interactions from audience participants.
 
-
+## Related publications:
+* Carrascal, Juan Pablo. (2022, June 7). Count-Me-In: A Collaborative Step Sequencer for Audience Participation. Proceedings of the 2022 Sound and Music Computing Conference (SMC22). https://doi.org/10.5281/zenodo.6573453
+* Carrascal, Juan Pablo. (2022, June 7). Social / Musical Gaming with Count-Me-in (demo). Proceedings of the 2022 Sound and Music Computing Conference (SMC22). https://doi.org/10.5281/zenodo.6576041
