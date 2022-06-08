@@ -21,7 +21,7 @@ function success(midi) {
     MIDIch = getCookie("MIDIch");
     if(MIDIoutIndex != 0) {
         MIDIout = midi.outputs.get(MIDIoutIndex);
-        console.log("MIDI out: " + MIDIout.name);
+        //console.log("MIDI out: " + MIDIout.name);
     } else {
         console.log("Using internal sounds.")
     }
@@ -29,7 +29,7 @@ function success(midi) {
     if(MIDIinIndex != 0) {
         extClock = true;
         MIDIin = midi.inputs.get(MIDIinIndex);
-        console.log("MIDI clock in: " + MIDIin.name);
+        //console.log("MIDI clock in: " + MIDIin.name);
         MIDIin.onmidimessage = processMIDIin;
         document.getElementById("ext-clock-indicator").style.display = "inline";
         document.getElementById("ext-tempo").style.display = "inline";
