@@ -1,6 +1,4 @@
 
-# Count-Me-In
-
 [Try it out!](https://count-me-in.azurewebsites.net/sequencer)
 
 ![image](https://user-images.githubusercontent.com/1902661/160303272-272b6496-3829-451b-bb03-e5f96321e3b2.png)
