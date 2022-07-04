@@ -1,8 +1,6 @@
 
 [Click here to try it out!](https://count-me-in.azurewebsites.net/sequencer)
-
-<img width="638" alt="Screen Shot 2022-07-04 at 08 56 36" src="https://user-images.githubusercontent.com/1902661/177098861-2e026467-92d2-4110-8216-06283559595b.png">
-
+![join](https://user-images.githubusercontent.com/1902661/177100166-d6044921-98db-4007-b483-37c46b768048.png)
 
 **Count-Me-In** is a collaborative music sequencer that uses a distributed Web architecture to promote audience participation in music performances, installations, and other similar contexts. Audience members take control of individual sequencer tracks using their mobile phones (or any networked device), collaboratively building a music loop or phrase. This dialog represents a disruption in the traditional role played by the audience in a music performance: instead of being passive listeners, attendees become active performers. Count-Me-In can be synchronized with any DAW or hardware device that generates MIDI Clock messages, allowing seamless collaboration between performers and audience.
 
