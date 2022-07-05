@@ -26,7 +26,7 @@ function success(midi) {
         console.log("Using internal sounds.")
     }
 
-    if(MIDIinIndex != 0) {
+    if(MIDIinIndex != 0 && MIDIinIndex != null) {
         extClock = true;
         MIDIin = midi.inputs.get(MIDIinIndex);
         //console.log("MIDI clock in: " + MIDIin.name);
