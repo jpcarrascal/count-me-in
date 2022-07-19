@@ -134,7 +134,7 @@ playButton.addEventListener('click', function() {
     this.classList.add("playing");
     playing = true;
     // Only start scheduler if clock is internal
-    if(MIDIinIndex == 0) scheduler();
+    if(MIDIinIndex == 0 || MIDIinIndex == null) scheduler();
   }
 });
 
