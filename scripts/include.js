@@ -63,6 +63,9 @@ function createTrack(i) {
   var img = document.createElement("img");
   if(i>7) img.setAttribute("src","images/8.png");
   else img.setAttribute("src","images/"+i+".png");
+  if(i==3) img.setAttribute("src","images/seal1.png");
+  if(i==4) img.setAttribute("src","images/seal2.png");
+
   img.setAttribute("track",trackID);
   img.setAttribute("id",trackID+"-icon");
   img.classList.add("track-icon");
