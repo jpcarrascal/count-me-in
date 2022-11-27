@@ -15,7 +15,7 @@ socket.on('exit session', function(msg) {
 });
 
 var mixer = document.getElementById("mixer");
-for(var i=0; i<NUM_TRACKS; i++) {
+for(var i=0; i<num_tracks; i++) {
     createChannelStrip(i);
 }
 

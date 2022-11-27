@@ -4,7 +4,6 @@ var initials = "";
 var room = findGetParameter("room") || DEFAULT_ROOM;
 var method;
 if(isSeq) {
-  var stepSequencer = new StepSequencer(NUM_TRACKS, NUM_STEPS, drumNotes);
   method = findGetParameter("method") || "random";
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
@@ -113,7 +112,7 @@ if(isSeq) {
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
     trackName.innerText = msg.initials;
-    track.style.backgroundColor = colors[msg.track];
+    track.style.backgroundColor = getColor(msg.track);
     if(msg.track > 7) {
       document.getElementById("track" + msg.track + "-name").style.color = "white";
       document.getElementById("track" + msg.track + "-icon").style.filter = "invert(1)";
@@ -158,12 +157,6 @@ if(isSeq) {
       info.style.display = "flex";
     }
   }
-  
-  // tracks:
-  for(var i=NUM_TRACKS-1; i>=0; i--) {
-    var tr = createTrack(i);
-    matrix.appendChild(tr);
-  }
 
   // Seq stuff:
   var tempo = document.getElementById("tempo").value;
@@ -207,8 +200,7 @@ function updateCursor(counter, prev) {
     });
     stepPos.forEach(step => {
       var c = parseInt(step.getAttribute("track"));
-      if(c>7) c = 0;
-      var hlColor = colors[c]
+      var hlColor = getColor(c);
       step.parentElement.classList.add("cursor");
       if(step.getAttribute("value") > 0){
         step.style.backgroundColor = hlColor;

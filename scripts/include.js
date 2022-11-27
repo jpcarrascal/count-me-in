@@ -1,7 +1,9 @@
-const NUM_TRACKS = config.NUM_TRACKS;
 const NUM_DRUMS = config.NUM_DRUMS;
 const NUM_STEPS = config.NUM_STEPS;
 const MAX_NUM_ROUNDS = config.MAX_NUM_ROUNDS;
+const soundParam = findGetParameter("sounds") || "tr808";
+const soundFolder = "/sounds/" + soundParam + "/";
+const soundsJson = soundFolder + "index.json";
 
 const NOTE_ON = 0x90;
 const NOTE_OFF = 0x80;
@@ -12,7 +14,12 @@ const MAX_OCTAVE = 6;
 const MIN_OCTAVE = 1;
 const MID_OCTAVE = 3;
 const SYNTH_DEFAULT_VEL = 63;
-const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black","black","black"];
+const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black"];
+function getColor(index) {
+  while (index >= colors.length)
+    index = index - colors.length;
+  return colors[index];
+}
 /*
 36. Kick Drum
 38. Snare Drum
@@ -24,6 +31,11 @@ const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","o
 46. Hi-Hat Open
 49. Crash Cymbal
 */
+
+/*
+
+*/
+
 const drumNotes = [36, 38, 39, 41, 43, 45, 42, 46];
 const onColor = "rgb(128,128,128)";
 const offColor = "white";
@@ -51,7 +63,7 @@ function createHeader(table) {
   table.appendChild(tr);
 }
 
-function createTrack(i) {
+function createTrack(i, imageURL) {
   var tr = document.createElement("tr");
   var trackID = "track"+i;
   tr.setAttribute("id",trackID);
@@ -61,11 +73,9 @@ function createTrack(i) {
 
   var td = document.createElement("td");
   var img = document.createElement("img");
-  if(i>7) img.setAttribute("src","images/8.png");
-  else img.setAttribute("src","images/"+i+".png");
-  if(i==3) img.setAttribute("src","images/seal1.png");
-  if(i==4) img.setAttribute("src","images/seal2.png");
-
+  //if(i>7) img.setAttribute("src","images/8.png");
+  //else img.setAttribute("src","images/"+i+".png");
+  img.setAttribute("src",imageURL);
   img.setAttribute("track",trackID);
   img.setAttribute("id",trackID+"-icon");
   img.classList.add("track-icon");
@@ -101,7 +111,8 @@ function createTrack(i) {
     step.addEventListener('mousedown', stepClick);
     step.addEventListener('mouseover', stepHover);
     var sw = document.createElement("div");
-    sw.setAttribute("color",colors[i]);
+    var swColor = getColor(i);
+    sw.setAttribute("color",swColor);
     sw.classList.add("sw");
     step.appendChild(sw);
     td.appendChild(step);

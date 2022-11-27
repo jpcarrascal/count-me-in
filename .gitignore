@@ -1,3 +1,5 @@
 node_modules
 info.log
 .DS_Store
+*.wav.asd
+*.aif.asd

@@ -36,17 +36,18 @@ socket.on('create track', function(msg) {
     if(track>7) icon.setAttribute("src","images/8.png");
     else icon.setAttribute("src","images/"+track+".png");
     counter.innerText = msg.maxNumRounds;
-    counter.style.color = colors[track];
+    var color = getColor(track);
+    counter.style.color = color;
     rounds = msg.maxNumRounds;
     var tr = createTrack(track);
-    document.getElementById("track-header").style.backgroundColor = colors[track];
+    document.getElementById("track-header").style.backgroundColor = color;
     if(track>7) {
         document.getElementById("track-header").style.color = "white";
         document.getElementById("big-instrument-icon").style.filter = "invert(1)";
     }
     var matrix = document.getElementById("matrix");
     matrix.appendChild(tr);
-    tr.style.backgroundColor = colors[track];
+    tr.style.backgroundColor = color;
     var trackName = document.getElementById("track"+msg.track+"-name");
     var bigInitials = document.getElementById("big-initials");
     trackName.innerText = initials;

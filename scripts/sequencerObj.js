@@ -1,18 +1,20 @@
 class StepSequencer {
-    constructor(nTracks, nSteps, drumNotes)  {
-        this.nTracks = nTracks;
+    constructor(soundPreset, nSteps)  {
+        this.nTracks = soundPreset.length;
         this.nSteps = nSteps;
-        this.noteValues = drumNotes;
         this.tracks = Array();
-        for(var i=0; i<nTracks; i++) {
+        for(var i=0; i<this.nTracks; i++) {
             var notes = new Array();
             for(var j=0; j<nSteps; j++) {
-                if(i<=7) notes.push({note: this.noteValues[i], vel: 0});
-                else notes.push({note: 0, vel: 0});
+                if(soundPreset[i].type == "sample")
+                    notes.push({note: soundPreset[i].params.note, vel: 0});
+                else
+                    notes.push({note: 0, vel: 0});
             }
-            var track = {name: "", initials: "", notes: notes};
+            var track = {name: "", initials: "", notes: notes, type: soundPreset[i].type};
             this.tracks.push(track);
         }
+        console.log(this.tracks)
     }
     
     setTrackName(i, name) {

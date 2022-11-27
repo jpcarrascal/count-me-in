@@ -2,7 +2,8 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 var audioContext = new AudioContext();
 
-var drums = new Array();
+//var drums = new Array();
+var soundGenerators = new Array();
 var synthOsc = new Array();
 var synthVel = new Array();
 var synthVel2 = new Array();
@@ -10,45 +11,69 @@ var synthMute = new Array();
 var synthGain = new Array();
 var trackMute = new Array();
 var trackGain = new Array();
+var stepSequencer;
+var num_tracks = 0;
 
 const mainMix = audioContext.createGain();
 
-var trackCount = 0;
-document.querySelectorAll(".drumSamples").forEach(elem => {
-  var trackid = elem.getAttribute("track");
-  drums[trackid] = elem;
-  var track = audioContext.createMediaElementSource(elem);
-  const velNode  = audioContext.createGain();
-  trackMute[trackCount] = audioContext.createGain();
-  trackGain[trackCount] = audioContext.createGain();
-  velNode.gain.value = 1; 
-  trackMute[trackCount].gain.value = 1; 
-  trackGain[trackCount].gain.value = 1;
-  track.connect(velNode);
-  velNode.connect(trackMute[trackCount]);
-  trackMute[trackCount].connect(trackGain[trackCount]);
-  trackGain[trackCount].connect(mainMix);
-  trackCount++;
-});
-
-for(var i=0; i<NUM_TRACKS-8; i++) {
-  synthOsc[i] = audioContext.createOscillator();
-  synthOsc[i].type = 'square';
-  synthOsc[i].frequency.value = 0;
-  synthVel[i]  = audioContext.createGain();
-  synthVel2[i]  = audioContext.createGain();
-  trackMute[trackCount+i] = audioContext.createGain();
-  trackGain[trackCount+i] = audioContext.createGain();
-  synthVel[i].gain.value = 0;
-  synthVel2[i].gain.value = 0.2;
-  trackMute[trackCount+i].gain.value = 1;
-  trackGain[trackCount+i].gain.value = 1;
-  synthOsc[i].connect(synthVel[i]);
-  synthVel[i].connect(synthVel2[i]);
-  synthVel2[i].connect(trackMute[trackCount+i]);
-  trackMute[trackCount+i].connect(trackGain[trackCount+i]);
-  synthOsc[i].start(audioContext.currentTime);
-}
+// Load sound preset:
+fetch(soundsJson)
+    .then((response) => response.json())
+    .then((soundPreset) => {
+      num_tracks = soundPreset.length;
+      stepSequencer = new StepSequencer(soundPreset, NUM_STEPS);
+      var o = 0;
+      var trackCount = 0;
+      for(var i=0; i<num_tracks; i++) {
+        var soundGenerator = {generator: null, type: soundPreset[i].type};
+        if(soundPreset[i].type == "sampler") {
+          var sound      = document.createElement('audio');
+          sound.preload  = 'auto';
+          sound.id       = soundPreset[i].sound;
+          sound.src      = soundFolder + "sounds/" + soundPreset[i].sound;
+          sound.setAttribute("track", i);
+          sound.classList.add("drumSamples");
+          //drums[i] = sound;
+          soundGenerator.generator = sound;
+          var track = audioContext.createMediaElementSource(sound);
+          const velNode  = audioContext.createGain();
+          trackMute[trackCount] = audioContext.createGain();
+          trackGain[trackCount] = audioContext.createGain();
+          velNode.gain.value = 1; 
+          trackMute[trackCount].gain.value = 1; 
+          trackGain[trackCount].gain.value = 1;
+          track.connect(velNode);
+          velNode.connect(trackMute[trackCount]);
+          trackMute[trackCount].connect(trackGain[trackCount]);
+          trackGain[trackCount].connect(mainMix);
+          document.getElementById('sound-set').appendChild(sound);
+        } else {
+          soundGenerator.generator = audioContext.createOscillator();
+          soundGenerator.generator.type = soundPreset[i].params.waveform;
+          soundGenerator.generator.frequency.value = 0;
+          soundGenerator.generator.synthVel  = audioContext.createGain();
+          soundGenerator.generator.synthVel2  = audioContext.createGain();
+          trackMute[trackCount] = audioContext.createGain();
+          trackGain[trackCount] = audioContext.createGain();
+          soundGenerator.generator.synthVel.gain.value = 0;
+          soundGenerator.generator.synthVel2.gain.value = 0.2;
+          trackMute[trackCount].gain.value = 1;
+          trackGain[trackCount].gain.value = 1;
+          soundGenerator.generator.connect(soundGenerator.generator.synthVel);
+          soundGenerator.generator.synthVel.connect(soundGenerator.generator.synthVel2);
+          soundGenerator.generator.synthVel2.connect(trackMute[trackCount]);
+          trackMute[trackCount].connect(trackGain[trackCount]);
+          soundGenerator.generator.start(audioContext.currentTime);
+        }
+        soundGenerators.push(soundGenerator);
+        trackCount++;
+      }
+      // Create tracks in sequencer
+      for(var i=num_tracks-1; i>=0; i--) {
+        var tr = createTrack(i, soundFolder + "images/" + soundPreset[i].image);
+        matrix.appendChild(tr);
+      }
+    });
 
 var mainMute = audioContext.createGain();
 mainMix.connect(mainMute);
@@ -67,8 +92,19 @@ function playStepNotes(counter) {
 
 function audioPlayDrum(i, note, vel) {
     /* bass experiment: */
+    if(soundGenerators[i].type == "sampler") {
+      if(vel > 0) {
+        soundGenerators[i].generator.currentTime = 0
+        soundGenerators[i].generator.volume = vel/127;
+        soundGenerators[i].generator.play();
+      }
+    } else { // It's a synth
+      soundGenerators[i].generator.frequency.setValueAtTime(20, audioContext.currentTime);
+      soundGenerators[i].generator.frequency.linearRampToValueAtTime(noteFrequencies[note], audioContext.currentTime + .03);
+      soundGenerators[i].generator.synthVel.gain.value = vel/127;
+    }
+    /*
     if(i>7) {
-      //synthOsc[i-8].frequency.value = noteFrequencies[note];
       synthOsc[i-8].frequency.setValueAtTime(20, audioContext.currentTime);
       synthOsc[i-8].frequency.linearRampToValueAtTime(noteFrequencies[note], audioContext.currentTime + .03);
       synthVel[i-8].gain.value = vel/127;
@@ -78,7 +114,7 @@ function audioPlayDrum(i, note, vel) {
         drums[i].volume = vel/127;
         drums[i].play();
       }
-    }
+    }*/
 }
 
 var nextNote = document.getElementById("debug");
@@ -90,13 +126,6 @@ var playButton = document.getElementById("play");
 var stopButton = document.getElementById("stop");
 var timerID;
 var playTime = 0;
-
-/*
-function playBass(i, f, vel) {
-  synthOsc[i].frequency.value = f;
-  synthVel[i].gain.value = vel;
-};
-*/
 
 function scheduler() {
     while(nextNotetime < audioContext.currentTime + 0.01) {
@@ -128,7 +157,7 @@ playButton.addEventListener('click', function() {
     counter = 0;
     prev = 15;
     socket.emit('play', { socketID: mySocketID });
-    for(var i=NUM_DRUMS; i<NUM_TRACKS; i++) {
+    for(var i=NUM_DRUMS; i<num_tracks; i++) {
       trackGain[i].connect(mainMix);
     }
     this.classList.add("playing");
@@ -142,7 +171,7 @@ stopButton.addEventListener('click', function() {
   if(playing) {
     socket.emit('stop', { socketID: mySocketID });
     document.querySelector("#play").classList.remove("playing");
-    for(var i=NUM_DRUMS; i<NUM_TRACKS; i++) {
+    for(var i=NUM_DRUMS; i<num_tracks; i++) {
       trackGain[i].disconnect();
     }
     clearTimeout(timerID);
