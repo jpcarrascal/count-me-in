@@ -11,7 +11,6 @@ var synthMute = new Array();
 var synthGain = new Array();
 var trackMute = new Array();
 var trackGain = new Array();
-var stepSequencer;
 var num_tracks = 0;
 
 const mainMix = audioContext.createGain();

@@ -91,7 +91,6 @@ io.on('connection', (socket) => {
     if(seq) {
         var allocationMethod = socket.handshake.query.method || "random";
         var numTracks = getNumTracks(socket.handshake.query.sounds) || 10;
-        console.log("NUM: " + numTracks)
         var cookief = socket.handshake.headers.cookie; 
         var cookies = cookie.parse(socket.handshake.headers.cookie);    
         const exists = rooms.findRoom(room);
@@ -114,16 +113,21 @@ io.on('connection', (socket) => {
         }
     } else {
         if(rooms.isReady(room)) {
-            var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-            logger.info("#" + room + " @" + initials + " joined session on track " + track);
-            socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
-            socket.on('disconnect', () => {
-                var track2delete = rooms.getParticipantNumber(room, socket.id);
-                rooms.releaseParticipant(room, socket.id);
-                io.to(room).emit('clear track', {track: track2delete, initials: initials});
-                logger.info("#" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
-            });
-            io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
+            if(initials) {
+                var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
+                logger.info("#" + room + " @" + initials + " joined session on track " + track);
+                socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
+                socket.on('disconnect', () => {
+                    var track2delete = rooms.getParticipantNumber(room, socket.id);
+                    rooms.releaseParticipant(room, socket.id);
+                    io.to(room).emit('clear track', {track: track2delete, initials: initials});
+                    logger.info("#" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
+                });
+                io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
+            } else {
+                io.to(socket.id).emit('session paused', {reason: "Session has not started..."});
+                logger.info("#" + room + "(" + socket.id + ") waiting in lobby...");    
+            }
         } else {
             io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
@@ -139,7 +143,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('track notes', (msg) => { // Send all notes from track
-        io.to(msg.socketid).emit('update track', msg);
+        io.to(msg.socketid).emit('update track notes', msg);
+    });
+
+    socket.on('give me my notes', (msg) => { // Send all notes from track
+        socket.broadcast.to(room).emit('give me my notes', msg);
     });
 
     socket.on('step tick', (msg) => { // Visual sync
@@ -164,11 +172,6 @@ io.on('connection', (socket) => {
     socket.on('stop', (msg) => {
         socket.broadcast.to(room).emit('stop', msg);
         logger.info("#" + room + " Stopped.");
-    });
-
-    socket.on('pause', (msg) => {
-        socket.broadcast.to(room).emit('', msg);
-        logger.info("#" + room + " Paused.");
     });
 
     socket.on('ping', (msg) => {

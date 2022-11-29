@@ -15,6 +15,13 @@
     </script>
   </head>
   <body>
+    <div id="paused">
+      <div>
+        <span class="translate" id="lang-hello">Hello</span>!<br />
+        <span class="translate" id="lang-paused">The session is paused, please wait a bit.</span>
+      </div>
+    </div>
+
     <div id="form-container">
       
         <div id="intro-div">
@@ -56,9 +63,18 @@
         </div>
       
     </div>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="scripts/config.js"></script>
     <script src="scripts/include.js"></script>
     <script>
+
+      var socket = io("", {query:{initials:initials, room:room, sequencer:false, lang:lang, sounds: soundParam}});
+      var mySocketID;
+      socket.on("connect", () => {
+        console.log("Connected, my socketid: " + socket.id);
+        mySocketID = socket.id;
+      });
+
       var initials = getCookie("initials");
       var initialsElem = document.getElementById("initials");
       initialsElem.value = initials;
@@ -76,26 +92,32 @@
       document.getElementById("room").value = room;
 
       var reason = findGetParameter("exitreason");
-      if(reason && reason != "")
+      if(reason && reason != "") {
         document.getElementById("disconnect-message").innerText = reason;
+        document.getElementById("paused").style.display = "none";
+        document.getElementById("form-container").style.display = "flex";
+      }
       
       var form = document.getElementById("intro");
       document.getElementById("go").addEventListener("click", function(e){
         var initialsValue = initialsElem.value;
-        console.log(document.querySelector("#room").value)
-        console.log(initialsValue);
         setCookie("initials",initialsValue);
         form.submit();
       });
 
+      socket.on('exit session', function(msg) {
+        document.getElementById("paused").style.display = "none";
+        document.getElementById("form-container").style.display = "flex";
+        document.getElementById("disconnect-message").innerText = translate(lang, msg.reason);
+        console.log("exit session received")
+      });
 
-      // Language options:
-      console.log("lang: " + lang)
-      if(lang == "ES") {
-          document.getElementById("lang-initials").innerText = "Digita tus iniciales"
-          document.getElementById("lang-session").innerText = "Nombre de la sesión";
-          document.getElementById("lang-go").innerText = "OK";
-      }
+      socket.on('play', function(msg) {
+        document.getElementById("paused").style.display = "none";
+        document.getElementById("form-container").style.display = "flex";
+        console.log("play received")
+      });
+
     </script>
   </body>
 </html>

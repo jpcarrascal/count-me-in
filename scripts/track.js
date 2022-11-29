@@ -1,5 +1,6 @@
 var counter = document.getElementById("counter");
 var rounds = 0;
+
 socket.on('step tick', function(msg) {
     if(msg.counter == 15 && counting) {
         rounds--;
@@ -45,13 +46,14 @@ socket.on('create track', function(msg) {
             rounds = msg.maxNumRounds;
             var tr = createTrack(track, sound);
             document.getElementById("track-header").style.backgroundColor = color;
-            if(track>7) {
+            if(color=="black") {
                 document.getElementById("track-header").style.color = "white";
                 document.getElementById("big-instrument-icon").style.filter = "invert(1)";
             }
             var matrix = document.getElementById("matrix");
             matrix.appendChild(tr);
             tr.style.backgroundColor = color;
+            document.body.style.backgroundColor = color;
             var trackName = document.getElementById("track"+msg.track+"-name");
             var bigInitials = document.getElementById("big-initials");
             trackName.innerText = initials;
@@ -61,10 +63,13 @@ socket.on('create track', function(msg) {
             document.querySelectorAll(selector).forEach(element => {
                 element.style.display = "block";
             });
+            console.log("asking for my notes!")
+            socket.emit('give me my notes', { track: track, socketid: mySocketID } );
         });
 });
 
-socket.on('update track', function(msg) {
+socket.on('update track notes', function(msg) {
+    console.log("receiving my notes :)")
     var notes = msg.notes;
     var trackID = "track"+msg.track;
     for(var i=0; i<notes.length; i++) {
@@ -126,8 +131,14 @@ function translate(lang, text) {
                 result = "OK";
                 break;
             case "Exit":
-                    result = "Salir";
-                    break;
+                result = "Salir";
+                break;
+            case "Hello":
+                result = "Hola";
+                break;
+            case "The session is paused, please wait a bit.":
+                result = "La sesión está en pausa, por favor espera un momento."
+                break;
             default:
                 break;
         } 

@@ -41,7 +41,7 @@ if(isSeq) {
 var counting = false;
 
 // Node stuff:
-var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, method:method, sounds: soundParam}});
+var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, lang:lang, method:method, sounds: soundParam}});
 var mySocketID;
 socket.on("connect", () => {
   console.log("Connected, my socketid:" + socket.id);
@@ -110,18 +110,23 @@ if(isSeq) {
   });
 
   socket.on('track joined', function(msg) {
-    //console.log(msg.initials + " joined on track " + msg.track);
-    socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
+    //socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
     trackName.innerText = msg.initials;
-    track.style.backgroundColor = getColor(msg.track);
-    if(msg.track > 7) {
+    var color = getColor(msg.track);
+    track.style.backgroundColor = color;
+    if(color == "black") {
       document.getElementById("track" + msg.track + "-name").style.color = "white";
       document.getElementById("track" + msg.track + "-icon").style.filter = "invert(1)";
     }
     stepSequencer.setTrackInitials(msg.track, msg.initials);
     //clearTrack(msg.track);
+  });
+
+  socket.on('give me my notes', function(msg) {
+    console.log(msg.socketid + " asked for their notes. sending them... ");
+    socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
   });
 
   socket.on('sequencer exists', function(msg) {

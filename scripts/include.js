@@ -15,6 +15,7 @@ const MAX_OCTAVE = 6;
 const MIN_OCTAVE = 1;
 const MID_OCTAVE = 3;
 const SYNTH_DEFAULT_VEL = 63;
+var stepSequencer;
 const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black"];
 function getColor(index) {
   while (index >= colors.length)
@@ -372,6 +373,53 @@ function playNote (note, out) {
   out.send([NOTE_ON, note, 0x7f]);
   setTimeout(out.send([NOTE_OFF, note, 0x00]), NOTE_DURATION);
 }
+
+// Language options:
+console.log("lang: " + lang)
+function translate(lang, text) {
+    var result = text;
+    if(lang == "ES") {
+        switch (text) {
+            case "Join again?":
+                    result = "¿Quieres entrar de nuevo?"
+                break;
+            case "Session has not started...":
+                    result = "La sesión aún no ha empezado..."
+                break;
+                case "Remaining rounds":
+                result = "Vueltas restantes";
+                break;
+            case "Exit":
+                result = "Salir";            
+                break;
+            case "Enter your initials":
+                result = "Digita tus iniciales";
+                break;
+            case "Session name":
+                result = "Nombre de la sessión";
+                break;
+            case "Go":
+                result = "OK";
+                break;
+            case "Exit":
+                result = "Salir";
+                break;
+            case "Hello":
+                result = "Hola";
+                break;
+            case "The session is paused, please wait a bit.":
+                result = "La sesión está en pausa, por favor espera un momento."
+                break;
+            default:
+                break;
+        } 
+    }
+    return result;
+}
+
+document.querySelectorAll(".translate").forEach(elem => {
+    elem.innerText = translate(lang, elem.innerText);
+});
 
 
 // Cookies, from: https://stackoverflow.com/questions/14573223/set-cookie-and-get-cookie-with-javascript
