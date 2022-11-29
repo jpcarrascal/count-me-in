@@ -70,7 +70,7 @@ fetch(soundsJson)
       }
       // Create tracks in sequencer
       for(var i=num_tracks-1; i>=0; i--) {
-        var tr = createTrack(i, soundFolder + "images/" + soundPreset[i].image);
+        var tr = createTrack(i, soundPreset[i]);
         matrix.appendChild(tr);
       }
     });
@@ -103,18 +103,6 @@ function audioPlayDrum(i, note, vel) {
       soundGenerators[i].generator.frequency.linearRampToValueAtTime(noteFrequencies[note], audioContext.currentTime + .03);
       soundGenerators[i].generator.synthVel.gain.value = vel/127;
     }
-    /*
-    if(i>7) {
-      synthOsc[i-8].frequency.setValueAtTime(20, audioContext.currentTime);
-      synthOsc[i-8].frequency.linearRampToValueAtTime(noteFrequencies[note], audioContext.currentTime + .03);
-      synthVel[i-8].gain.value = vel/127;
-    } else {
-      if(vel > 0) {
-        drums[i].currentTime = 0
-        drums[i].volume = vel/127;
-        drums[i].play();
-      }
-    }*/
 }
 
 var nextNote = document.getElementById("debug");
@@ -157,7 +145,7 @@ playButton.addEventListener('click', function() {
     counter = 0;
     prev = 15;
     socket.emit('play', { socketID: mySocketID });
-    for(var i=NUM_DRUMS; i<num_tracks; i++) {
+    for(var i=0; i<num_tracks; i++) {
       trackGain[i].connect(mainMix);
     }
     this.classList.add("playing");
@@ -171,7 +159,7 @@ stopButton.addEventListener('click', function() {
   if(playing) {
     socket.emit('stop', { socketID: mySocketID });
     document.querySelector("#play").classList.remove("playing");
-    for(var i=NUM_DRUMS; i<num_tracks; i++) {
+    for(var i=0; i<num_tracks; i++) {
       trackGain[i].disconnect();
     }
     clearTimeout(timerID);

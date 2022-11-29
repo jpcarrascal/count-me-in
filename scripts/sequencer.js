@@ -9,7 +9,10 @@ if(isSeq) {
   var hideInfo = findGetParameter("hideinfo");
   document.getElementById("room-name").innerText = room;
   var info = document.getElementById("room-info");
-  var trackURL = document.location.origin + "/track?room="+room;
+  var trackURL = document.location.origin +
+                "/track?room=" + room +
+                "&sounds=" + soundParam +
+                "&lang=" + lang;
   var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
   var qrcode = document.createElement("img");
   qrcode.setAttribute("src",qrcodeURL);
@@ -38,7 +41,7 @@ if(isSeq) {
 var counting = false;
 
 // Node stuff:
-var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, method:method}});
+var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, method:method, sounds: soundParam}});
 var mySocketID;
 socket.on("connect", () => {
   console.log("Connected, my socketid:" + socket.id);

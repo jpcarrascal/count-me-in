@@ -17,7 +17,7 @@ socket.on('hide toggle track', function(msg) {
 
 var restart = document.getElementById("restart");
 restart.addEventListener("click", function(e){
-  window.location.href = "/track?room="+room;
+    restartSession();
 });
 
 
@@ -33,31 +33,35 @@ socket.on('create track', function(msg) {
     console.log("Got my track: " + (msg.track));
     var track = msg.track;
     var icon = document.getElementById("big-instrument-icon");
-    if(track>7) icon.setAttribute("src","images/8.png");
-    else icon.setAttribute("src","images/"+track+".png");
-    counter.innerText = msg.maxNumRounds;
-    var color = getColor(track);
-    counter.style.color = color;
-    rounds = msg.maxNumRounds;
-    var tr = createTrack(track);
-    document.getElementById("track-header").style.backgroundColor = color;
-    if(track>7) {
-        document.getElementById("track-header").style.color = "white";
-        document.getElementById("big-instrument-icon").style.filter = "invert(1)";
-    }
-    var matrix = document.getElementById("matrix");
-    matrix.appendChild(tr);
-    tr.style.backgroundColor = color;
-    var trackName = document.getElementById("track"+msg.track+"-name");
-    var bigInitials = document.getElementById("big-initials");
-    trackName.innerText = initials;
-    bigInitials.innerText = initials;
-    var selector = ".fader";
-    if(track>7) selector = ".keyboard"
-    document.querySelectorAll(selector).forEach(element => {
-        element.style.display = "block";
-    });
-
+    fetch(soundsJson)
+        .then((response) => response.json())
+        .then((soundPreset) => {
+            var sound = soundPreset[track];
+            var imageURL = soundFolder + "images/" + sound.image;
+            icon.setAttribute("src",imageURL);
+            counter.innerText = msg.maxNumRounds;
+            var color = getColor(track);
+            counter.style.color = color;
+            rounds = msg.maxNumRounds;
+            var tr = createTrack(track, sound);
+            document.getElementById("track-header").style.backgroundColor = color;
+            if(track>7) {
+                document.getElementById("track-header").style.color = "white";
+                document.getElementById("big-instrument-icon").style.filter = "invert(1)";
+            }
+            var matrix = document.getElementById("matrix");
+            matrix.appendChild(tr);
+            tr.style.backgroundColor = color;
+            var trackName = document.getElementById("track"+msg.track+"-name");
+            var bigInitials = document.getElementById("big-initials");
+            trackName.innerText = initials;
+            bigInitials.innerText = initials;
+            var selector = ".fader";
+            if(track>7) selector = ".keyboard"
+            document.querySelectorAll(selector).forEach(element => {
+                element.style.display = "block";
+            });
+        });
 });
 
 socket.on('update track', function(msg) {
@@ -81,10 +85,56 @@ socket.on('update track', function(msg) {
 });
 
 socket.on('exit session', function(msg) {
-    //removeTrack();
-    var reason = "";
-    if(msg.reason)
-        reason = "&exitreason=" + msg.reason;
-    window.location.href = "/track?room="+room+reason;
+    var reason = translate(lang, msg.reason);
+    restartSession(reason);
 });
 
+
+function restartSession(r) {
+    var reason = "";
+    if(r && r!== "") reason = "&exitreason=" + r;
+    window.location.href = "/track?room=" + room +
+    "&sounds=" + findGetParameter("sounds")+
+    "&lang=" + findGetParameter("lang") + reason;
+}
+
+// Language options:
+console.log("lang: " + lang)
+function translate(lang, text) {
+    var result = text;
+    if(lang == "ES") {
+        switch (text) {
+            case "Join again?":
+                    result = "¿Quieres entrar de nuevo?"
+                break;
+            case "Session has not started...":
+                    result = "La sesión aún no ha empezado..."
+                break;
+                case "Remaining rounds":
+                result = "Vueltas restantes";
+                break;
+            case "Exit":
+                result = "Salir";            
+                break;
+            case "Enter your initials":
+                result = "Digita tus iniciales";
+                break;
+            case "Session name":
+                result = "Nombre de la sessión";
+                break;
+            case "Go":
+                result = "OK";
+                break;
+            case "Exit":
+                    result = "Salir";
+                    break;
+            default:
+                break;
+        } 
+    }
+    return result;
+}
+
+document.querySelectorAll(".translate").forEach(elem => {
+    elem.innerText = translate(lang, elem.innerText);
+});

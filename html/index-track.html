@@ -35,21 +35,23 @@
                 </td>
               </tr>
               <tr>
-                <td><label for="initials">Enter your initials:</label></td>
+                <td><label for="initials"><span class="translate" id="lang-initials">Enter your initials</span>:</label></td>
                 <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="3" placeholder="---" style="text-transform:uppercase"/></td>
               </tr>
               <tr>
-                <td><label for="room" class="intro-room-hide" >Name of session to join:</label></td>
+                <td><label for="room" class="intro-room-hide" ><span class="translate" id="lang-session">Name of session to join</span>:</label></td>
                 <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" placeholder="[session]" /></td>
               </tr>
               <tr>
                 <td colspan="2">
                   <div class="centered">
-                    <button id="go" class="ui-button" value="Go!">Go!</button>
+                    <button id="go" class="ui-button" value="Go!"><span class="translate" id="lang-go">Go</span>!</button>
                   </div>
                 </td>
               </tr>
             </table>
+            <input type="hidden" name="sounds" id="sounds" placeholder="tr808" />
+            <input type="hidden" name="lang" id="lang" placeholder="EN" />
           </form>
         </div>
       
@@ -64,7 +66,9 @@
         this.value = this.value.toUpperCase();
       });
 
-      var room = findGetParameter("room");
+      var room   = findGetParameter("room");
+      document.getElementById("lang").value = findGetParameter("lang");
+      document.getElementById("sounds").value =  findGetParameter("sounds");
       if(!room) document.querySelectorAll(".intro-room-hide").forEach(elem => {
         elem.style.display = "block";
       });
@@ -83,6 +87,15 @@
         setCookie("initials",initialsValue);
         form.submit();
       });
+
+
+      // Language options:
+      console.log("lang: " + lang)
+      if(lang == "ES") {
+          document.getElementById("lang-initials").innerText = "Digita tus iniciales"
+          document.getElementById("lang-session").innerText = "Nombre de la sesión";
+          document.getElementById("lang-go").innerText = "OK";
+      }
     </script>
   </body>
 </html>

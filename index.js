@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require("path");
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -27,7 +29,7 @@ const logger = createLogger({
     ]
 });
 
-var rooms = new AllRooms(config.NUM_TRACKS, config.MAX_NUM_ROUNDS);
+var rooms = new AllRooms(config.MAX_NUM_ROUNDS);
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -85,15 +87,17 @@ io.on('connection', (socket) => {
         conductor = true;
     var room = socket.handshake.query.room;
     var initials = socket.handshake.query.initials;
-    var allocationMethod = socket.handshake.query.method || "random";
     socket.join(room);
     if(seq) {
+        var allocationMethod = socket.handshake.query.method || "random";
+        var numTracks = getNumTracks(socket.handshake.query.sounds) || 10;
+        console.log("NUM: " + numTracks)
         var cookief = socket.handshake.headers.cookie; 
         var cookies = cookie.parse(socket.handshake.headers.cookie);    
         const exists = rooms.findRoom(room);
         if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "#" + room + " exists already. Choose a different name."});
         else {
-            rooms.addRoom(room, allocationMethod);
+            rooms.addRoom(room, numTracks, allocationMethod);
             logger.info("#" + room + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
             rooms.setSeqID(room,socket.id);
             socket.on('disconnect', () => {
@@ -162,6 +166,11 @@ io.on('connection', (socket) => {
         logger.info("#" + room + " Stopped.");
     });
 
+    socket.on('pause', (msg) => {
+        socket.broadcast.to(room).emit('', msg);
+        logger.info("#" + room + " Paused.");
+    });
+
     socket.on('ping', (msg) => {
         io.to(socket.id).emit('pong', msg);
     });
@@ -185,6 +194,17 @@ io.on('connection', (socket) => {
     });
 
 });
+
+function getNumTracks(soundSet) {
+    try {
+        const set = JSON.parse( fs.readFileSync( path.resolve('./sounds/' + soundSet + '/index.json') ) );
+        return set.length;
+    } catch (error) {
+        console.log(error)
+        console.log("Sounds not found!!! " + path.resolve('./sounds/' + soundSet + '/index.json'))
+        return 10;
+    }
+}
 
 var port = process.env.PORT || 3000;
 server.listen(port, () => {

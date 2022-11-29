@@ -1,6 +1,7 @@
 const NUM_DRUMS = config.NUM_DRUMS;
 const NUM_STEPS = config.NUM_STEPS;
 const MAX_NUM_ROUNDS = config.MAX_NUM_ROUNDS;
+const lang = findGetParameter("lang") || "EN";
 const soundParam = findGetParameter("sounds") || "tr808";
 const soundFolder = "/sounds/" + soundParam + "/";
 const soundsJson = soundFolder + "index.json";
@@ -63,18 +64,16 @@ function createHeader(table) {
   table.appendChild(tr);
 }
 
-function createTrack(i, imageURL) {
+function createTrack(i, sound) {
+  var imageURL = soundFolder + "images/" + sound.image;
   var tr = document.createElement("tr");
   var trackID = "track"+i;
   tr.setAttribute("id",trackID);
   tr.setAttribute("note",drumNotes[i]);
   tr.classList.add("track");
-  if(i>7) tr.classList.add("synth-track");
-
+  if(sound.type == "synth") tr.classList.add("synth-track");
   var td = document.createElement("td");
   var img = document.createElement("img");
-  //if(i>7) img.setAttribute("src","images/8.png");
-  //else img.setAttribute("src","images/"+i+".png");
   img.setAttribute("src",imageURL);
   img.setAttribute("track",trackID);
   img.setAttribute("id",trackID+"-icon");
@@ -106,7 +105,7 @@ function createTrack(i, imageURL) {
     step.setAttribute("track",i);
     step.setAttribute("step",j);
     step.setAttribute("value",0);
-    if(i<=7) step.setAttribute("note",drumNotes[i]);
+    if(sound.type == "sampler") step.setAttribute("note",drumNotes[i]);
     else step.setAttribute("note",36);
     step.addEventListener('mousedown', stepClick);
     step.addEventListener('mouseover', stepHover);

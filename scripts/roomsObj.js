@@ -113,15 +113,14 @@ class Participant {
 }
 
 class AllRooms {
-    constructor(numTracks, maxNumRounds)  {
+    constructor(maxNumRounds)  {
         this.rooms = Array();
-        this.numTracks = numTracks;
         this.maxNumRounds = maxNumRounds;
     }
-    addRoom(roomName, allocationMethod) {
+    addRoom(roomName, numTracks, allocationMethod) {
         var exists = this.findRoom(roomName);
         if(exists == -1) {
-            let newRoom = new Room(roomName, allocationMethod, this.numTracks, this.maxNumRounds);
+            let newRoom = new Room(roomName, allocationMethod, numTracks, this.maxNumRounds);
             this.rooms.push(newRoom);
         } else {
             this.rooms[exists].allocationMethod = allocationMethod || "sequential";
