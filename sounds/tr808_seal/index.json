@@ -1,12 +1,7 @@
 [
 
-    {"type": "sampler", "sound": "HC.WAV", "image": "3.png", "params": {"note": 41}},
-    {"type": "sampler", "sound": "LC.WAV", "image": "4.png", "params": {"note": 43}},
-    {"type": "sampler", "sound": "CB.WAV", "image": "5.png", "params": {"note": 45}},
-    {"type": "sampler", "sound": "CH.WAV", "image": "6.png", "params": {"note": 42}},
-    {"type": "sampler", "sound": "OH.WAV", "image": "7.png", "params": {"note": 46}},
+
     {"type": "sampler", "sound": "seal1.wav", "image": "seal1.png", "params": {"note": 47}},
-    {"type": "sampler", "sound": "seal2.wav", "image": "seal2.png", "params": {"note": 48}},
-    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "sine"}},
-    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "square"}}
+    {"type": "sampler", "sound": "seal2.wav", "image": "seal2.png", "params": {"note": 48}}
+
 ]

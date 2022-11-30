@@ -39,6 +39,7 @@ function removeTrack() {
 socket.on('create track', function(msg) {
     removeTrack();
     console.log("Got my track: " + (msg.track));
+    if(msg.track == undefined) restartSession( translate(lang, "No available tracks! Please wait a bit...") );
     var track = msg.track;
     fetch(soundsJson)
         .then((response) => response.json())
@@ -103,7 +104,7 @@ socket.on('update track notes', function(msg) {
 });
 
 socket.on('exit session', function(msg) {
-    var reason = translate(lang, msg.reason);
+    var reason = msg.reason;
     restartSession(reason);
 });
 

@@ -111,6 +111,7 @@ if(isSeq) {
 
   socket.on('track joined', function(msg) {
     //socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
+    console.log(msg)
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
     trackName.innerText = msg.initials;

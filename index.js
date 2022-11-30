@@ -115,15 +115,20 @@ io.on('connection', (socket) => {
         if(rooms.isReady(room)) {
             if(initials) {
                 var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-                logger.info("#" + room + " @" + initials + " joined session on track " + track);
-                socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
-                socket.on('disconnect', () => {
-                    var track2delete = rooms.getParticipantNumber(room, socket.id);
-                    rooms.releaseParticipant(room, socket.id);
-                    io.to(room).emit('clear track', {track: track2delete, initials: initials});
-                    logger.info("#" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
-                });
-                io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
+                if(track < 0) {
+                    logger.info("#" + room + " @" + initials + " rejected, no available tracks ");
+                    io.to(socket.id).emit('exit session', {reason: "No available tracks! Please wait a bit..."});
+                } else {
+                    logger.info("#" + room + " @" + initials + " joined session on track " + track);
+                    socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
+                    socket.on('disconnect', () => {
+                        var track2delete = rooms.getParticipantNumber(room, socket.id);
+                        rooms.releaseParticipant(room, socket.id);
+                        io.to(room).emit('clear track', {track: track2delete, initials: initials});
+                        logger.info("#" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
+                    });
+                    io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
+                    }
             } else {
                 io.to(socket.id).emit('session paused', {reason: "Session has not started..."});
                 logger.info("#" + room + "(" + socket.id + ") waiting in lobby...");    

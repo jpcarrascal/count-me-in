@@ -412,6 +412,9 @@ function translate(lang, text) {
       case "Sequencer disconnected!":
         result = "El secuenciador se ha desconectado!"
         break;
+      case "No available tracks! Please wait a bit...":
+        result = "No hay pistas disponibles! Por favor espera un poco..."
+        break;
       default:
         break;
     }
