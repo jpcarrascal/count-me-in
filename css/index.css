@@ -96,18 +96,3 @@ body {
     background-color: dodgerblue;
     color: white;
 }
-
-#form-container {
-    display: none;
-}
-
-#paused {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 3vw;
-    color: black;
-    height: 100%;
-}

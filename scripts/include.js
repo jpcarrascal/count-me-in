@@ -375,46 +375,48 @@ function playNote (note, out) {
 }
 
 // Language options:
-console.log("lang: " + lang)
 function translate(lang, text) {
-    var result = text;
-    if(lang == "ES") {
-        switch (text) {
-            case "Join again?":
-                    result = "¿Quieres entrar de nuevo?"
-                break;
-            case "Session has not started...":
-                    result = "La sesión aún no ha empezado..."
-                break;
-                case "Remaining rounds":
-                result = "Vueltas restantes";
-                break;
-            case "Exit":
-                result = "Salir";            
-                break;
-            case "Enter your initials":
-                result = "Digita tus iniciales";
-                break;
-            case "Session name":
-                result = "Nombre de la sessión";
-                break;
-            case "Go":
-                result = "OK";
-                break;
-            case "Exit":
-                result = "Salir";
-                break;
-            case "Hello":
-                result = "Hola";
-                break;
-            case "The session is paused, please wait a bit.":
-                result = "La sesión está en pausa, por favor espera un momento."
-                break;
-            default:
-                break;
-        } 
+  var result = text;
+  if (lang == "ES") {
+    switch (text) {
+      case "Join again?":
+        result = "¿Quieres entrar de nuevo?"
+        break;
+      case "Session has not started...":
+        result = "La sesión aún no ha empezado..."
+        break;
+      case "Remaining rounds":
+        result = "Vueltas restantes";
+        break;
+      case "Exit":
+        result = "Salir";
+        break;
+      case "Enter your initials":
+        result = "Digita tus iniciales";
+        break;
+      case "Session name":
+        result = "Nombre de la sessión";
+        break;
+      case "Go":
+        result = "OK";
+        break;
+      case "Exit":
+        result = "Salir";
+        break;
+      case "Hello":
+        result = "Hola";
+        break;
+      case "The session will start in a bit.":
+        result = "La sesión empezará en un momento."
+        break;
+      case "Sequencer disconnected!":
+        result = "El secuenciador se ha desconectado!"
+        break;
+      default:
+        break;
     }
-    return result;
+  }
+  return result;
 }
 
 document.querySelectorAll(".translate").forEach(elem => {

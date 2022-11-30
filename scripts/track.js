@@ -1,7 +1,14 @@
 var counter = document.getElementById("counter");
 var rounds = 0;
+var inLobby = true;
 
 socket.on('step tick', function(msg) {
+    if(inLobby) {
+        console.log("in lobby")
+        document.getElementById("paused").style.display = "none";
+        document.getElementById("sequencer").style.display = "flex";
+        inLobby = false;
+    }
     if(msg.counter == 15 && counting) {
         rounds--;
         if(rounds >= 0)
@@ -33,31 +40,37 @@ socket.on('create track', function(msg) {
     removeTrack();
     console.log("Got my track: " + (msg.track));
     var track = msg.track;
-    var icon = document.getElementById("big-instrument-icon");
     fetch(soundsJson)
         .then((response) => response.json())
         .then((soundPreset) => {
             var sound = soundPreset[track];
             var imageURL = soundFolder + "images/" + sound.image;
+            var icon = document.getElementById("big-instrument-icon");
+            var preIcon = document.getElementById("instrument-icon-paused");
             icon.setAttribute("src",imageURL);
+            preIcon.setAttribute("src",imageURL);
             counter.innerText = msg.maxNumRounds;
             var color = getColor(track);
             counter.style.color = color;
             rounds = msg.maxNumRounds;
             var tr = createTrack(track, sound);
             document.getElementById("track-header").style.backgroundColor = color;
-            if(color=="black") {
+            if(color == "black") {
                 document.getElementById("track-header").style.color = "white";
+                document.getElementById("paused").style.color = "white";
                 document.getElementById("big-instrument-icon").style.filter = "invert(1)";
+                document.getElementById("instrument-icon-paused").style.filter = "invert(1)";
             }
             var matrix = document.getElementById("matrix");
             matrix.appendChild(tr);
             tr.style.backgroundColor = color;
             document.body.style.backgroundColor = color;
-            var trackName = document.getElementById("track"+msg.track+"-name");
+            var trackName = document.getElementById("track"+track+"-name");
             var bigInitials = document.getElementById("big-initials");
+            var smallInitials = document.getElementById("small-initials");
             trackName.innerText = initials;
             bigInitials.innerText = initials;
+            smallInitials.innerText = initials;
             var selector = ".fader";
             if(track>7) selector = ".keyboard"
             document.querySelectorAll(selector).forEach(element => {
@@ -103,49 +116,3 @@ function restartSession(r) {
     "&lang=" + findGetParameter("lang") + reason;
 }
 
-// Language options:
-console.log("lang: " + lang)
-function translate(lang, text) {
-    var result = text;
-    if(lang == "ES") {
-        switch (text) {
-            case "Join again?":
-                    result = "¿Quieres entrar de nuevo?"
-                break;
-            case "Session has not started...":
-                    result = "La sesión aún no ha empezado..."
-                break;
-                case "Remaining rounds":
-                result = "Vueltas restantes";
-                break;
-            case "Exit":
-                result = "Salir";            
-                break;
-            case "Enter your initials":
-                result = "Digita tus iniciales";
-                break;
-            case "Session name":
-                result = "Nombre de la sessión";
-                break;
-            case "Go":
-                result = "OK";
-                break;
-            case "Exit":
-                result = "Salir";
-                break;
-            case "Hello":
-                result = "Hola";
-                break;
-            case "The session is paused, please wait a bit.":
-                result = "La sesión está en pausa, por favor espera un momento."
-                break;
-            default:
-                break;
-        } 
-    }
-    return result;
-}
-
-document.querySelectorAll(".translate").forEach(elem => {
-    elem.innerText = translate(lang, elem.innerText);
-});

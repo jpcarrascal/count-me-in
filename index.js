@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
             rooms.setSeqID(room,socket.id);
             socket.on('disconnect', () => {
                 logger.info("#" + room + " @SEQUENCER disconnected (sequencer). Clearing session");
-                socket.broadcast.to(room).emit('exit session',{reason: "Sequencer exited!"});
+                socket.broadcast.to(room).emit('exit session',{reason: "Sequencer disconnected!"});
                 rooms.clearRoom(room);
             });
         }
