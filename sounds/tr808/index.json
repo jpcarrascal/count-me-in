@@ -7,6 +7,6 @@
     {"type": "sampler", "sound": "CB.WAV", "image": "5.png", "params": {"note": 45}},
     {"type": "sampler", "sound": "CH.WAV", "image": "6.png", "params": {"note": 42}},
     {"type": "sampler", "sound": "OH.WAV", "image": "7.png", "params": {"note": 46}},
-    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "square"}},
-    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "sine"}}
+    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "square", "oct": 1}},
+    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "sine", "oct": 2}}
 ]

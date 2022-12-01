@@ -99,6 +99,7 @@ function audioPlayDrum(i, note, vel) {
       }
     } else { // It's a synth
       soundGenerators[i].generator.frequency.setValueAtTime(20, audioContext.currentTime);
+      if(noteFrequencies[note] === undefined) noteFrequencies[note] = 0;
       soundGenerators[i].generator.frequency.linearRampToValueAtTime(noteFrequencies[note], audioContext.currentTime + .03);
       soundGenerators[i].generator.synthVel.gain.value = vel/127;
     }

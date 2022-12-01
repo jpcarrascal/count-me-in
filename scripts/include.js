@@ -11,9 +11,9 @@ const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
 const DEFAULT_ROOM = 999;
 const EMPTY_COLOR = "#AAA";
-const MAX_OCTAVE = 6;
-const MIN_OCTAVE = 1;
-const MID_OCTAVE = 3;
+const MAX_OCTAVE = 8;
+const MIN_OCTAVE = 3;
+const MID_OCTAVE = 4;
 const SYNTH_DEFAULT_VEL = 63;
 var stepSequencer;
 const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black"];
@@ -107,7 +107,11 @@ function createTrack(i, sound) {
     step.setAttribute("step",j);
     step.setAttribute("value",0);
     if(sound.type == "sampler") step.setAttribute("note",drumNotes[i]);
-    else step.setAttribute("note",36);
+    else {
+      var oct = 0;
+      if(sound.params.oct) oct = sound.params.oct*12;
+      step.setAttribute("note",48+oct);
+    }
     step.addEventListener('mousedown', stepClick);
     step.addEventListener('mouseover', stepHover);
     var sw = document.createElement("div");
@@ -116,7 +120,7 @@ function createTrack(i, sound) {
     sw.classList.add("sw");
     step.appendChild(sw);
     td.appendChild(step);
-    var keyboard = createKeyboard(i,j);
+    var keyboard = createKeyboard(i,j, sound.params);
     td.appendChild(keyboard);
     var fader = createFader(i, j);
     td.appendChild(fader);
@@ -125,7 +129,9 @@ function createTrack(i, sound) {
   return(tr);
 }
 
-function createKeyboard (i, j) {
+function createKeyboard (i, j, params) {
+  var mid_octave = MID_OCTAVE;
+  if(params.oct) mid_octave = params.oct;
   var trackID = "track"+i;
   var stepID = trackID+"-step"+j;
   //td.appendChild(document.createTextNode("Oct"));
@@ -135,7 +141,7 @@ function createKeyboard (i, j) {
   keyboard.classList.add("keyboard");
   keyboard.classList.add(trackID);
   keyboard.setAttribute("id",stepID+"kb");
-  keyboard.setAttribute("octave",MID_OCTAVE);
+  keyboard.setAttribute("octave",mid_octave);
   var oct = document.createElement("div");
   oct.classList.add("oct-controls");
   var plus = document.createElement("div");
@@ -177,9 +183,9 @@ function createKeyboard (i, j) {
     var octave = (note-(note%12))/12;
     var butUp = document.getElementById(stepID+"plus");
     var butDown = document.getElementById(stepID+"minus");
-    if(octave > MID_OCTAVE) butUp.style.backgroundColor = colors[1];
+    if(octave > mid_octave) butUp.style.backgroundColor = colors[1];
     else butUp.style.backgroundColor = "white";
-    if(octave < MID_OCTAVE) butDown.style.backgroundColor = colors[1];
+    if(octave < mid_octave) butDown.style.backgroundColor = colors[1];
     else butDown.style.backgroundColor = "white";
     this.setAttribute("octave",octave);
     note -= (octave*12);
