@@ -12,7 +12,69 @@ let indicator = document.getElementById("ext-clock");
 
 if (navigator.requestMIDIAccess) {
     console.log('Browser supports MIDI. Yay!');
-    navigator.requestMIDIAccess().then(success, failure);
+    navigator.requestMIDIAccess().then(successTMP, failure);
+}
+
+function successTMP(midi) {
+    connectMIDI(midi);
+
+    midi.onstatechange = (event) => {
+        console.log("Scanning devices...")
+        connectMIDI(midi);
+    };
+}
+
+function connectMIDI(midi) {
+    var MIDIinIndex = 1196977177; // WIDI Jack
+    //var MIDIinIndex = 1576374086; // IAC Driver Bus 2: Notes
+    try {
+        MIDIin = midi.inputs.get(MIDIinIndex);
+        MIDIin.onmidimessage = processMIDIinTMP;
+        console.log("WIDI Jack connected! YAY!");
+    } catch(error) {
+        console.log("WIDI Jack not connected!");
+        console.log(error)
+    }
+}
+
+function processMIDIinTMP(midiMsg) {
+    if(isCC(midiMsg.data[0]) && !infoOnOff) {  // Is a controller
+        switch (midiMsg.data[1]) {
+            case 70: // Main volume
+                var mainVol = parseFloat(midiMsg.data[2]) / 127;
+                var backDropPos = ((parseFloat(midiMsg.data[2]) / 127)*-100) + "vw";
+                document.getElementById("backdrop").style.top = backDropPos;
+                mainMix.gain.setValueAtTime(mainVol, audioContext.currentTime);
+                break;
+            case 71: // Play
+                if(midiMsg.data[2] > 0) {
+                    console.log("play...");
+                    document.getElementById("play").click();
+                }
+                break;
+            case 72: // Stop
+                if(midiMsg.data[2] > 0) {
+                    console.log("stop...");
+                    document.getElementById("stop").click();
+                }
+                break;
+            default:
+                break;
+        }
+        console.log()
+    }
+}
+
+function isNoteOn(msg) {
+    return (msg >= 0x90 && msg <= 0x9F);
+}
+
+function isPC(msg) {
+    return (msg >= 0xC0 && msg <= 0xCF);
+}
+
+function isCC(msg) {
+    return (msg >= 0xB0 && msg <= 0xBF);
 }
 
 function success(midi) {
@@ -21,7 +83,6 @@ function success(midi) {
     MIDIch = getCookie("MIDIch");
     if(MIDIoutIndex != 0) {
         MIDIout = midi.outputs.get(MIDIoutIndex);
-        //console.log("MIDI out: " + MIDIout.name);
     } else {
         console.log("Using internal sounds.")
     }
@@ -29,7 +90,6 @@ function success(midi) {
     if(MIDIinIndex != 0 && MIDIinIndex != null) {
         extClock = true;
         MIDIin = midi.inputs.get(MIDIinIndex);
-        //console.log("MIDI clock in: " + MIDIin.name);
         MIDIin.onmidimessage = processMIDIin;
         document.getElementById("ext-clock-indicator").style.display = "inline";
         document.getElementById("ext-tempo").style.display = "inline";

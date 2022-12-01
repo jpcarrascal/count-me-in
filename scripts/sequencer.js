@@ -1,6 +1,7 @@
 // Am I a sequencer?
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
+var infoOnOff = true;
 var room = findGetParameter("room") || DEFAULT_ROOM;
 var method;
 if(isSeq) {
@@ -44,7 +45,7 @@ var counting = false;
 var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, lang:lang, method:method, sounds: soundParam}});
 var mySocketID;
 socket.on("connect", () => {
-  console.log("Connected, my socketid:" + socket.id);
+  console.log("Connected, my socketid: " + socket.id);
   mySocketID = socket.id;
 });
 
@@ -161,9 +162,13 @@ if(isSeq) {
     var info = document.getElementById("room-info");
     if(info.style.display == "flex") {
       info.style.display = "none";
+      console.log("info off");
+      infoOnOff = false;
       if(!playing && !extClock) document.getElementById("play").click();
     } else {
       info.style.display = "flex";
+      console.log("info on")
+      infoOnOff = true;
     }
   }
 
