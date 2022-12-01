@@ -115,7 +115,7 @@ io.on('connection', (socket) => {
         if(rooms.isReady(room)) {
             if(initials) {
                 var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-                if(track < 0) {
+                if(track < 0) { // No available tracks in room/session
                     logger.info("#" + room + " @" + initials + " rejected, no available tracks ");
                     io.to(socket.id).emit('exit session', {reason: "No available tracks! Please wait a bit..."});
                 } else {

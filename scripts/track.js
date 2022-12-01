@@ -73,7 +73,7 @@ socket.on('create track', function(msg) {
             bigInitials.innerText = initials;
             smallInitials.innerText = initials;
             var selector = ".fader";
-            if(track>7) selector = ".keyboard"
+            if(sound.type == "synth") selector = ".keyboard"
             document.querySelectorAll(selector).forEach(element => {
                 element.style.display = "block";
             });

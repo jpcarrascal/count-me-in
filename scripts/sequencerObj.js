@@ -14,7 +14,6 @@ class StepSequencer {
             var track = {name: "", initials: "", notes: notes, type: soundPreset[i].type};
             this.tracks.push(track);
         }
-        console.log(this.tracks)
     }
     
     setTrackName(i, name) {
@@ -45,7 +44,6 @@ class StepSequencer {
     }
     
     clearTrack(i) {
-        console.log("Clearing track " + i)
         for(var j=0; j<this.nSteps; j++) {
             this.tracks[i].notes[j].vel = 0;
         }

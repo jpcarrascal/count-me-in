@@ -116,12 +116,10 @@ function createTrack(i, sound) {
     sw.classList.add("sw");
     step.appendChild(sw);
     td.appendChild(step);
-
     var keyboard = createKeyboard(i,j);
     td.appendChild(keyboard);
     var fader = createFader(i, j);
-    td.appendChild(fader);      
-
+    td.appendChild(fader);
     tr.appendChild(td);
   }
   return(tr);

@@ -103,7 +103,8 @@ if(isSeq) {
     var track = document.getElementById("track"+msg.track);
     track.style.backgroundColor = EMPTY_COLOR;
     trackName.innerText = "---";
-    if(msg.track > 7) {
+    console.log(track)
+    if(getColor(msg.track) == "black") {
       document.getElementById("track" + msg.track + "-name").style.color = "black";
       document.getElementById("track" + msg.track + "-icon").style.filter = "";
     }
@@ -111,7 +112,6 @@ if(isSeq) {
 
   socket.on('track joined', function(msg) {
     //socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
-    console.log(msg)
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
     trackName.innerText = msg.initials;

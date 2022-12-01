@@ -1,0 +1,6 @@
+[
+    {"type": "sampler", "sound": "seal1.wav", "image": "seal1.png", "params": {"note": 47}},
+    {"type": "sampler", "sound": "seal2.wav", "image": "seal2.png", "params": {"note": 48}},
+    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "sine"}},
+    {"type": "synth", "sound": "", "image": "8.png", "params": {"waveform": "square"}}
+]
