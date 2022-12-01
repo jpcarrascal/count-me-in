@@ -1,7 +1,7 @@
 var counter = document.getElementById("counter");
 var rounds = 0;
 var inLobby = true;
-var noSleep = new NoSleep();
+//var noSleep = new NoSleep();
 
 socket.on('step tick', function(msg) {
     if(inLobby) {

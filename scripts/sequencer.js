@@ -104,7 +104,6 @@ if(isSeq) {
     var track = document.getElementById("track"+msg.track);
     track.style.backgroundColor = EMPTY_COLOR;
     trackName.innerText = "---";
-    console.log(track)
     if(getColor(msg.track) == "black") {
       document.getElementById("track" + msg.track + "-name").style.color = "black";
       document.getElementById("track" + msg.track + "-icon").style.filter = "";
@@ -162,12 +161,10 @@ if(isSeq) {
     var info = document.getElementById("room-info");
     if(info.style.display == "flex") {
       info.style.display = "none";
-      console.log("info off");
       infoOnOff = false;
       if(!playing && !extClock) document.getElementById("play").click();
     } else {
       info.style.display = "flex";
-      console.log("info on")
       infoOnOff = true;
     }
   }
