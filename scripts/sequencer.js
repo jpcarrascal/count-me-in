@@ -154,6 +154,9 @@ if(isSeq) {
     } else if (event.code == "Enter") {
       event.preventDefault();
       hideAndPLay();
+    } else if (event.code == "KeyQ") {
+      document.getElementById("backdrop").removeAttribute("style")
+      document.getElementById("backdrop").classList.toggle("slide-top");
     }
   });
 
