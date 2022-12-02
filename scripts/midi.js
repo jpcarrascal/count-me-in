@@ -27,6 +27,7 @@ function successTMP(midi) {
 function connectMIDI(midi) {
     var MIDIinIndex = 1196977177; // WIDI Jack
     //var MIDIinIndex = 1576374086; // IAC Driver Bus 2: Notes
+    console.log("MIDIinIndex: " + MIDIinIndex);
     try {
         MIDIin = midi.inputs.get(MIDIinIndex);
         MIDIin.onmidimessage = processMIDIinTMP;
