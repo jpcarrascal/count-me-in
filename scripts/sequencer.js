@@ -151,7 +151,7 @@ if(isSeq) {
         document.querySelector("#stop").dispatchEvent(e);
       else
         document.querySelector("#play").dispatchEvent(e);
-    } else if (event.code == "Enter") {
+    } else if (event.code == "KeyA") {
       event.preventDefault();
       hideAndPLay();
     } else if (event.code == "KeyQ") {
