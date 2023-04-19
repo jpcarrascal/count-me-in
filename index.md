@@ -1,5 +1,5 @@
 
-## [Click here to try it out!](https://count-me-in.azurewebsites.net/sequencer)
+[**Click here to try it out!**](https://count-me-in.azurewebsites.net/sequencer)
 ![image](https://raw.githubusercontent.com/jpcarrascal/count-me-in/gh-pages/docs/assets/tryout.jpg)
 
 
