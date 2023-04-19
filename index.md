@@ -1,6 +1,6 @@
 
 [**Click here to try it out!**](https://count-me-in.azurewebsites.net/sequencer)
-![image](https://raw.githubusercontent.com/jpcarrascal/count-me-in/gh-pages/docs/assets/tryout.jpg)
+![image](https://raw.githubusercontent.com/jpcarrascal/count-me-in/gh-pages/assets/images/tryout.jpg)
 
 
 **Count-Me-In** is a collaborative music sequencer that uses a distributed Web architecture to promote audience participation in music performances, installations, and other similar contexts. Audience members take control of individual sequencer tracks using their mobile phones (or any networked device), collaboratively building a music loop or phrase. This dialog represents a disruption in the traditional role played by the audience in a music performance: instead of being passive listeners, attendees become active performers. In the future, we plan to include the capacity to synchronize with any DAW or hardware device that generates MIDI Clock messages, allowing collaboration between performers and audience.
@@ -11,7 +11,7 @@
 
 Count-Me-In uses a distributed cloud architecture featuring a cloud-based back-end server (running Node.js, Express and Socket.io) and two types of Web applications.
 
-![architecture-website](https://raw.githubusercontent.com/jpcarrascal/count-me-in/gh-pages/docs/assets/architecture.jpg) 
+![architecture-website](https://raw.githubusercontent.com/jpcarrascal/count-me-in/gh-pages/assets/images/architecture.jpg) 
 *Count-Me-In architecture.*
 
 The Web applications are:
