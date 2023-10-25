@@ -25,9 +25,14 @@ function successTMP(midi) {
 }
 
 function connectMIDI(midi) {
-    var MIDIinIndex = 1196977177; // WIDI Jack
+    var MIDIinIndex = 154015310; // WIDI Jack
+    console.log(midi.inputs.forEach(function(port, key) {
+        if(port.name == "WIDI Jack Bluetooth") {
+            MIDIinIndex = key;
+        }
+    }));
     //var MIDIinIndex = 1576374086; // IAC Driver Bus 2: Notes
-    console.log("MIDIinIndex: " + MIDIinIndex);
+    console.log("WIDI Jack MIDIinIndex: " + MIDIinIndex);
     try {
         MIDIin = midi.inputs.get(MIDIinIndex);
         MIDIin.onmidimessage = processMIDIinTMP;
@@ -39,7 +44,7 @@ function connectMIDI(midi) {
 }
 
 function processMIDIinTMP(midiMsg) {
-    if(isCC(midiMsg.data[0]) && !infoOnOff) {  // Is a controller
+    if(isCC(midiMsg.data[0])) { //&& !infoOnOff) {  // Is a controller
         switch (midiMsg.data[1]) {
             case 70: // Main volume
                 var mainVol = parseFloat(midiMsg.data[2]) / 127;
@@ -57,6 +62,11 @@ function processMIDIinTMP(midiMsg) {
                 if(midiMsg.data[2] > 0) {
                     console.log("stop...");
                     document.getElementById("stop").click();
+                }
+                break;
+            case 73: // Hide/show QR
+                if(midiMsg.data[2] > 0) {
+                    hideAndPLay();
                 }
                 break;
             default:

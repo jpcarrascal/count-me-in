@@ -1,7 +1,7 @@
 // Am I a sequencer?
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
-var infoOnOff = true;
+//var infoOnOff = true;
 var room = findGetParameter("room") || DEFAULT_ROOM;
 var method;
 if(isSeq) {
@@ -143,7 +143,14 @@ if(isSeq) {
     hideAndPLay();
   });
 
+  document.addEventListener("click", event => {
+    console.log("resuming audio...");
+    audioContext.resume();
+  });
+
   document.addEventListener("keydown", event => {
+    console.log("resuming audio...");
+    audioContext.resume();
     if (event.code == "Space" && !extClock) {
       event.preventDefault();
       e = new Event("click");
@@ -164,11 +171,11 @@ if(isSeq) {
     var info = document.getElementById("room-info");
     if(info.style.display == "flex") {
       info.style.display = "none";
-      infoOnOff = false;
+      //infoOnOff = false;
       if(!playing && !extClock) document.getElementById("play").click();
     } else {
       info.style.display = "flex";
-      infoOnOff = true;
+      //infoOnOff = true;
     }
   }
 
