@@ -51,11 +51,11 @@ socket.on("connect", () => {
 
 socket.on('play', function(msg) {
   veilPlay();
-  //console.log("Remote play!" + msg.socketID);
+  console.log("Remote play!" + msg.socketID);
 });
 
 socket.on('stop', function(msg) {
-  //console.log("Remote stop!" + msg.socketID);
+  console.log("Remote stop!" + msg.socketID);
   //updateCursor(-1, -1);
   veilStop();
 });
@@ -68,6 +68,9 @@ socket.on('veil-stop', function(msg) {
   veilStop();
 });
 
+socket.on('veil-up', function(msg) {
+  hideAndPLay();
+});
 
 socket.on('step tick', function(msg) {
   updateCursor(msg.counter, msg.prev);

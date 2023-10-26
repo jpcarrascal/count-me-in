@@ -207,6 +207,12 @@ io.on('connection', (socket) => {
         logger.info("#" + room + " Stopped.");
     });
 
+    socket.on('veil-up', (msg) => {
+        socket.broadcast.to(room).emit('veil-up', msg);
+        logger.info("#" + room + " Veil up.");
+    });
+
+
     socket.on('ping', (msg) => {
         io.to(socket.id).emit('pong', msg);
     });

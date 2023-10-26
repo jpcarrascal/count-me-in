@@ -45,8 +45,8 @@ function connectMIDI(midi) {
 
 function processMIDIinTMP(midiMsg) {
     if(isCC(midiMsg.data[0])) { //&& !infoOnOff) {  // Is a controller
-        console.log(midiMsg.data)
         switch (midiMsg.data[1]) {
+            /*
             case 70: // Play
                 if(midiMsg.data[2] == 0) {
                     veilPlay();
@@ -58,18 +58,12 @@ function processMIDIinTMP(midiMsg) {
                     veilStop();
                 }
                 break;
-                /*
-            case 72: // Stop
-                if(midiMsg.data[2] > 0) {
-                    console.log("stop...");
-                    document.getElementById("stop").click();
-                }
-                break;*/
             case 73: // Hide/show QR
                 if(midiMsg.data[2] > 0) {
                     hideAndPLay();
                 }
                 break;
+            */
             default:
                 break;
         }
