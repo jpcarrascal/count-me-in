@@ -45,25 +45,26 @@ function connectMIDI(midi) {
 
 function processMIDIinTMP(midiMsg) {
     if(isCC(midiMsg.data[0])) { //&& !infoOnOff) {  // Is a controller
+        console.log(midiMsg.data)
         switch (midiMsg.data[1]) {
-            case 70: // Main volume
-                var mainVol = parseFloat(midiMsg.data[2]) / 127;
-                var backDropPos = ((parseFloat(midiMsg.data[2]) / 127)*-100) + "vw";
-                document.getElementById("backdrop").style.top = backDropPos;
-                mainMix.gain.setValueAtTime(mainVol, audioContext.currentTime);
+            case 70: // Play
+                if(midiMsg.data[2] == 0) {
+                    veilPlay();
+                } 
                 break;
-            case 71: // Play
-                if(midiMsg.data[2] > 0) {
-                    console.log("play...");
-                    document.getElementById("play").click();
+                
+            case 71: // Stop
+                if(midiMsg.data[2] == 0) {
+                    veilStop();
                 }
                 break;
+                /*
             case 72: // Stop
                 if(midiMsg.data[2] > 0) {
                     console.log("stop...");
                     document.getElementById("stop").click();
                 }
-                break;
+                break;*/
             case 73: // Hide/show QR
                 if(midiMsg.data[2] > 0) {
                     hideAndPLay();
@@ -74,6 +75,23 @@ function processMIDIinTMP(midiMsg) {
         }
         console.log()
     }
+}
+
+function veilPlay() {
+    console.log("Pedalboard play...");
+    document.getElementById("play").click();
+    mainMix.gain.linearRampToValueAtTime(1, audioContext.currentTime + 2);
+    document.getElementById("backdrop").style.top = "-100vw";
+}
+
+function veilStop() {
+    updateCursor(-1, -1);
+    console.log("Pedalboard stop...");
+    mainMix.gain.linearRampToValueAtTime(0, audioContext.currentTime + 2);
+    document.getElementById("backdrop").style.top = 0;
+    setTimeout(function() {
+        document.getElementById("stop").click();
+      }, 2000);
 }
 
 function isNoteOn(msg) {

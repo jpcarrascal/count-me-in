@@ -2,16 +2,25 @@ const fs = require('fs');
 const path = require("path");
 const express = require('express');
 const app = express();
+//const cors = require('cors');
+//app.use(cors()); // Enable CORS
+
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+      origin: '*',
+    }
+  });
 const { AllRooms } = require("./scripts/roomsObj.js");
 const config = require('./scripts/config.js');
 var cookie = require("cookie")
 
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, printf } = format;
+
+
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
   return `${timestamp} ${message}`;
@@ -53,6 +62,15 @@ app.get('/conductor', (req, res) => {
     res.sendFile(__dirname + page);
 });
 
+app.get('/hootbeat', (req, res) => {
+    console.log("hootbeat")
+    if(req.query.room && (req.query.initials || req.query.initials==="") )
+        var page = '/html/hootbeat.html';
+    else
+        var page = '/html/index-hootbeat.html';
+    res.sendFile(__dirname + page);
+});
+
 app.get('/track', (req, res) => {
     if(req.query.room && (req.query.initials || req.query.initials==="") )
         var page = '/html/track.html';
@@ -81,10 +99,14 @@ app.use('/sounds', express.static(__dirname + '/sounds/'));
 io.on('connection', (socket) => {
     var seq = false;
     var conductor = false;
+    var hootbeat = false;
+    console.log(socket.handshake.query.hootbeat)
     if(socket.handshake.headers.referer.includes("sequencer"))
         seq = true;
     else if(socket.handshake.headers.referer.includes("conductor"))
         conductor = true;
+    else if(socket.handshake.query.hootbeat !== undefined)
+        hootbeat = true;
     var room = socket.handshake.query.room;
     var initials = socket.handshake.query.initials;
     socket.join(room);
@@ -108,6 +130,12 @@ io.on('connection', (socket) => {
     } else if(conductor) {
         if(rooms.isReady(room)) {
             logger.info("#" + room + " @" + initials + " joined session as conductor");
+        } else {
+            io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
+        }
+    } else if(hootbeat) {
+        if(rooms.isReady(room)) {
+            logger.info("#" + room + " @" + initials + " joined session as HoooBeat");
         } else {
             io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
