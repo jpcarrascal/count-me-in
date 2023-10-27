@@ -67,7 +67,6 @@ function processMIDIinTMP(midiMsg) {
             default:
                 break;
         }
-        console.log()
     }
 }
 

@@ -158,6 +158,16 @@ if(isSeq) {
   });
 
   document.addEventListener("click", event => {
+    var clickme = document.getElementById("click-me-first");
+    var logo = document.getElementById("logo-image");
+    if(clickme.style.display != "none") {
+      clickme.style.color = "white";
+      clickme.innerText = "Thank you!"
+      setTimeout(function() {
+        clickme.style.display = "none";
+        logo.style.display = "block";
+      }, 500);
+    }
     console.log("resuming audio...");
     audioContext.resume();
   });

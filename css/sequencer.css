@@ -482,3 +482,12 @@ button.controls:hover {
     background-color: tomato;
     color: white;
 }
+
+#click-me-first {
+    font-size: 3em;
+    color: red;
+}
+
+#logo-image {
+    display: none;
+}
