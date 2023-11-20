@@ -2,9 +2,11 @@ var counter = document.getElementById("counter");
 var rounds = 0;
 var inLobby = true;
 //var noSleep = new NoSleep();
-
-screen.orientation.lock('landscape');
-
+/*
+if(screen.orientation.lock !== "undefined") {
+    screen.orientation.lock('landscape');
+}
+*/
 socket.on('step tick', function(msg) {
     if(inLobby) {
         console.log("in lobby")
