@@ -3,6 +3,8 @@ var rounds = 0;
 var inLobby = true;
 //var noSleep = new NoSleep();
 
+screen.orientation.lock('landscape');
+
 socket.on('step tick', function(msg) {
     if(inLobby) {
         console.log("in lobby")
