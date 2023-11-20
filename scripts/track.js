@@ -7,9 +7,10 @@ if(screen.orientation.lock !== "undefined") {
     screen.orientation.lock('landscape');
 }
 */
+
 socket.on('step tick', function(msg) {
     if(inLobby) {
-        console.log("in lobby")
+        console.log("in lobby");
         document.getElementById("paused").style.display = "none";
         document.getElementById("sequencer").style.display = "flex";
         inLobby = false;

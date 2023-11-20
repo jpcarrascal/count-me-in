@@ -476,3 +476,17 @@ function copyURL(id) {
   copyText.setSelectionRange(0, 99999); /* For mobile devices */
   navigator.clipboard.writeText(copyText.value);
 }
+
+function enterFullscreen() {
+  let elem = document.querySelector("body");
+
+  if (!document.fullscreenElement) {
+    elem.requestFullscreen().catch((err) => {
+      alert(
+        `Error attempting to enable fullscreen mode: ${err.message} (${err.name})`,
+      );
+    });
+  }/* else {
+    document.exitFullscreen();
+  }*/
+}
