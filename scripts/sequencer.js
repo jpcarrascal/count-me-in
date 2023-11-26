@@ -168,8 +168,10 @@ if(isSeq) {
         logo.style.display = "block";
       }, 500);
     }
-    console.log("resuming audio...");
+    console.log("Resuming audio...");
     audioContext.resume();
+    console.log("Entering fullscreen.");
+    enterFullscreen();
   });
 
   document.addEventListener("keydown", event => {
