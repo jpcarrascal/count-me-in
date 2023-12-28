@@ -14,7 +14,8 @@ if(isSeq) {
                 "/track?room=" + room +
                 "&sounds=" + soundParam +
                 "&lang=" + lang;
-  var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
+  //var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
+  let qrcodeURL = "https://qrcode.azurewebsites.net/qr?width=300&margin=1&string=" + encodeURIComponent(trackURL);
   var qrcode = document.createElement("img");
   qrcode.setAttribute("src",qrcodeURL);
   qrcode.setAttribute("id","qrcode");
