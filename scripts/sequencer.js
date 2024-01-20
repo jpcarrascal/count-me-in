@@ -154,11 +154,12 @@ if(isSeq) {
   });
 
   var closeInfo = document.getElementById("close-info");
+  
   closeInfo.addEventListener("click", function() {
     hideAndPLay();
   });
 
-  document.addEventListener("click", event => {
+  document.getElementById("backdrop").addEventListener("click", event => {
     var clickme = document.getElementById("click-me-first");
     var logo = document.getElementById("logo-image");
     if(clickme.style.display != "none") {
@@ -195,6 +196,7 @@ if(isSeq) {
   });
 
   function hideAndPLay() {
+    enterFullscreen();
     var info = document.getElementById("room-info");
     if(info.style.display == "flex") {
       info.style.display = "none";
