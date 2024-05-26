@@ -112,6 +112,7 @@ io.on('connection', (socket) => {
     socket.join(room);
     if(seq) {
         var allocationMethod = socket.handshake.query.method || "random";
+        if(socket.handshake.query.sounds === undefined) socket.handshake.query.sounds = "tr808";
         var numTracks = getNumTracks(socket.handshake.query.sounds) || 10;
         var cookief = socket.handshake.headers.cookie; 
         var cookies = cookie.parse(socket.handshake.headers.cookie);    
