@@ -3,7 +3,61 @@
 }
 
 #track-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     color: black;
+}
+
+#empty, #expert-controls {
+    flex: 1;
+}
+
+#icon-initials {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-left: 1vw;
+}
+
+#expert-controls {
+    margin: 2vw;
+    font-size: 3vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+#expert-mode {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    top: 0;
+    left: 0;
+    height: 3vw;
+    width: 3vw;
+    margin: 0;
+    border-color: transparent; 
+    vertical-align: middle; 
+    position: relative;
+    margin-right: 1vw;
+    background-color: white;
+    border-radius: 10%;
+    display: grid;
+    place-content: center;
+}
+
+#expert-mode:before {
+    content: "";
+    width: 2vw;
+    height: 2vw;
+}
+  
+#expert-mode:checked:before {
+    content: "✓";
+    background-color: black;
 }
 
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {

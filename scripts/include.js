@@ -79,7 +79,9 @@ function createTrack(i, sound) {
   img.setAttribute("track",trackID);
   img.setAttribute("id",trackID+"-icon");
   img.classList.add("track-icon");
-  img.addEventListener("click", showStepControls);
+  img.addEventListener("click", function(e){
+    showStepControls(trackID, sound.type);
+  });
   td.appendChild(img);
   td.classList.add("track-icon-td");
   td.classList.add("track-meta");
@@ -341,11 +343,9 @@ function clearSteps(e) {
   });
 }
 
-function showStepControls(e) {
-  var track = this.getAttribute("track");
-  var isSynth = this.parentNode.parentNode.classList.contains("synth-track");
+function showStepControls(track, soundType) {
   var selector = ".fader."+track;
-  if(isSynth) selector = ".keyboard."+track;
+  if(soundType == "synth") selector = ".keyboard."+track;
   document.querySelectorAll(selector).forEach(elem => {
     if(elem.style.display == "block")
       elem.style.display = "none";

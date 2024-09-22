@@ -47,6 +47,7 @@ socket.on('create track', function(msg) {
     console.log("Got my track: " + (msg.track));
     if(msg.track == undefined) restartSession( translate(lang, "No available tracks! Please wait a bit...") );
     var track = msg.track;
+    var trackID = "track"+track;
     fetch(soundsJson)
         .then((response) => response.json())
         .then((soundPreset) => {
@@ -81,7 +82,14 @@ socket.on('create track', function(msg) {
             var selector = ".fader";
             if(sound.type == "synth") selector = ".keyboard"
             document.querySelectorAll(selector).forEach(element => {
-                element.style.display = "block";
+                element.style.display = "none";
+            });
+            // Expert mode switch:
+            var expertCheckbox = document.getElementById("expert-mode");
+            document.getElementById("expert-mode").setAttribute("track", trackID);
+            expertCheckbox.addEventListener("change", function(e){
+                socket.emit('expert-mode', { track: track, socketid: mySocketID, value: this.checked } );
+                showStepControls(trackID, sound.type);
             });
             console.log("asking for my notes!")
             socket.emit('give me my notes', { track: track, socketid: mySocketID } );

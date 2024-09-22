@@ -100,7 +100,6 @@ io.on('connection', (socket) => {
     var seq = false;
     var conductor = false;
     var hootbeat = false;
-    console.log(socket.handshake.query.hootbeat)
     if(socket.handshake.headers.referer.includes("sequencer"))
         seq = true;
     else if(socket.handshake.headers.referer.includes("conductor"))
@@ -157,7 +156,7 @@ io.on('connection', (socket) => {
                         logger.info("#" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
                     });
                     io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
-                    }
+                }
             } else {
                 io.to(socket.id).emit('session paused', {reason: "Session has not started..."});
                 logger.info("#" + room + "(" + socket.id + ") waiting in lobby...");    
@@ -221,6 +220,10 @@ io.on('connection', (socket) => {
     socket.on('track mute', (msg) => {
         console.log(msg)
         socket.broadcast.to(room).emit('track mute', msg);
+    }); 
+
+    socket.on('expert-mode', (msg) => {
+        logger.info("#" + room + " @" + initials + " set expert mode to: " + msg.value);
     }); 
 
     socket.on('track solo', (msg) => {
