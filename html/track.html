@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>COUNT·ME·IN</title>
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/sequencer.css">
     <link rel="stylesheet" href="css/track.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
@@ -23,7 +24,11 @@
         <span class="translate" id="lang-hello">Hello</span> <span id="small-initials"></span>!<br />
         <span class="translate" id="lang-paused">The session will start in a bit.</span>
       </div>
+      <div class="rotate-me">
+        <img src="images/rotatephone.gif" alt="Please rotate your device" />
+      </div>
     </div>
+    
 
     <div id="sequencer">
 
@@ -57,6 +62,9 @@
           <button id="restart" class="ui-button"><span class="translate" id="lang-exit">Exit</span></button>
         </div>
 
+        <div class="rotate-me">
+          <img src="images/rotatephone.gif" alt="Please rotate your device" />
+        </div>
     </div>
     <!-- <script src="scripts/NoSleep.js"></script> -->
     <script src="/socket.io/socket.io.js"></script>

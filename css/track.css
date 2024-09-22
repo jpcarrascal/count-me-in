@@ -57,7 +57,11 @@
   
 #expert-mode:checked:before {
     content: "✓";
+    color: white;
     background-color: black;
+    font-size: 2vw;
+    text-align: center;
+    line-height: 110%;
 }
 
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
