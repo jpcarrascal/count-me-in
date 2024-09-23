@@ -11,9 +11,9 @@ const NOTE_OFF = 0x80;
 const NOTE_DURATION = 300;
 const DEFAULT_ROOM = 999;
 const EMPTY_COLOR = "#AAA";
-const MAX_OCTAVE = 8;
-const MIN_OCTAVE = 3;
-const MID_OCTAVE = 4;
+const MAX_TRANSPOSE_UP = 1;
+const MIN_TRANSPOSE_DOWN = -1;
+const MID_OCTAVE = 5;
 const SYNTH_DEFAULT_VEL = 63;
 var stepSequencer;
 const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black"];
@@ -112,7 +112,7 @@ function createTrack(i, sound) {
     else {
       var oct = 0;
       if(sound.params.oct) oct = sound.params.oct*12;
-      step.setAttribute("note",48+oct);
+      step.setAttribute("note",oct);
     }
     step.addEventListener('mousedown', stepClick);
     step.addEventListener('mouseover', stepHover);
@@ -144,6 +144,7 @@ function createKeyboard (i, j, params) {
   keyboard.classList.add(trackID);
   keyboard.setAttribute("id",stepID+"kb");
   keyboard.setAttribute("octave",mid_octave);
+  keyboard.setAttribute("transpose",0);
   var oct = document.createElement("div");
   oct.classList.add("oct-controls");
   var plus = document.createElement("div");
@@ -226,18 +227,19 @@ function keyClick(e) {
 function octaveClick(e) {
   var kb = this.parentNode.parentNode;
   var curOct = parseInt(kb.getAttribute("octave"));
+  var transpose = parseInt(kb.getAttribute("transpose"));
   var stepID = this.getAttribute("stepID");
   var stepElem = document.getElementById(stepID);
   var note = parseInt(stepElem.getAttribute("note"));
   var direction = this.getAttribute("direction");
-  if(direction == "+" && curOct < MAX_OCTAVE) {
-    curOct++;
-    kb.setAttribute("octave", curOct);
+  if(direction == "+" && transpose < MAX_TRANSPOSE_UP) {
+    transpose++;
+    kb.setAttribute("transpose", transpose);
     note += 12;
     updateStep(stepElem, note, SYNTH_DEFAULT_VEL, "octUp");
-  } else if(direction == "-" && curOct > MIN_OCTAVE) {
-    curOct--;
-    kb.setAttribute("octave", curOct);
+  } else if(direction == "-" && transpose > MIN_TRANSPOSE_DOWN) {
+    transpose--;
+    kb.setAttribute("transpose", transpose);
     note -= 12;
     updateStep(stepElem, note, SYNTH_DEFAULT_VEL, "octDown");
   }
