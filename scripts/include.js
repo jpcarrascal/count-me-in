@@ -108,11 +108,14 @@ function createTrack(i, sound) {
     step.setAttribute("track",i);
     step.setAttribute("step",j);
     step.setAttribute("value",0);
+    var randNote =  Math.floor(Math.random() * 12);
     if(sound.type == "sampler") step.setAttribute("note",drumNotes[i]);
     else {
-      var oct = 0;
-      if(sound.params.oct) oct = sound.params.oct*12;
-      step.setAttribute("note",oct);
+      // Random starting note for easy mode by default:
+      var randNote = (MID_OCTAVE * 12) + Math.floor(Math.random() * 12);
+      if(sound.params.oct)
+        var randNote = (sound.params.oct * 12) + Math.floor(Math.random() * 12);
+      step.setAttribute("note",randNote);
     }
     step.addEventListener('mousedown', stepClick);
     step.addEventListener('mouseover', stepHover);
