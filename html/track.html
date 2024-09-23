@@ -34,13 +34,6 @@
 
         <div id="track-header">
 
-          <div id="empty">
-            <!--
-              Empty element to allow expert control go to the left
-              while keeping instrument and initials centered
-            -->
-          </div>
-
           <div id="icon-initials">
             <div id="instrument">
               <img id="big-instrument-icon" />
@@ -49,7 +42,14 @@
           </div>
 
           <div id="expert-controls">
-            <input type="checkbox" id="expert-mode" /> <label for="expert-mode" class="translate" id="lang-expert-label">Expert mode</label>
+            <label for="expert-mode" class="translate" id="lang-expert-label">Expert mode:</label>
+            <input type="checkbox" id="expert-mode" />
+          </div>
+
+          <div id="empty">
+            <div id="control-panel">
+              <div id="remaining-rounds"><span class="translate" id="lang-rounds">Remaining rounds</span>: <span id="counter">?</span></div>
+            </div>
           </div>
 
         </div>
@@ -57,10 +57,8 @@
         <table id="matrix">
         </table>
         
-        <div id="control-panel">
-          <div id="remaining-rounds"><span class="translate" id="lang-rounds">Remaining rounds</span>: <span id="counter">?</span></div>
-          <button id="restart" class="ui-button"><span class="translate" id="lang-exit">Exit</span></button>
-        </div>
+        <button id="restart" class="ui-button"><span class="translate" id="lang-exit">Exit</span></button>
+
 
         <div class="rotate-me">
           <img src="images/rotatephone.gif" alt="Please rotate your device" />

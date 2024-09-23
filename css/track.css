@@ -10,10 +10,6 @@
     color: black;
 }
 
-#empty, #expert-controls {
-    flex: 1;
-}
-
 #icon-initials {
     display: flex;
     flex-direction: row;
@@ -24,7 +20,7 @@
 
 #expert-controls {
     margin: 2vw;
-    font-size: 3vw;
+    font-size: 2vw;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -43,6 +39,7 @@
     vertical-align: middle; 
     position: relative;
     margin-right: 1vw;
+    margin-left: 1vw;
     background-color: white;
     border-radius: 10%;
     display: grid;
@@ -64,6 +61,11 @@
     line-height: 110%;
 }
 
+#counter {
+    display: inline-block;
+    min-width: 2em;
+}
+
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
     width: 5.5vw;
 }
@@ -80,7 +82,7 @@
     margin: 0;
     margin-top: .5vw;
     border-width: .3vw;
-    height: 1.5vw;
+    height: 1.1vw;
     width: 3.2vw;
     border-radius: .3vw;
 }
@@ -97,13 +99,13 @@
 }
 
 #remaining-rounds {
-    font-size: 3vw;
+    font-size: 2vw;
 }
 
 #restart {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-size: 3vw;
-    margin-left: 3vw;
+    margin: 1vw;
     padding-left: 1vw;
     padding-right: 1vw;
 }

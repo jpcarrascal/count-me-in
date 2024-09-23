@@ -59,7 +59,7 @@ socket.on('create track', function(msg) {
             preIcon.setAttribute("src",imageURL);
             counter.innerText = msg.maxNumRounds;
             var color = getColor(track);
-            counter.style.color = color;
+            //counter.style.color = color;
             rounds = msg.maxNumRounds;
             var tr = createTrack(track, sound);
             document.getElementById("track-header").style.backgroundColor = color;
