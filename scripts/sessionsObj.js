@@ -1,5 +1,5 @@
 class Session {
-    constructor(sessionName, allocationMethod, numTracks, maxNumRounds)  {
+    constructor(sessionName, numTracks, allocationMethod, maxNumRounds)  {
         this.name = sessionName;
         this.participants = Array(numTracks).join(".").split(".");
         this.seqID = "";
@@ -123,15 +123,13 @@ class Participant {
 }
 
 class AllSessions {
-    constructor(numTracks, maxNumRounds)  {
+    constructor(numTracks)  {
         this.sessions = Array();
-        this.numTracks = numTracks;
-        this.maxNumRounds = maxNumRounds;
     }
-    addSession(sessionName, allocationMethod) {
+    addSession(sessionName, numTracks, allocationMethod, maxNumRounds) {
         var exists = this.findSession(sessionName);
         if(exists == -1) {
-            let newSession = new Session(sessionName, allocationMethod, this.numTracks, this.maxNumRounds);
+            let newSession = new Session(sessionName, numTracks, allocationMethod, maxNumRounds);
             this.sessions.push(newSession);
         } else {
             this.sessions[exists].allocationMethod = allocationMethod || "sequential";

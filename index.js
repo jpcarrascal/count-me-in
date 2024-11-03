@@ -38,7 +38,7 @@ const logger = createLogger({
     ]
 });
 
-var sessions = new AllSessions(config.MAX_NUM_ROUNDS);
+var sessions = new AllSessions();
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
         const exists = sessions.findSession(session);
         if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
         else {
-            sessions.addSession(session, numTracks, allocationMethod);
+            sessions.addSession(session, numTracks, allocationMethod, config.MAX_NUM_ROUNDS);
             logger.info("#" + session + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
             sessions.setSeqID(session,socket.id);
             socket.on('disconnect', () => {
@@ -126,7 +126,7 @@ io.on('connection', (socket) => {
         if(sessions.isReady(session)) {
             if(initials) {
                 var track = sessions.allocateAvailableParticipant(session, socket.id, initials);
-                if(track < 0) { // No available tracks in session/session
+                if(track < 0) { // No available tracks in session
                     logger.info("#" + session + " @" + initials + " rejected, no available tracks ");
                     io.to(socket.id).emit('exit session', {reason: "No available tracks! Please wait a bit..."});
                 } else {

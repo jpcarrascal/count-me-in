@@ -123,18 +123,40 @@ function scheduler() {
     timerID = window.setTimeout(scheduler, 0);
 }
 
-function tick() {
+function tick(extCounter) {
+  if(extCounter !== undefined) counter = extCounter;
   playStepNotes(counter);
-  socket.emit('step tick', { counter: counter, prev: prev } );
-  updateCursor(counter, prev);
+  socket.emit('step tick', { counter: counter} );
+  updateCursor(counter);
   if(counter < NUM_STEPS-1) {
     counter++;
-    prev = counter - 1;
   } else {
       counter = 0;
-      prev = 15;
   }
 }
+
+if(extClock) {
+  stopButton.click();
+  try {
+
+    window.max.bindInlet("tick", function(maxCounter) {
+      console.log("Max detected!");
+      tick(maxCounter);
+    });
+
+    window.max.bindInlet("play", function(maxCounter) {
+      playButton.click();
+    });
+
+    window.max.bindInlet("stop", function(maxCounter) {
+      stopButton.click();
+    });
+
+  } catch(e) {
+    console.log("Max not loaded");
+  }
+}
+
 
 playButton.addEventListener('click', function() {
   if(!playing) {
@@ -143,7 +165,6 @@ playButton.addEventListener('click', function() {
     };
     nextNotetime = audioContext.currentTime;
     counter = 0;
-    prev = 15;
     socket.emit('play', { socketID: mySocketID });
     for(var i=0; i<num_tracks; i++) {
       trackGain[i].connect(mainMix);
@@ -151,7 +172,7 @@ playButton.addEventListener('click', function() {
     this.classList.add("playing");
     playing = true;
     // Only start scheduler if clock is internal
-    if(MIDIinIndex == 0 || MIDIinIndex == null) scheduler();
+    if( (MIDIinIndex == 0 || MIDIinIndex == null) && extClock == false) scheduler();
   }
 });
 

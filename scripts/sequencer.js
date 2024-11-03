@@ -3,9 +3,9 @@ var isSeq = location.pathname.includes("sequencer");
 var initials = "";
 //var infoOnOff = true;
 var session = findGetParameter("session") || DEFAULT_ROOM;
-var method;
+var method = findGetParameter("method") || "random";
+var extClock = findGetParameter("extclock") || false;
 if(isSeq) {
-  method = findGetParameter("method") || "random";
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
   document.getElementById("session-name").innerText = session;
@@ -57,7 +57,7 @@ socket.on('play', function(msg) {
 
 socket.on('stop', function(msg) {
   console.log("Remote stop!" + msg.socketID);
-  //updateCursor(-1, -1);
+  //updateCursor(-1);
   veilStop();
 });
 
@@ -74,7 +74,7 @@ socket.on('veil-up', function(msg) {
 });
 
 socket.on('step tick', function(msg) {
-  updateCursor(msg.counter, msg.prev);
+  updateCursor(msg.counter);
 });
 
 socket.on('track volume', function(msg) {
@@ -214,7 +214,6 @@ if(isSeq) {
   var interval = 60000/(4*tempo);
   var timer;
   var counter = 0;
-  var prev = 15;
 
   document.getElementById("tempo").addEventListener("change",function(e){
     this.setAttribute('value', this.value);
@@ -239,7 +238,9 @@ function clearTrack(track) {
 }
 
 
-function updateCursor(counter, prev) {
+function updateCursor(counter) {
+  var prev = counter - 1;
+  if(prev < 0) prev = NUM_STEPS-1;
   if(counter >=0) {
     var stepPos = document.querySelectorAll(".step"+counter);
     var prevPos = document.querySelectorAll(".step"+prev);

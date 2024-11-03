@@ -1,6 +1,5 @@
 var MIDIout = null;
 var MIDIin = null;
-var extClock = false;
 var midiPlaying = false;
 var tickCounter = -1;
 var beatCounter = -1;
@@ -35,7 +34,7 @@ function connectMIDI(midi) {
     console.log("WIDI Jack MIDIinIndex: " + MIDIinIndex);
     try {
         MIDIin = midi.inputs.get(MIDIinIndex);
-        MIDIin.onmidimessage = processMIDIinTMP;
+        //MIDIin.onmidimessage = processMIDIinTMP;
         console.log("WIDI Jack connected! YAY!");
     } catch(error) {
         console.log("WIDI Jack not connected!");
@@ -110,7 +109,7 @@ function success(midi) {
     }
 
     if(MIDIinIndex != 0 && MIDIinIndex != null) {
-        extClock = true;
+        //extClock = true;
         MIDIin = midi.inputs.get(MIDIinIndex);
         MIDIin.onmidimessage = processMIDIin;
         document.getElementById("ext-clock-indicator").style.display = "inline";

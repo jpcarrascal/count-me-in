@@ -338,6 +338,13 @@ function updateStep(stepElem, note, value, action) {
     var swColor = stepElem.firstChild.getAttribute("color");
     stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
     socket.emit('step update', { track: track, step: step, note: note, value: value, action: action, socketID: mySocketID } );
+    if(extClock) {
+      try{
+        window.max.outlet("step_update", track, step, note, value);
+      } catch(e) {
+        console.log("Max not loaded");
+      }
+    }
   }
 }
 
