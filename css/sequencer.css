@@ -18,7 +18,7 @@ body {
     user-select: none;
 }
 
-#room-info {
+#session-info {
     display: none;
     flex-direction: column;
     align-items: center;
@@ -34,12 +34,12 @@ body {
     height: 100%;
 }
 
-#room-info a {
+#session-info a {
     color: white;
     font-weight: bold;
 }
 
-#room-title {
+#session-title {
     font-weight: bold;
 }
 
@@ -59,7 +59,7 @@ body {
     margin: 0;
 }
 
-.room-info {
+.session-info {
     margin: 1vw;
 }
 

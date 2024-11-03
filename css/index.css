@@ -63,14 +63,14 @@ body {
     margin-top: -1em;
 }
 
-.intro-form, #go, #create-room {
+.intro-form, #go, #create-session {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-size: 1em;
     width: 1.8em;
     margin: 0.5vw;
 }
 
-#room {
+#session {
     width: 5em;
 }
 
@@ -82,16 +82,16 @@ body {
     width: 100%;
 }
 
-#new-room-name {
+#new-session-name {
     width: 10em;
     text-align: center;
 }
 
-.intro-room-hide {
+.intro-session-hide {
     display: none;
 }
 
-#go, #create-room {
+#go, #create-session {
     width: 4em;
     background-color: dodgerblue;
     color: white;

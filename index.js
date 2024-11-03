@@ -13,7 +13,7 @@ const io = new Server(server, {
       origin: '*',
     }
   });
-const { AllRooms } = require("./scripts/roomsObj.js");
+const { AllSessions } = require("./scripts/sessionsObj.js");
 const config = require('./scripts/config.js');
 var cookie = require("cookie")
 
@@ -38,7 +38,7 @@ const logger = createLogger({
     ]
 });
 
-var rooms = new AllRooms(config.MAX_NUM_ROUNDS);
+var sessions = new AllSessions(config.MAX_NUM_ROUNDS);
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/sequencer', (req, res) => {
-    if(req.query.room)
+    if(req.query.session)
         var page = '/html/sequencer.html';
     else
         var page = '/html/index-sequencer.html';
@@ -56,7 +56,7 @@ app.get('/sequencer', (req, res) => {
 
 app.get('/hootbeat', (req, res) => {
     console.log("hootbeat")
-    if(req.query.room && (req.query.initials || req.query.initials==="") )
+    if(req.query.session && (req.query.initials || req.query.initials==="") )
         var page = '/html/hootbeat.html';
     else
         var page = '/html/index-hootbeat.html';
@@ -64,7 +64,7 @@ app.get('/hootbeat', (req, res) => {
 });
 
 app.get('/track', (req, res) => {
-    if(req.query.room && (req.query.initials || req.query.initials==="") )
+    if(req.query.session && (req.query.initials || req.query.initials==="") )
         var page = '/html/track.html';
     else
         var page = '/html/index-track.html';
@@ -95,65 +95,65 @@ io.on('connection', (socket) => {
         seq = true;
     else if(socket.handshake.query.hootbeat !== undefined)
         hootbeat = true;
-    var room = socket.handshake.query.room;
+    var session = socket.handshake.query.session;
     var initials = socket.handshake.query.initials;
-    socket.join(room);
+    socket.join(session);
     if(seq) {
         var allocationMethod = socket.handshake.query.method || "random";
         if(socket.handshake.query.sounds === undefined) socket.handshake.query.sounds = "tr808";
         var numTracks = getNumTracks(socket.handshake.query.sounds) || 10;
         var cookief = socket.handshake.headers.cookie; 
         var cookies = cookie.parse(socket.handshake.headers.cookie);    
-        const exists = rooms.findRoom(room);
-        if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "#" + room + " exists already. Choose a different name."});
+        const exists = sessions.findSession(session);
+        if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
         else {
-            rooms.addRoom(room, numTracks, allocationMethod);
-            logger.info("#" + room + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
-            rooms.setSeqID(room,socket.id);
+            sessions.addSession(session, numTracks, allocationMethod);
+            logger.info("#" + session + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
+            sessions.setSeqID(session,socket.id);
             socket.on('disconnect', () => {
-                logger.info("#" + room + " @SEQUENCER disconnected (sequencer). Clearing session");
-                socket.broadcast.to(room).emit('exit session',{reason: "Sequencer disconnected!"});
-                rooms.clearRoom(room);
+                logger.info("#" + session + " @SEQUENCER disconnected (sequencer). Clearing session");
+                socket.broadcast.to(session).emit('exit session',{reason: "Sequencer disconnected!"});
+                sessions.clearSession(session);
             });
         }
     } else if(hootbeat) {
-        if(rooms.isReady(room)) {
-            logger.info("#" + room + " @" + initials + " joined session as HoooBeat");
+        if(sessions.isReady(session)) {
+            logger.info("#" + session + " @" + initials + " joined session as HoooBeat");
         } else {
             io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
     } else {
-        if(rooms.isReady(room)) {
+        if(sessions.isReady(session)) {
             if(initials) {
-                var track = rooms.allocateAvailableParticipant(room, socket.id, initials);
-                if(track < 0) { // No available tracks in room/session
-                    logger.info("#" + room + " @" + initials + " rejected, no available tracks ");
+                var track = sessions.allocateAvailableParticipant(session, socket.id, initials);
+                if(track < 0) { // No available tracks in session/session
+                    logger.info("#" + session + " @" + initials + " rejected, no available tracks ");
                     io.to(socket.id).emit('exit session', {reason: "No available tracks! Please wait a bit..."});
                 } else {
-                    logger.info("#" + room + " @" + initials + " joined session on track " + track);
-                    socket.broadcast.to(room).emit('track joined', { initials: initials, track:track, socketid: socket.id });
+                    logger.info("#" + session + " @" + initials + " joined session on track " + track);
+                    socket.broadcast.to(session).emit('track joined', { initials: initials, track:track, socketid: socket.id });
                     socket.on('disconnect', () => {
-                        var track2delete = rooms.getParticipantNumber(room, socket.id);
-                        rooms.releaseParticipant(room, socket.id);
-                        io.to(room).emit('clear track', {track: track2delete, initials: initials});
-                        logger.info("#" + room + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
+                        var track2delete = sessions.getParticipantNumber(session, socket.id);
+                        sessions.releaseParticipant(session, socket.id);
+                        io.to(session).emit('clear track', {track: track2delete, initials: initials});
+                        logger.info("#" + session + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
                     });
                     io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
                 }
             } else {
                 io.to(socket.id).emit('session paused', {reason: "Session has not started..."});
-                logger.info("#" + room + "(" + socket.id + ") waiting in lobby...");    
+                logger.info("#" + session + "(" + socket.id + ") waiting in lobby...");    
             }
         } else {
             io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
     }
     socket.on('step update', (msg) => { // Send step values
-        io.to(room).emit('step update', msg);
-        rooms.participantStartCounting(room, socket.id);
-        let initials = rooms.getParticipantInitials(room, socket.id);
+        io.to(session).emit('step update', msg);
+        sessions.participantStartCounting(session, socket.id);
+        let initials = sessions.getParticipantInitials(session, socket.id);
         if(seq) initials = "seq";
-        logger.info("#" + room + " @" + initials + " step_update event: " + msg.action +
+        logger.info("#" + session + " @" + initials + " step_update event: " + msg.action +
                         " track: " + msg.track + " step: " +msg.step +
                         " note: " + msg.note + " value: " +msg.value);
     });
@@ -163,36 +163,36 @@ io.on('connection', (socket) => {
     });
 
     socket.on('give me my notes', (msg) => { // Send all notes from track
-        socket.broadcast.to(room).emit('give me my notes', msg);
+        socket.broadcast.to(session).emit('give me my notes', msg);
     });
 
     socket.on('step tick', (msg) => { // Visual sync
-        socket.broadcast.to(room).emit('step tick', msg);
+        socket.broadcast.to(session).emit('step tick', msg);
         var expired = new Array();
         if(msg.counter == config.NUM_STEPS-1) {
-            expired = rooms.incrementAllCounters(room);
+            expired = sessions.incrementAllCounters(session);
         }
         if(expired.length > 0) {
             for(var i=0; i<expired.length; i++) {
-                logger.info("#" + room + " @"+expired[i].initials + " session expired!");
+                logger.info("#" + session + " @"+expired[i].initials + " session expired!");
                 io.to(expired[i].socketID).emit('exit session', {reason: "Join again?"});
             }
         }
     });
 
     socket.on('play', (msg) => {
-        socket.broadcast.to(room).emit('play', msg);
-        logger.info("#" + room + " Playing...");
+        socket.broadcast.to(session).emit('play', msg);
+        logger.info("#" + session + " Playing...");
     });
 
     socket.on('stop', (msg) => {
-        socket.broadcast.to(room).emit('stop', msg);
-        logger.info("#" + room + " Stopped.");
+        socket.broadcast.to(session).emit('stop', msg);
+        logger.info("#" + session + " Stopped.");
     });
 
     socket.on('veil-up', (msg) => {
-        socket.broadcast.to(room).emit('veil-up', msg);
-        logger.info("#" + room + " Veil up.");
+        socket.broadcast.to(session).emit('veil-up', msg);
+        logger.info("#" + session + " Veil up.");
     });
 
 
@@ -202,11 +202,11 @@ io.on('connection', (socket) => {
 
     socket.on('track mute', (msg) => {
         console.log(msg)
-        socket.broadcast.to(room).emit('track mute', msg);
+        socket.broadcast.to(session).emit('track mute', msg);
     }); 
 
     socket.on('expert-mode', (msg) => {
-        logger.info("#" + room + " @" + initials + " set expert mode to: " + msg.value);
+        logger.info("#" + session + " @" + initials + " set expert mode to: " + msg.value);
     }); 
 
     socket.on('track solo', (msg) => {
@@ -214,12 +214,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('track volume', (msg) => {
-        socket.broadcast.to(room).emit('track volume', msg);
+        socket.broadcast.to(session).emit('track volume', msg);
         console.log(msg);
     });
 
     socket.on('hide toggle', (msg) => {
-        socket.broadcast.to(room).emit('hide toggle track', {value: msg.value});
+        socket.broadcast.to(session).emit('hide toggle track', {value: msg.value});
     });
 
 });

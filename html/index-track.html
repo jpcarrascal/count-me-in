@@ -39,8 +39,8 @@
                 <td><input type="text" class="intro-form" name="initials" id="initials" maxlength="3" placeholder="---" style="text-transform:uppercase"/></td>
               </tr>
               <tr>
-                <td><label for="room" class="intro-room-hide" ><span class="translate" id="lang-session">Name of session to join</span>:</label></td>
-                <td><input type="text" class="intro-form intro-room-hide" name="room" id="room" placeholder="[session]" /></td>
+                <td><label for="session" class="intro-session-hide" ><span class="translate" id="lang-session">Name of session to join</span>:</label></td>
+                <td><input type="text" class="intro-form intro-session-hide" name="session" id="session" placeholder="[session]" /></td>
               </tr>
               <tr>
                 <td colspan="2">
@@ -71,14 +71,14 @@
         this.value = this.value.toUpperCase();
       });
 
-      var room   = findGetParameter("room");
+      var session = findGetParameter("session");
       document.getElementById("lang").value = findGetParameter("lang");
       document.getElementById("sounds").value =  findGetParameter("sounds");
-      if(!room) document.querySelectorAll(".intro-room-hide").forEach(elem => {
+      if(!session) document.querySelectorAll(".intro-session-hide").forEach(elem => {
         elem.style.display = "block";
       });
 
-      document.getElementById("room").value = room;
+      document.getElementById("session").value = session;
 
       var reason = findGetParameter("exitreason");
       if(reason && reason != "") {

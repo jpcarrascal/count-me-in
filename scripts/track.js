@@ -126,7 +126,7 @@ socket.on('exit session', function(msg) {
 function restartSession(r) {
     var reason = "";
     if(r && r!== "") reason = "&exitreason=" + r;
-    window.location.href = "/track?room=" + room +
+    window.location.href = "/track?session=" + session +
     "&sounds=" + findGetParameter("sounds")+
     "&lang=" + findGetParameter("lang") + reason;
 }

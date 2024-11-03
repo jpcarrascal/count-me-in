@@ -2,16 +2,16 @@
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
 //var infoOnOff = true;
-var room = findGetParameter("room") || DEFAULT_ROOM;
+var session = findGetParameter("session") || DEFAULT_ROOM;
 var method;
 if(isSeq) {
   method = findGetParameter("method") || "random";
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
-  document.getElementById("room-name").innerText = room;
-  var info = document.getElementById("room-info");
+  document.getElementById("session-name").innerText = session;
+  var info = document.getElementById("session-info");
   var trackURL = document.location.origin +
-                "/track?room=" + room +
+                "/track?session=" + session +
                 "&sounds=" + soundParam +
                 "&lang=" + lang;
   //var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
@@ -43,7 +43,7 @@ if(isSeq) {
 var counting = false;
 
 // Node stuff:
-var socket = io("", {query:{initials:initials, room:room, sequencer:isSeq, lang:lang, method:method, sounds: soundParam}});
+var socket = io("", {query:{initials:initials, session:session, sequencer:isSeq, lang:lang, method:method, sounds: soundParam}});
 var mySocketID;
 socket.on("connect", () => {
   console.log("Connected, my socketid: " + socket.id);
@@ -197,7 +197,7 @@ if(isSeq) {
 
   function hideAndPLay() {
     enterFullscreen();
-    var info = document.getElementById("room-info");
+    var info = document.getElementById("session-info");
     if(info.style.display == "flex") {
       info.style.display = "none";
       //infoOnOff = false;
@@ -222,8 +222,8 @@ if(isSeq) {
     interval = 60000/(4*tempo);
   });
 
-  document.getElementById("show-room-link").addEventListener("click",function(e){
-    document.getElementById("room-info").style.display = "flex";
+  document.getElementById("show-session-link").addEventListener("click",function(e){
+    document.getElementById("session-info").style.display = "flex";
   });
 }
 

@@ -26,10 +26,10 @@
         <span id="disconnect-message"></span>
         </div>
 
-        <label for="room">Enter a name to create a new session:</label>
-        <input type="text" class="intro-form" name="room" id="new-room-name" placeholder="[session name]" />
+        <label for="session">Enter a name to create a new session:</label>
+        <input type="text" class="intro-form" name="session" id="new-session-name" placeholder="[session name]" />
         <div class="centered">
-          <button id="create-room" class="ui-button" value="Go!" type="button">Go!</button>
+          <button id="create-session" class="ui-button" value="Go!" type="button">Go!</button>
         </div>
       </form>
 
@@ -80,22 +80,22 @@
     <script src="scripts/midi-device-select.js"></script>
     <script>
       var form = document.getElementById("intro");
-      var room = document.querySelector("#new-room-name");
+      var session = document.querySelector("#new-session-name");
       var reason = findGetParameter("exitreason");
       var useMidi = findGetParameter("midi");
 
-      room.addEventListener("keyup", function(e) {
+      session.addEventListener("keyup", function(e) {
           this.style.backgroundColor = "white";
       });
       
       if(reason && reason != "")
           document.getElementById("disconnect-message").innerText = reason;
 
-      document.getElementById("create-room").addEventListener("click", function(e){
-          if(room.value) form.submit();
+      document.getElementById("create-session").addEventListener("click", function(e){
+          if(session.value) form.submit();
           else {
-            room.setAttribute("placeholder","Enter a name")
-            room.style.backgroundColor="tomato";
+            session.setAttribute("placeholder","Enter a name")
+            session.style.backgroundColor="tomato";
           } 
       });
 
