@@ -40,6 +40,7 @@ const logger = createLogger({
 });
 
 var sessions = new AllSessions();
+var sequencers = new Array();
 
 app.get('/', (req, res) => {
     // req.query.seq
@@ -109,15 +110,16 @@ io.on('connection', (socket) => {
             io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
         }
         else {
-            var sequencer = new StepSequencer(numTracks, config.NUM_STEPS);
             sessions.addSession(session, numTracks, allocationMethod, config.MAX_NUM_ROUNDS);
-            sessions.setAttribute(session, "sequencer", sequencer);
+            console.log("Session ID: " + session);
+            sequencers[session] = new StepSequencer(numTracks, config.NUM_STEPS);
             logger.info("#" + session + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
             sessions.setSeqID(session,socket.id);
             socket.on('disconnect', () => {
                 logger.info("#" + session + " @SEQUENCER disconnected (sequencer). Clearing session");
                 socket.broadcast.to(session).emit('exit session',{reason: "Sequencer disconnected!"});
                 sessions.clearSession(session);
+                sequencers[session] = null;
             });
         }
     } else if(hootbeat) {
@@ -130,6 +132,7 @@ io.on('connection', (socket) => {
         if(sessions.isReady(session)) {
             if(initials) {
                 var track = sessions.allocateAvailableParticipant(session, socket.id, initials);
+                sequencers[session].setTrackInitials(track, initials);
                 if(track < 0) { // No available tracks in session
                     logger.info("#" + session + " @" + initials + " rejected, no available tracks ");
                     io.to(socket.id).emit('exit session', {reason: "No available tracks! Please wait a bit..."});
@@ -139,6 +142,7 @@ io.on('connection', (socket) => {
                     socket.on('disconnect', () => {
                         var track2delete = sessions.getParticipantNumber(session, socket.id);
                         sessions.releaseParticipant(session, socket.id);
+                        sequencers[session].clearTrackInitials(track2delete);
                         io.to(session).emit('clear track', {track: track2delete, initials: initials});
                         logger.info("#" + session + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
                     });
@@ -156,6 +160,7 @@ io.on('connection', (socket) => {
         io.to(session).emit('step update', msg);
         sessions.participantStartCounting(session, socket.id);
         let initials = sessions.getParticipantInitials(session, socket.id);
+        sequencers[session].updateStep(msg.track, msg.step, msg.note, msg.value);
         if(seq) initials = "seq";
         logger.info("#" + session + " @" + initials + " step_update event: " + msg.action +
                         " track: " + msg.track + " step: " +msg.step +

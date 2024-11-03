@@ -85,11 +85,11 @@ function playStepNotes(counter) {
     var value = notesToPlay[i].vel;
     var note = notesToPlay[i].note;
     if(MIDIout) MIDIplayNote(note, value, MIDIout);
-    else audioPlayDrum(i, note, value);
+    else audioPlayStep(i, note, value);
   }
 }
 
-function audioPlayDrum(i, note, vel) {
+function audioPlayStep(i, note, vel) {
     /* bass experiment: */
     if(soundGenerators[i].type == "sampler") {
       if(vel > 0) {

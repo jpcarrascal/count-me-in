@@ -8,13 +8,22 @@ class StepSequencer {
             for(var j=0; j<nSteps; j++) {
                 notes.push({note: -1, vel: -1});
             }
-            var track = {name: "", initials: "", notes: notes, type: ""};
+            var track = {initials: "", notes: notes, type: ""};
             this.tracks.push(track);
         }
     }
 
-    setTrackInitials(i, initials) {
-        this.tracks[i].initials = initials;
+    setTrackInitials(track, initials) {
+        this.tracks[track].initials = initials;
+    }
+
+    clearTrackInitials(track) {
+        this.tracks[track].initials = "";
+    }
+
+    updateStep(track, step, note, vel) {
+        this.tracks[track].notes[step].note = note;
+        this.tracks[track].notes[step].vel = vel;
     }
 
     getStepNotes(step) {
