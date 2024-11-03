@@ -54,14 +54,6 @@ app.get('/sequencer', (req, res) => {
     res.sendFile(__dirname + page);
 });
 
-app.get('/conductor', (req, res) => {
-    if(req.query.room)
-        var page = '/html/conductor.html';
-    else
-        var page = '/html/index-conductor.html';
-    res.sendFile(__dirname + page);
-});
-
 app.get('/hootbeat', (req, res) => {
     console.log("hootbeat")
     if(req.query.room && (req.query.initials || req.query.initials==="") )
@@ -98,12 +90,9 @@ app.use('/sounds', express.static(__dirname + '/sounds/'));
 
 io.on('connection', (socket) => {
     var seq = false;
-    var conductor = false;
     var hootbeat = false;
     if(socket.handshake.headers.referer.includes("sequencer"))
         seq = true;
-    else if(socket.handshake.headers.referer.includes("conductor"))
-        conductor = true;
     else if(socket.handshake.query.hootbeat !== undefined)
         hootbeat = true;
     var room = socket.handshake.query.room;
@@ -126,12 +115,6 @@ io.on('connection', (socket) => {
                 socket.broadcast.to(room).emit('exit session',{reason: "Sequencer disconnected!"});
                 rooms.clearRoom(room);
             });
-        }
-    } else if(conductor) {
-        if(rooms.isReady(room)) {
-            logger.info("#" + room + " @" + initials + " joined session as conductor");
-        } else {
-            io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
     } else if(hootbeat) {
         if(rooms.isReady(room)) {
