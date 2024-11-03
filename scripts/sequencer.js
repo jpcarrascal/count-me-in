@@ -30,7 +30,7 @@ if(isSeq) {
     console.log(p)
   });
 
-  if(hideInfo) {
+  if(hideInfo || extClock) {
     info.style.display = "none";
   } else {
     info.style.display = "flex";

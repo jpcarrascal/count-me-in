@@ -14,6 +14,7 @@ const io = new Server(server, {
     }
   });
 const { AllSessions } = require("./scripts/sessionsObj.js");
+const { StepSequencer } = require("./scripts/sequencerObj.js");
 const config = require('./scripts/config.js');
 var cookie = require("cookie")
 
@@ -102,12 +103,15 @@ io.on('connection', (socket) => {
         var allocationMethod = socket.handshake.query.method || "random";
         if(socket.handshake.query.sounds === undefined) socket.handshake.query.sounds = "tr808";
         var numTracks = getNumTracks(socket.handshake.query.sounds) || 10;
-        var cookief = socket.handshake.headers.cookie; 
         var cookies = cookie.parse(socket.handshake.headers.cookie);    
         const exists = sessions.findSession(session);
-        if(exists >= 0) io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
+        if(exists >= 0) {
+            io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
+        }
         else {
+            var sequencer = new StepSequencer(numTracks, config.NUM_STEPS);
             sessions.addSession(session, numTracks, allocationMethod, config.MAX_NUM_ROUNDS);
+            sessions.setAttribute(session, "sequencer", sequencer);
             logger.info("#" + session + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
             sessions.setSeqID(session,socket.id);
             socket.on('disconnect', () => {
@@ -118,7 +122,7 @@ io.on('connection', (socket) => {
         }
     } else if(hootbeat) {
         if(sessions.isReady(session)) {
-            logger.info("#" + session + " @" + initials + " joined session as HoooBeat");
+            logger.info("#" + session + " @" + initials + " joined session as HootBeat");
         } else {
             io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
