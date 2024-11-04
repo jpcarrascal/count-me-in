@@ -1,7 +1,8 @@
 class Session {
-    constructor(sessionName, numTracks, allocationMethod, maxNumRounds)  {
+    constructor(sessionName, numTracks, numSteps, allocationMethod, maxNumRounds)  {
         this.name = sessionName;
         this.participants = Array(numTracks).join(".").split(".");
+        this.sequencer = new Sequencer(numTracks, numSteps);
         this.seqID = "";
         this.maxNumRounds = maxNumRounds;
         this.allocationMethod = allocationMethod;
@@ -20,6 +21,7 @@ class Session {
             for(var i=0; i<this.participants.length; i++) {
                 if(this.participants[i] == "") {
                     this.participants[i] = new Participant(socketID, initials);
+                    this.sequencer.setTrackInitials(i, initials);
                     return(i);
                 }
             }
@@ -39,8 +41,10 @@ class Session {
     
     releaseParticipant(socketID) {
         for(var i=0; i<this.participants.length; i++) {
-            if(this.participants[i].socketID == socketID)
+            if(this.participants[i].socketID == socketID) {
                 this.participants[i] = "";
+                this.sequencer.clearTrackInitials(i);
+            }
         }
     }
     
@@ -65,6 +69,7 @@ class Session {
     releaseAllParticipants() {
         for(var i=0; i<this.participants.length; i++) {
             this.participants[i] == "";
+            this.sequencer.clearTrackInitials(i);
         }
     }
 
@@ -90,6 +95,26 @@ class Session {
         if(i>=0)
             this.participants[i].startCountingRounds();
     }
+
+    /////////////
+
+    seqUpdateStep(track, event) {
+        this.sequencer.updateStep(track, event);
+    }
+
+    seqGetStepNotes(step) {
+        return this.sequencer.getStepNotes(step);
+    }
+
+    seqClearAllTracks() {
+        this.sequencer.clearAll();
+    }
+    
+    seqClearTrack(track) {
+        this.sequencer.clearTrack(track);
+    }
+    
+    ////////////
 
     setAttribute(k, v) {
         this.attributes[k] = v;
@@ -122,14 +147,72 @@ class Participant {
     }
 }
 
+class Sequencer {
+    constructor(nTracks, nSteps)  {
+        this.nTracks = nTracks;
+        this.nSteps = nSteps;
+        this.tracks = Array();
+        this.attributes = Object();
+        for(var i=0; i<this.nTracks; i++) {
+            var notes = new Array();
+            for(var j=0; j<nSteps; j++) {
+                notes.push({note: -1, vel: -1});
+            }
+            var track = {initials: "", notes: notes, type: ""};
+            this.tracks.push(track);
+        }
+    }
+
+    setTrackInitials(track, initials) {
+        this.tracks[track].initials = initials;
+    }
+
+    clearTrackInitials(track) {
+        if(this.tracks[track] != undefined)
+            this.tracks[track].initials = "";
+    }
+
+    updateStep(track, event) {
+        const {step, note, value} = event;
+        this.tracks[track].notes[step].note = note;
+        this.tracks[track].notes[step].vel = value;
+    }
+
+    getStepNotes(step) {
+        var stepNotes = new Array();
+        for(var i=0; i<this.nTracks; i++) {
+            stepNotes.push(this.tracks[i].notes[step]);
+        }
+        return stepNotes;
+    }
+
+    clearAll() {
+        for(var i=0; i<nTracks; i++) {
+            var notes = new Array();
+            for(var j=0; j<this.nSteps; j++) {
+                notes.push({note: this.noteValues[i], vel: 0});
+            }
+            var track = {name: "", initials: "", notes: notes};
+            this.tracks.push(track);
+        }
+    }
+    
+    clearTrack(track) {
+        for(var i=0; i<this.nSteps; i++) {
+            this.tracks[track].notes[i].vel = 0;
+        }
+    }
+}
+
 class AllSessions {
     constructor(numTracks)  {
         this.sessions = Array();
     }
-    addSession(sessionName, numTracks, allocationMethod, maxNumRounds) {
+
+    addSession(sessionName, numTracks, numSteps, allocationMethod, maxNumRounds) {
         var exists = this.findSession(sessionName);
         if(exists == -1) {
-            let newSession = new Session(sessionName, numTracks, allocationMethod, maxNumRounds);
+            let newSession = new Session(sessionName, numTracks, numSteps, allocationMethod, maxNumRounds);
             this.sessions.push(newSession);
         } else {
             this.sessions[exists].allocationMethod = allocationMethod || "sequential";
@@ -245,6 +328,12 @@ class AllSessions {
         var sessionId = this.findSession(sessionName);
         if(sessionId == -1) return -1;
         return this.sessions[sessionId].incrementAllCounters();
+    }
+
+    seqUpdateStep(sessionName, track, event) {
+        var sessionId = this.findSession(sessionName);
+        if(sessionId == -1) return -1;
+        this.sessions[sessionId].seqUpdateStep(track, event);
     }
 
     setAttribute(sessionName, k, v) {
