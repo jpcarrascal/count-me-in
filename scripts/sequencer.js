@@ -114,6 +114,15 @@ createHeader(matrix);
 
 if(isSeq) {
 
+  socket.on('sequencer role', function(msg) {
+    console.log("Role: " + msg.role);
+    if(msg.role != "main") {
+      extClock = true;
+      stopButton.style.display = "none";
+      playButton.style.display = "none";
+    }
+  });
+  
   socket.on('clear track', function(msg) {
     var trackName = document.getElementById("track"+msg.track+"-name");
     var track = document.getElementById("track"+msg.track);
@@ -209,13 +218,14 @@ if(isSeq) {
   }
 
   // Seq stuff:
-  var tempo = document.getElementById("tempo").value;
+  var tempoBox = document.getElementById("tempo")
+  var tempo = tempoBox.value;
   var playing = false;
   var interval = 60000/(4*tempo);
   var timer;
   var counter = 0;
 
-  document.getElementById("tempo").addEventListener("change",function(e){
+  tempoBox.addEventListener("change",function(e){
     this.setAttribute('value', this.value);
     tempo = this.value;
     interval = 60000/(4*tempo);

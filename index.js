@@ -105,13 +105,16 @@ io.on('connection', (socket) => {
         var cookies = cookie.parse(socket.handshake.headers.cookie);    
         const exists = sessions.findSession(session);
         if(exists >= 0) {
-            io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
+            logger.info("#" + session + "additional @SEQUENCER joined session.");
+            io.to(socket.id).emit('sequencer role', {role: "secondary", session: session});
+            //io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
         }
         else {
             sessions.addSession(session, numTracks, config.NUM_STEPS, allocationMethod, config.MAX_NUM_ROUNDS);
             console.log("Session ID: " + session);
-            logger.info("#" + session + " @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
+            logger.info("#" + session + "main @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
             sessions.setSeqID(session,socket.id);
+            io.to(socket.id).emit('sequencer role', {role: "main", session: session});
             socket.on('disconnect', () => {
                 logger.info("#" + session + " @SEQUENCER disconnected (sequencer). Clearing session");
                 socket.broadcast.to(session).emit('exit session',{reason: "Sequencer disconnected!"});
