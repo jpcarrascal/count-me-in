@@ -1,3 +1,82 @@
+class Participant {
+    constructor(socketID, initials)  {
+        this.socketID = socketID;
+        this.initials = initials;
+        this.rounds = 0;
+        this.countingRounds = false;
+    }
+
+    startCountingRounds() {
+        this.countingRounds = true;
+    }
+
+    incrementRounds() {
+        if(this.countingRounds)
+            this.rounds++;
+    }
+
+    getRounds() {
+        return this.rounds;
+    }
+}
+
+class Sequencer {
+    constructor(nTracks, nSteps)  {
+        this.nTracks = nTracks;
+        this.nSteps = nSteps;
+        this.tracks = Array();
+        this.attributes = Object();
+        for(var i=0; i<this.nTracks; i++) {
+            var notes = new Array();
+            for(var j=0; j<nSteps; j++) {
+                notes.push({note: -1, vel: -1});
+            }
+            var track = {initials: "", notes: notes, type: ""};
+            this.tracks.push(track);
+        }
+    }
+
+    setTrackInitials(track, initials) {
+        this.tracks[track].initials = initials;
+    }
+
+    clearTrackInitials(track) {
+        if(this.tracks[track] != undefined)
+            this.tracks[track].initials = "";
+    }
+
+    updateStep(track, event) {
+        const {step, note, value} = event;
+        this.tracks[track].notes[step].note = note;
+        this.tracks[track].notes[step].vel = value;
+    }
+
+    getStepNotes(step) {
+        var stepNotes = new Array();
+        for(var i=0; i<this.nTracks; i++) {
+            stepNotes.push(this.tracks[i].notes[step]);
+        }
+        return stepNotes;
+    }
+
+    clearAll() {
+        for(var i=0; i<nTracks; i++) {
+            var notes = new Array();
+            for(var j=0; j<this.nSteps; j++) {
+                notes.push({note: this.noteValues[i], vel: 0});
+            }
+            var track = {name: "", initials: "", notes: notes};
+            this.tracks.push(track);
+        }
+    }
+    
+    clearTrack(track) {
+        for(var i=0; i<this.nSteps; i++) {
+            this.tracks[track].notes[i].vel = 0;
+        }
+    }
+}
+
 class Session {
     constructor(sessionName, numTracks, numSteps, allocationMethod, maxNumRounds)  {
         this.name = sessionName;
@@ -122,85 +201,6 @@ class Session {
 
     getAttribute(k) {
         return this.attributes[k];
-    }
-}
-
-class Participant {
-    constructor(socketID, initials)  {
-        this.socketID = socketID;
-        this.initials = initials;
-        this.rounds = 0;
-        this.countingRounds = false;
-    }
-
-    startCountingRounds() {
-        this.countingRounds = true;
-    }
-
-    incrementRounds() {
-        if(this.countingRounds)
-            this.rounds++;
-    }
-
-    getRounds() {
-        return this.rounds;
-    }
-}
-
-class Sequencer {
-    constructor(nTracks, nSteps)  {
-        this.nTracks = nTracks;
-        this.nSteps = nSteps;
-        this.tracks = Array();
-        this.attributes = Object();
-        for(var i=0; i<this.nTracks; i++) {
-            var notes = new Array();
-            for(var j=0; j<nSteps; j++) {
-                notes.push({note: -1, vel: -1});
-            }
-            var track = {initials: "", notes: notes, type: ""};
-            this.tracks.push(track);
-        }
-    }
-
-    setTrackInitials(track, initials) {
-        this.tracks[track].initials = initials;
-    }
-
-    clearTrackInitials(track) {
-        if(this.tracks[track] != undefined)
-            this.tracks[track].initials = "";
-    }
-
-    updateStep(track, event) {
-        const {step, note, value} = event;
-        this.tracks[track].notes[step].note = note;
-        this.tracks[track].notes[step].vel = value;
-    }
-
-    getStepNotes(step) {
-        var stepNotes = new Array();
-        for(var i=0; i<this.nTracks; i++) {
-            stepNotes.push(this.tracks[i].notes[step]);
-        }
-        return stepNotes;
-    }
-
-    clearAll() {
-        for(var i=0; i<nTracks; i++) {
-            var notes = new Array();
-            for(var j=0; j<this.nSteps; j++) {
-                notes.push({note: this.noteValues[i], vel: 0});
-            }
-            var track = {name: "", initials: "", notes: notes};
-            this.tracks.push(track);
-        }
-    }
-    
-    clearTrack(track) {
-        for(var i=0; i<this.nSteps; i++) {
-            this.tracks[track].notes[i].vel = 0;
-        }
     }
 }
 

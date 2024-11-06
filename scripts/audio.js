@@ -20,7 +20,6 @@ fetch(soundsJson)
     .then((response) => response.json())
     .then((soundPreset) => {
       num_tracks = soundPreset.length;
-      stepSequencer = new Sequencer(num_tracks, NUM_STEPS);
       var o = 0;
       var trackCount = 0;
       for(var i=0; i<num_tracks; i++) {

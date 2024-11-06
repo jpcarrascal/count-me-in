@@ -1,5 +1,6 @@
 const NUM_DRUMS = config.NUM_DRUMS;
 const NUM_STEPS = config.NUM_STEPS;
+const NUM_TRACKS = config.NUM_TRACKS;
 const MAX_NUM_ROUNDS = config.MAX_NUM_ROUNDS;
 const lang = findGetParameter("lang") || "EN";
 const soundParam = findGetParameter("sounds") || "tr808";
@@ -15,7 +16,6 @@ const MAX_TRANSPOSE_UP = 1;
 const MIN_TRANSPOSE_DOWN = -1;
 const MID_OCTAVE = 5;
 const SYNTH_DEFAULT_VEL = 63;
-var stepSequencer;
 const colors = ["cyan","chartreuse","dodgerblue","darkorchid","magenta","red","orange","gold","black"];
 function getColor(index) {
   while (index >= colors.length)
@@ -340,7 +340,8 @@ function updateStep(stepElem, note, value, action) {
     socket.emit('step update', { track: track, step: step, note: note, value: value, action: action, socketID: mySocketID } );
     if(extClock) {
       try{
-        window.max.outlet("step_update", track, step, note, value);
+        const data = [track, step, note, value].map(x => parseInt(x));
+        window.max.outlet("step_update", data[0], data[1], data[2], data[3]);
       } catch(e) {
         console.log("Max not loaded");
       }

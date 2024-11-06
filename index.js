@@ -102,7 +102,12 @@ io.on('connection', (socket) => {
         var allocationMethod = socket.handshake.query.method || "random";
         if(socket.handshake.query.sounds === undefined) socket.handshake.query.sounds = "tr808";
         var numTracks = getNumTracks(socket.handshake.query.sounds) || 10;
-        var cookies = cookie.parse(socket.handshake.headers.cookie);    
+        try {
+            var cookies = cookie.parse(socket.handshake.headers.cookie);
+            logger.info("#" + session + "main @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
+        } catch (error) {
+            logger.info("#" + session + "main @SEQUENCER joined session.");
+        }
         const exists = sessions.findSession(session);
         if(exists >= 0) {
             logger.info("#" + session + "additional @SEQUENCER joined session.");
@@ -112,7 +117,6 @@ io.on('connection', (socket) => {
         else {
             sessions.addSession(session, numTracks, config.NUM_STEPS, allocationMethod, config.MAX_NUM_ROUNDS);
             console.log("Session ID: " + session);
-            logger.info("#" + session + "main @SEQUENCER joined session. MIDIin: [" + cookies.MIDIin + "] MIDIout: [" + cookies.MIDIout + "]");
             sessions.setSeqID(session,socket.id);
             io.to(socket.id).emit('sequencer role', {role: "main", session: session});
             socket.on('disconnect', () => {

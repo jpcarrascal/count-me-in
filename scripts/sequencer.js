@@ -5,6 +5,8 @@ var initials = "";
 var session = findGetParameter("session") || DEFAULT_ROOM;
 var method = findGetParameter("method") || "random";
 var extClock = findGetParameter("extclock") || false;
+var role = "secondary";
+var stepSequencer = new Sequencer(NUM_TRACKS, NUM_STEPS);
 if(isSeq) {
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
@@ -113,13 +115,27 @@ var matrix = document.getElementById("matrix");
 createHeader(matrix);
 
 if(isSeq) {
-
   socket.on('sequencer role', function(msg) {
     console.log("Role: " + msg.role);
-    if(msg.role != "main") {
+    if(msg.role == "main") {
+      role = "main";
+      console.log("I'm the main sequencer!");
+      console.log("Reseting steps...");
+      try{
+        for(var i=0; i<num_tracks; i++) {
+          var track = stepSequencer.tracks[i];
+          for(var j=0; j<NUM_STEPS; j++) {
+            window.max.outlet("step_update", i, j, 63, 0);
+          }
+        }
+      } catch(e) {
+        console.log("Max not loaded");
+      }
+    } else {
       extClock = true;
       stopButton.style.display = "none";
       playButton.style.display = "none";
+      tempoBox.setAttribute("readonly", true);
     }
   });
   
