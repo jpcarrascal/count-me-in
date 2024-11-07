@@ -376,6 +376,17 @@ tr.synth-track {
     height: 1.3em;
 }
 
+.play-audio {
+    display: block;
+}
+
+#play-audio {
+    height: 1.3em;
+    width: 1.3em;
+    padding-top: 0em;
+    accent-color: dodgerblue;
+}
+
 button.controls:active {
     margin-top: 0.05em;
     margin-bottom: -0.05em;

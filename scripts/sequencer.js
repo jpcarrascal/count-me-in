@@ -7,6 +7,7 @@ var method = findGetParameter("method") || "random";
 var extClock = findGetParameter("extclock") || false;
 var role = "secondary";
 var stepSequencer = new Sequencer(NUM_TRACKS, NUM_STEPS);
+var playAudio = true;
 if(isSeq) {
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
@@ -33,6 +34,8 @@ if(isSeq) {
   });
 
   if(hideInfo || extClock) {
+    playAudio = false;
+    document.getElementById("play-audio").checked = false;
     info.style.display = "none";
   } else {
     info.style.display = "flex";
@@ -135,6 +138,7 @@ if(isSeq) {
       extClock = true;
       stopButton.style.display = "none";
       playButton.style.display = "none";
+      document.querySelectorAll(".play-audio").forEach(e => e.style.display = "none");
       tempoBox.setAttribute("readonly", true);
     }
   });

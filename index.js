@@ -110,7 +110,7 @@ io.on('connection', (socket) => {
         }
         const exists = sessions.findSession(session);
         if(exists >= 0) {
-            logger.info("#" + session + "additional @SEQUENCER joined session.");
+            logger.info("#" + session + " additional @SEQUENCER joined session.");
             io.to(socket.id).emit('sequencer role', {role: "secondary", session: session});
             //io.to(socket.id).emit('sequencer exists', {reason: "#" + session + " exists already. Choose a different name."});
         }

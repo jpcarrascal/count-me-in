@@ -110,6 +110,7 @@ var nextNotetime = audioContext.currentTime;
 var clock = document.getElementById("debug1");
 var nextNote = document.getElementById("debug2");
 var playButton = document.getElementById("play");
+var playAudioCheck = document.getElementById("play-audio");
 var stopButton = document.getElementById("stop");
 var timerID;
 var playTime = 0;
@@ -124,7 +125,7 @@ function scheduler() {
 
 function tick(extCounter) {
   if(extCounter !== undefined) counter = extCounter;
-  playStepNotes(counter);
+  if(playAudio) playStepNotes(counter);
   socket.emit('step tick', { counter: counter} );
   updateCursor(counter);
   if(counter < NUM_STEPS-1) {
@@ -156,6 +157,9 @@ if(extClock) {
   }
 }
 
+playAudioCheck.addEventListener('change', function() {
+  playAudio = this.checked;
+});
 
 playButton.addEventListener('click', function() {
   if(!playing) {
