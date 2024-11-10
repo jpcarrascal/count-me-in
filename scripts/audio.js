@@ -82,9 +82,18 @@ function playStepNotes(counter) {
   var notesToPlay = stepSequencer.getStepNotes(counter);
   for(var i=0; i<stepSequencer.nTracks; i++) {
     var value = notesToPlay[i].vel;
-    var note = notesToPlay[i].note;
+    var note = parseInt(notesToPlay[i].note);
     if(MIDIout) MIDIplayNote(note, value, MIDIout);
-    else audioPlayStep(i, note, value);
+    if(playAudio) audioPlayStep(i, note, value);
+    if(extClock) {
+      try{
+        if(value > 0) {
+          window.max.outlet("note", i, note, value, 32); // 48: note duration
+        }
+      } catch(e) {
+        console.log("Max not loaded");
+      }
+    }
   }
 }
 
@@ -125,7 +134,7 @@ function scheduler() {
 
 function tick(extCounter) {
   if(extCounter !== undefined) counter = extCounter;
-  if(playAudio) playStepNotes(counter);
+  playStepNotes(counter);
   socket.emit('step tick', { counter: counter} );
   updateCursor(counter);
   if(counter < NUM_STEPS-1) {
@@ -187,7 +196,7 @@ stopButton.addEventListener('click', function() {
       trackGain[i].disconnect();
     }
     clearTimeout(timerID);
-    updateCursor(-1, -1);
+    updateCursor(-1);
     playing = false;
   }
 });
