@@ -25,11 +25,10 @@
         <div class="centered">
         <span id="disconnect-message"></span>
         </div>
-
-        <label for="session">Enter a name to create a new session:</label>
-        <input type="text" class="intro-form" name="session" id="new-session-name" placeholder="[session name]" />
+        <label for="session">Enter a name to create a new session</label>
+        <input type="text" class="intro-form extclock-hide" name="session" id="new-session-name" placeholder="[session name]" />
         <div class="centered">
-          <button id="create-session" class="ui-button" value="Go!" type="button">Go!</button>
+          <button id="create-session" class="ui-button extclock-hide" value="Go!" type="button">Go!</button>
         </div>
       </form>
 
@@ -83,6 +82,7 @@
       var session = document.querySelector("#new-session-name");
       var reason = findGetParameter("exitreason");
       var useMidi = findGetParameter("midi");
+      var extClock = findGetParameter("extclock");
 
       session.addEventListener("keyup", function(e) {
           this.style.backgroundColor = "white";
@@ -101,6 +101,15 @@
 
       if(useMidi) {
         document.getElementById("midi-devices").style.display = "flex";
+      }
+
+      if(extClock) {
+        document.querySelectorAll(".extclock-hide").forEach(function(e){
+          e.style.display = "none";
+        });
+        document.querySelectorAll(".extclock-show").forEach(function(e){
+          e.style.display = "block";
+        });
       }
 
     </script>

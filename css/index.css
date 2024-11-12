@@ -70,6 +70,10 @@ body {
     margin: 0.5vw;
 }
 
+.extclock-show {
+    display: none;
+}
+
 #session {
     width: 5em;
 }
