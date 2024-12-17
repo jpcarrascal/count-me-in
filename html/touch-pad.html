@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>COUNT·ME·IN</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/sequencer.css">
+    <link rel="stylesheet" href="css/track.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5JXMQXE0QJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-5JXMQXE0QJ');
+    </script>
+  </head>
+  <body>
+
+    <div id="paused">
+      <div>
+        <img id="instrument-icon-paused" /><br />
+        <span class="translate" id="lang-hello">Hello</span> <span id="small-initials"></span>!<br />
+        <span class="translate" id="lang-paused">The session will start in a bit.</span>
+      </div>
+      <div class="rotate-me">
+        <img src="images/rotatephone.gif" alt="Please rotate your device" />
+      </div>
+    </div>
+    
+
+    <div id="sequencer">
+
+        <div id="track-header">
+
+          <div id="icon-initials">
+            <div id="instrument">
+              <img id="big-instrument-icon" />
+            </div>
+            <div id="big-initials"></div>
+          </div>
+
+          <div id="expert-controls">
+            <label for="expert-mode" class="translate" id="lang-expert-label">Expert mode:</label>
+            <input type="checkbox" id="expert-mode" />
+          </div>
+
+          <div id="empty">
+            <div id="control-panel">
+              <div id="remaining-rounds"><span class="translate" id="lang-rounds">Remaining rounds</span>: <span id="counter">?</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <table id="touch-pad">
+        </table>
+        
+        <button id="restart" class="ui-button"><span class="translate" id="lang-exit">Exit</span></button>
+
+
+        <div class="rotate-me">
+          <img src="images/rotatephone.gif" alt="Please rotate your device" />
+        </div>
+    </div>
+    <!-- <script src="scripts/NoSleep.js"></script> -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/include.js"></script>
+    <script src="scripts/sessionObj.js"></script>
+    <script src="scripts/sequencer.js"></script>
+    <script src="scripts/track.js"></script>
+
+  </body>
+</html>

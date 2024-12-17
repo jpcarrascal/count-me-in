@@ -90,13 +90,7 @@ class Session {
     }
 
     allocateAvailableParticipant(socketID, initials) {
-        if(this.allocationMethod == "random") {
-            var available = this.getAvailableParticipants();
-            var randomIndex = Math.floor(Math.random()*available.length);
-            var index = available[randomIndex];
-            this.participants[index] = new Participant(socketID, initials);
-            return index;
-        } else {
+        if(this.allocationMethod.toLowerCase().includes("asc")) {
             for(var i=0; i<this.participants.length; i++) {
                 if(this.participants[i] == "") {
                     this.participants[i] = new Participant(socketID, initials);
@@ -104,6 +98,20 @@ class Session {
                     return(i);
                 }
             }
+        } else if(this.allocationMethod.toLowerCase().includes("desc")) {
+            for(var i=this.participants.length-1; i>=0; i--) {
+                if(this.participants[i] == "") {
+                    this.participants[i] = new Participant(socketID, initials);
+                    this.sequencer.setTrackInitials(i, initials);
+                    return(i);
+                }
+            }
+        } else {
+            var available = this.getAvailableParticipants();
+            var randomIndex = Math.floor(Math.random()*available.length);
+            var index = available[randomIndex];
+            this.participants[index] = new Participant(socketID, initials);
+            return index;
         }
         return -1;
     }
