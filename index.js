@@ -15,7 +15,7 @@ const io = new Server(server, {
   });
 const { AllSessions } = require("./scripts/sessionObj.js");
 const config = require('./scripts/config.js');
-var cookie = require("cookie")
+var cookie = require("cookie");
 
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, printf } = format;
@@ -68,6 +68,14 @@ app.get('/track', (req, res) => {
         var page = '/html/track.html';
     else
         var page = '/html/index-track.html';
+    res.sendFile(__dirname + page);
+});
+
+app.get('/emoji', (req, res) => {
+    if(req.query.session && (req.query.initials || req.query.initials==="") )
+        var page = '/html/emoji.html';
+    else
+        var page = '/html/index-emoji.html';
     res.sendFile(__dirname + page);
 });
 
@@ -157,6 +165,7 @@ io.on('connection', (socket) => {
             io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
     }
+
     socket.on('step update', (msg) => { // Send step values
         io.to(session).emit('step update', msg);
         sessions.participantStartCounting(session, socket.id);
@@ -169,12 +178,21 @@ io.on('connection', (socket) => {
                         " note: " + msg.note + " value: " +msg.value);
     });
 
-    socket.on('track notes', (msg) => { // Send all notes from track
+    socket.on('track notes', (msg) => { // Send all notes TO track
         io.to(msg.socketid).emit('update track notes', msg);
     });
 
-    socket.on('give me my notes', (msg) => { // Send all notes from track
+    socket.on('give me my notes', (msg) => { // Track requests all notes from track
         socket.broadcast.to(session).emit('give me my notes', msg);
+    });
+
+    socket.on('update all track notes', (msg) => { // Track sent all its notes at once
+        var notes = msg.notes;
+        for(var i=0; i<notes.length; i++) {
+            var event = {step: i, note: notes[i].note, value: 100};
+            sessions.seqUpdateStep(session, msg.track, event);
+        }
+        io.to(msg.socketid).emit('update track notes', msg);
     });
 
     socket.on('step tick', (msg) => { // Visual sync
@@ -262,12 +280,29 @@ function exitHandler(options, exitCode) {
 process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 
 //////// Experimental: Music AI Workshop
-
-function pollData() {
-    console.log(count)
-    request({uri: "https://google.com"}, (err, resp, body) => {
-        console.log(count)
-        count++;
-        pollData();
+/*
+fetch('https://raw.githubusercontent.com/jpcarrascal/count-me-in/refs/heads/main/experiments/data.txt')
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+*/
+/*
+var aidata = "";
+var count = 0;
+function pollData(session, exists) {
+    console.log("fecthing data");
+    request({uri: "https://raw.githubusercontent.com/jpcarrascal/count-me-in/refs/heads/main/experiments/data.txt"}, (err, resp, body) => {
+        console.log(body);
+        if(body !== aidata) {
+            aidata = body;
+            //count++;
+            console.log("AI data updated");
+            socket.broadcast.to(session).emit('ai update', msg);
+        }
+        //count++;
+        const exists = sessions.findSession(session);
+        if(exists)
+            pollData(session);
     })
 }
+*/

@@ -1,6 +1,10 @@
 var counter = document.getElementById("counter");
 var rounds = 0;
 var inLobby = true;
+// Fix these:
+var myNotes = [];
+var myTrack = -1;
+var myColor = "white";
 //var noSleep = new NoSleep();
 /*
 if(screen.orientation.lock !== "undefined") {
@@ -59,6 +63,8 @@ socket.on('create track', function(msg) {
             preIcon.setAttribute("src",imageURL);
             counter.innerText = msg.maxNumRounds;
             var color = getColor(track);
+            // Fix this:
+            myColor = color;
             //counter.style.color = color;
             rounds = msg.maxNumRounds;
             var tr = createTrack(track, sound);
@@ -99,20 +105,31 @@ socket.on('create track', function(msg) {
 socket.on('update track notes', function(msg) {
     console.log("receiving my notes :)")
     var notes = msg.notes;
+    myNotes = notes;
+    console.log("notes::::::::::::::::::: ");
+    console.log(notes);
     var trackID = "track"+msg.track;
+    // Fix this:
+    myTrack = msg.track;
     for(var i=0; i<notes.length; i++) {
+        var stepID = trackID+"-step"+i;
+        var value = notes[i].vel;
+        var stepElem = document.getElementById(stepID);
+        var fader = document.getElementById(stepID+"fader");
+        var kb = document.getElementById(stepID+"kb");
+        var swColor = stepElem.firstChild.getAttribute("color");
         if(notes[i].vel > 0) {
-            var stepID = trackID+"-step"+i;
-            var value = notes[i].vel;
-            var stepElem = document.getElementById(stepID);
-            var fader = document.getElementById(stepID+"fader");
-            var kb = document.getElementById(stepID+"kb");
-            var swColor = stepElem.firstChild.getAttribute("color");
             stepElem.setAttribute("value", value);
             stepElem.style.backgroundColor = valueToBGColor(value);
             stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
             fader.value = value;
             kb.setNote(notes[i].note);
+        } else {
+            stepElem.setAttribute("value", 0);
+            stepElem.style.backgroundColor = "white";
+            stepElem.firstChild.style.backgroundColor = valueToSWColor(0, swColor);
+            fader.value = 0;
+            kb.unsetNote();
         }
     }
 });

@@ -79,7 +79,7 @@
     var emojis = document.querySelectorAll('.emoji');
 
     emojis.forEach(emoji => {
-        emoji.addEventListener('click', function(){
+        emoji.addEventListener('mousedown', function(){
             console.log(emoji.innerHTML);
             emojis.forEach(emoji => {
                 emoji.classList.remove('selected');
