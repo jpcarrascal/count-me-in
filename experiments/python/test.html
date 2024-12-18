@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <style>
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #xy-pad {
+            display: none;
+            height: 30vw;
+            width: 30vw;
+            border: 5px solid black;
+            background-color: lightgray;
+        }
+
+        table {
+            margin-top: 10px;
+            margin-left: 10px;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+        }   
+
+        .emoji {
+            display: block;
+            height: 15vw;
+            width: 15vw;
+            background-color: rgb(176, 201, 255);
+            font-size: 10vw;
+            text-align: center;
+            line-height: 15vw;
+            filter: grayscale(100%);
+            border-radius: 1vw;
+            user-select: none;
+        }
+
+        .emoji:active {
+            filter:grayscale(0%);
+        }
+
+        .selected {
+            filter:grayscale(0%);
+        }
+
+    </style>
+</head>
+<body>
+    <input type="text" id="prompt" placeholder="Enter your prompt" />
+    <button onclick="sendData()">Click Here</button>
+    <div onmouseover="xyMove()" id="xy-pad">
+    </div>
+    <table>
+        <tr>
+            <td><div class="emoji" v="-1" a="1">😩</div></td>
+            <td><div class="emoji" v="1" a="1">🤩</div></td>
+        </tr>
+        <tr>
+            <td><div class="emoji" v="-1" a="-1">🙁</div></td>
+            <td><div class="emoji" v="1" a="-1">🙂</div></td>
+        </tr>
+    </table>
+</body>
+<script>
+    const socket = new WebSocket('ws://localhost:8765');
+
+    var emojis = document.querySelectorAll('.emoji');
+
+    emojis.forEach(emoji => {
+        emoji.addEventListener('click', function(){
+            console.log(emoji.innerHTML);
+            emojis.forEach(emoji => {
+                emoji.classList.remove('selected');
+            });
+            emoji.classList.add('selected');
+            const v = emoji.getAttribute('v');
+            const a = emoji.getAttribute('a');
+            const data = {'v': v, 'a': a};
+            sendMsg('emotion', data);
+        });
+    });
+    
+
+    socket.addEventListener('open', function (event) {
+        sendMsg('ok', 'Connection Established');
+    });
+
+    socket.addEventListener('message', function (event) {
+        console.log(event.data);
+    });
+
+    const sendData = () => {
+        data = document.getElementById('prompt').value;
+        sendMsg('drum prompt', data);
+    }
+
+    const xyMove = () => {
+        sendMsg('xy', "x: " + event.clientX + ", y: " + event.clientY); 
+    };
+
+    const sendMsg = function(msg, data){
+        socket.send(JSON.stringify({'msg':msg, 'data': data }));
+    };
+
+
+</script>
+</html>

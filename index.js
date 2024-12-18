@@ -260,3 +260,14 @@ function exitHandler(options, exitCode) {
 }
 
 process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+//////// Experimental: Music AI Workshop
+
+function pollData() {
+    console.log(count)
+    request({uri: "https://google.com"}, (err, resp, body) => {
+        console.log(count)
+        count++;
+        pollData();
+    })
+}
