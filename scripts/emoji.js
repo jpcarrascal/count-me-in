@@ -146,7 +146,7 @@ document.querySelector("#prompt-submit").addEventListener('click', function(){
     prompt.value = "";
     prompt.setAttribute("placeholder", "Thanks! prompt sent. Another one?");
   } else {
-    prompt.setAttribute("placeholder", "Don't be shy, type a prompt!!!");
+    prompt.setAttribute("placeholder", "Unfortunately not working yet :(");
     console.log(prompt.getAttribute("placeholder"));
   }
 });
