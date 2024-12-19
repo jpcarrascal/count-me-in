@@ -7,9 +7,9 @@
     background-color: lightgray;
 }
 
-#emoji-container {
+#emoji-container, #prompt-container {
     margin-top: 10px;
-    display: grid;
+    display: none;
 }
 
 
@@ -99,4 +99,18 @@ div#pre-loader {
 
 .selected {
     filter:grayscale(0%);
+}
+
+
+.intro-form {
+    width: 50vw;
+    font-size: 3vw;
+}
+
+#prompt-submit {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 3vw;
+    margin: 1vw;
+    padding-left: 1vw;
+    padding-right: 1vw;
 }

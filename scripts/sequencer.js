@@ -299,6 +299,3 @@ function updateCursor(counter) {
     })
   }
 }
-
-
-

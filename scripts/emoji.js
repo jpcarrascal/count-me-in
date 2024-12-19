@@ -1,3 +1,24 @@
+var promptContainer = document.getElementById("prompt-container");
+var emojiContainer = document.getElementById("emoji-container")
+
+setTimeout(function(){
+  document.getElementById("restart").style.display = "none";
+  document.getElementById("expert-controls").style.display = "none";
+
+  var isSynth = document.querySelectorAll(".synth-track").length;
+  console.log(isSynth);
+  if(isSynth > 0) {
+    emojiContainer.style.display = "block";
+    promptContainer.style.display = "none";
+  } else {
+    emojiContainer.style.display = "none";
+    promptContainer.style.display = "block";
+  }
+  
+}, 500);
+
+
+
 // Create the grid
 const rows = 7;
 const cols = 7;
@@ -17,7 +38,7 @@ for (let r = 0; r < rows; r++) {
         const aValue = (maxA - r * stepA).toFixed(2);
         cell.className = 'grid-cell';
         cell.setAttribute('v', c);
-        cell.setAttribute('a', rows-r);
+        cell.setAttribute('a', rows-r-1);
         //cell.textContent = `v:${vValue}, a:${aValue}`;
         if(r == 3 || c == 3) {
             cell.classList.add('axis');
@@ -60,14 +81,16 @@ gridCell.forEach(cell => {
         //fetch('https://raw.githubusercontent.com/jpcarrascal/count-me-in/refs/heads/main/experiments/data.txt')
         //fetch('http://localhost:3000/randommock')
         //fetch('https://count-me-in.azurewebsites.net/randommock')
-        fetch('/randommock')
+        fetch('/randommock?v=' + v + '&a=' + a)
           .then(response => response.text())
           .then(data => {console.log(data)
             cell.classList.add('selected');
             cell.style.backgroundColor = myColor;
             //var newNotes = randomizeNotes(myNotes);
             var newNotes = updateNotes(myNotes, JSON.parse(data));
-            console.log(newNotes);
+            //var scale = determineTonality(newNotes);
+            //newNotes = transposeMelody(newNotes, scale, "C_major");
+            //console.log(newNotes);
             var track = myTrack;
             socket.emit('update all track notes', { track: track, socketid: mySocketID, notes: newNotes } );
             grid.style.display = 'block';
@@ -115,3 +138,16 @@ function updateNotes(notes, array) {
     }
     return notes;
 }
+
+
+document.querySelector("#prompt-submit").addEventListener('click', function(){
+  var prompt = document.querySelector("#prompt");
+  if(prompt.value != "") {
+    socket.emit('reload my sample', { track: myTrack, socketid: mySocketID, value: prompt.value } );
+    prompt.value = "";
+    prompt.setAttribute("placeholder", "Thanks! prompt sent. Another one?");
+  } else {
+    prompt.setAttribute("placeholder", "Don't be shy, type a prompt!!!");
+    console.log(prompt.getAttribute("placeholder"));
+  }
+});

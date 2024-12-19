@@ -72,6 +72,7 @@ function determineTonality(melody) {
 }
 
 function transposeMelody(melody, fromScale, toScale) {
+    console.log(fromScale)
     const fromScaleNotes = scales[fromScale];
     const toScaleNotes = scales[toScale];
 
