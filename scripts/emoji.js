@@ -59,7 +59,8 @@ gridCell.forEach(cell => {
         //sendMsg('emotion', data);
         //fetch('https://raw.githubusercontent.com/jpcarrascal/count-me-in/refs/heads/main/experiments/data.txt')
         //fetch('http://localhost:3000/randommock')
-       fetch(' https://count-me-in.azurewebsites.net/randommock')
+        //fetch('https://count-me-in.azurewebsites.net/randommock')
+        fetch('/randommock')
           .then(response => response.text())
           .then(data => {console.log(data)
             cell.classList.add('selected');
