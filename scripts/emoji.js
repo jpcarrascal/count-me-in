@@ -139,9 +139,8 @@ function updateNotes(notes, array) {
     return notes;
 }
 
-
+var prompt = document.querySelector("#prompt");
 document.querySelector("#prompt-submit").addEventListener('click', function(){
-  var prompt = document.querySelector("#prompt");
   if(prompt.value != "") {
     socket.emit('reload my sample', { track: myTrack, socketid: mySocketID, value: prompt.value } );
     prompt.value = "";
@@ -149,5 +148,12 @@ document.querySelector("#prompt-submit").addEventListener('click', function(){
   } else {
     prompt.setAttribute("placeholder", "Don't be shy, type a prompt!!!");
     console.log(prompt.getAttribute("placeholder"));
+  }
+});
+
+prompt.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+    event.preventDefault();
+    document.querySelector("#prompt-submit").click();
   }
 });
