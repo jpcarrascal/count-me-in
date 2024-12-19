@@ -1,0 +1,86 @@
+
+#xy-pad {
+    display: none;
+    height: 30vw;
+    width: 30vw;
+    border: 5px solid black;
+    background-color: lightgray;
+}
+
+#emoji-container {
+    margin-top: 10px;
+    display: grid;
+}
+
+
+table#emojis, table#pre-loader {
+    grid-area: 1 / 1 / 2 / 2; /* Position element1 in the grid */
+    border-collapse: collapse;
+    z-index: 0;
+}
+
+table#emojis {
+    display: none;
+}
+
+table#grid {
+    grid-area: 1 / 1 / 2 / 2; /* Position element2 in the same grid area */
+    z-index: 5;
+}
+
+td.grid-cell {
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 4.43vw;
+    height: 4.43vw;
+    font-size: 3vw;
+    text-align: center;
+    line-height: 4.43vw;
+    border-radius: .5vw;
+    filter: grayscale(100%);
+}
+
+.axis {
+    background-color: red;
+}
+
+div#pre-loader {
+    width: 32.6vw;
+    height: 32.6vw;
+    margin: 0.2vw;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: .5vw;
+}
+
+ 
+
+.emoji, .pre-load {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 15vw;
+    width: 15vw;
+    font-size: 10vw;
+    text-align: center;
+    line-height: 15vw;
+    filter: grayscale(100%);
+    border-radius: 1vw;
+    user-select: none;
+}
+
+.pre-gif {
+    height: 4vw;
+    width: 4vw;
+}
+
+.emoji:active {
+    filter:grayscale(0%);
+}
+
+.selected {
+    filter:grayscale(0%);
+}

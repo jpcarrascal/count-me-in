@@ -17,18 +17,24 @@
           background-color: lightgray;
       }
 
-      table#emojis {
+      table#emojis, table#pre-loaders {
           margin-top: 10px;
           margin-left: 10px;
           border-collapse: collapse;
+      }
+
+      table#pre-loaders {
+          display: none;
       }
 
       td.emoji {
           padding: 10px;
       }   
 
-      .emoji {
-          display: block;
+      .emoji, .pre-load {
+          display: flex;
+          justify-content: center;
+          align-items: center;
           height: 15vw;
           width: 15vw;
           background-color: rgb(176, 201, 255);
@@ -38,6 +44,11 @@
           filter: grayscale(100%);
           border-radius: 1vw;
           user-select: none;
+      }
+
+      .pre-gif {
+          height: 4vw;
+          width: 4vw;
       }
 
       .emoji:active {
@@ -106,17 +117,38 @@
         <button onclick="sendData()">Click Here</button>
         <div onmouseover="xyMove()" id="xy-pad">
         </div>
-        <table id="emojis">
+        <div id="emoji-container">
+          <table id="emojis">
+              <tr>
+                  <td><div class="emoji" v="-1" a="1">😩</div></td>
+                  <td><div class="emoji" v="1" a="1">🤩</div></td>
+              </tr>
+              <tr>
+                  <td><div class="emoji" v="-1" a="-1">🙁</div></td>
+                  <td><div class="emoji" v="1" a="-1">🙂</div></td>
+              </tr>
+          </table>
+          
+          <table id="pre-loaders">
             <tr>
-                <td><div class="emoji" v="-1" a="1">😩</div></td>
-                <td><div class="emoji" v="1" a="1">🤩</div></td>
+                <td><div class="pre-load">
+                  <img src="images/preloader.gif" class="pre-gif" />
+                </div></td>
+                <td><div class="pre-load">
+                  <img src="images/preloader.gif" class="pre-gif" />
+                </div></td>
             </tr>
             <tr>
-                <td><div class="emoji" v="-1" a="-1">🙁</div></td>
-                <td><div class="emoji" v="1" a="-1">🙂</div></td>
+                <td><div class="pre-load">
+                  <img src="images/preloader.gif" class="pre-gif" />
+                </div></td>
+                <td><div class="pre-load">
+                  <img src="images/preloader.gif" class="pre-gif" />
+                </div></td>
             </tr>
-        </table>
-        
+          </table>
+
+        </div>
         <button id="restart" class="ui-button"
         style="display:none"
         ><span class="translate" id="lang-exit">Exit</span></button>
@@ -133,55 +165,7 @@
     <script src="scripts/sessionObj.js"></script>
     <script src="scripts/sequencer.js"></script>
     <script src="scripts/track.js"></script>
-    <script>
-          var emojis = document.querySelectorAll('.emoji');
-
-          emojis.forEach(emoji => {
-              emoji.addEventListener('mousedown', function(){
-                  emojis.forEach(emoji => {
-                      emoji.classList.remove('selected');
-                  });
-                  const v = emoji.getAttribute('v');
-                  const a = emoji.getAttribute('a');
-                  const data = {'v': v, 'a': a};
-                  //sendMsg('emotion', data);
-                  fetch('https://raw.githubusercontent.com/jpcarrascal/count-me-in/refs/heads/main/experiments/data.txt')
-                    .then(response => response.text())
-                    .then(data => {console.log(data)
-                      emoji.classList.add('selected');
-                      var newNotes = randomizeNotes(myNotes);
-                      var track = myTrack;
-                      socket.emit('update all track notes', { track: track, socketid: mySocketID, notes: newNotes } );
-                    })
-                    .catch(error => console.error('Error:', error));
-                  });
-          });
-
-          function randomizeNotes(notes) {
-              for(var i=0; i<notes.length; i++) {
-                if(Math.random() > 0.5) {
-                  notes[i].note = Math.floor(Math.random() * 80) + 20;
-                }
-                if(Math.random() > 0.5) notes[i].vel = 100;
-                  else notes[i].vel = -1;
-              }
-              return notes;
-          }
-          
-          function updateNotes(notes, array) {
-              for(var i=0; i<notes.length; i++) {
-                if(array[i] > 0) {
-                  notes[i].note = array[i];
-                  notes[i].vel = 100;
-                } else {
-                  notes[i].note = 0;
-                  notes[i].vel = -1;
-                }
-              }
-              return notes;
-          }
-          
-    </script>
+    <script src="scripts/emoji.js"></script>
 
   </body>
 </html>

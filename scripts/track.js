@@ -106,8 +106,6 @@ socket.on('update track notes', function(msg) {
     console.log("receiving my notes :)")
     var notes = msg.notes;
     myNotes = notes;
-    console.log("notes::::::::::::::::::: ");
-    console.log(notes);
     var trackID = "track"+msg.track;
     // Fix this:
     myTrack = msg.track;

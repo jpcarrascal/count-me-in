@@ -91,6 +91,29 @@ app.get('/latency', (req, res) => {
     res.sendFile(__dirname + page);
 });
 
+app.get('/randommock', (req, res) => {
+    var notes = Array(16).fill(0);
+    for(var i=0; i<notes.length; i++) {
+        if(Math.random() > 0.5)
+          notes[i] = Math.floor(Math.random() * 80) + 20;
+        else notes[i] = 0;
+    }
+    var notesStr = JSON.stringify(notes);
+    setTimeout(() => {
+        res.send(notesStr);
+    }, 0);
+});
+
+app.get('/audiomock', (req, res) => {
+    const prompt = req.query.prompt;
+    const sounds = ["bird.wav", "frog.wav", "owl.wav", "mouse.wav", "sheep.wav"];
+    const soundUrl = "sounds/seal/sounds/" + sounds[Math.floor(Math.random() * sounds.length)];
+    const response = JSON.stringify({sound: soundUrl, prompt: prompt});
+    setTimeout(() => {
+        res.send(response);
+    }, 3000);
+});
+
 app.use('/scripts', express.static(__dirname + '/scripts/'));
 app.use('/css', express.static(__dirname + '/css/'));
 app.use('/images', express.static(__dirname + '/images/'));
@@ -189,10 +212,12 @@ io.on('connection', (socket) => {
     socket.on('update all track notes', (msg) => { // Track sent all its notes at once
         var notes = msg.notes;
         for(var i=0; i<notes.length; i++) {
-            var event = {step: i, note: notes[i].note, value: 100};
+            var event = {step: i, note: notes[i].note, value: notes[i].vel};
             sessions.seqUpdateStep(session, msg.track, event);
+            newMsg = {track: msg.track, step: i, note: notes[i].note, value: notes[i].vel, action: "ai-update", socketid: msg.socketid};
+            io.to(session).emit('step update', newMsg);
         }
-        io.to(msg.socketid).emit('update track notes', msg);
+        //io.to(msg.socketid).emit('update track notes', msg);
     });
 
     socket.on('step tick', (msg) => { // Visual sync

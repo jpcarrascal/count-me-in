@@ -146,11 +146,13 @@ if(isSeq) {
   socket.on('clear track', function(msg) {
     var trackName = document.getElementById("track"+msg.track+"-name");
     var track = document.getElementById("track"+msg.track);
-    track.style.backgroundColor = EMPTY_COLOR;
-    trackName.innerText = "---";
-    if(getColor(msg.track) == "black") {
-      document.getElementById("track" + msg.track + "-name").style.color = "black";
-      document.getElementById("track" + msg.track + "-icon").style.filter = "";
+    if(track) {
+      track.style.backgroundColor = EMPTY_COLOR;
+      trackName.innerText = "---";
+      if(getColor(msg.track) == "black") {
+        document.getElementById("track" + msg.track + "-name").style.color = "black";
+        document.getElementById("track" + msg.track + "-icon").style.filter = "";
+      }
     }
   });
 
