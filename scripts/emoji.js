@@ -2,7 +2,7 @@ var promptContainer = document.getElementById("prompt-container");
 var emojiContainer = document.getElementById("emoji-container")
 
 setTimeout(function(){
-  document.getElementById("restart").style.display = "none";
+  //document.getElementById("restart").style.display = "none";
   document.getElementById("expert-controls").style.display = "none";
 
   var isSynth = document.querySelectorAll(".synth-track").length;
