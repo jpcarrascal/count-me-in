@@ -16,8 +16,8 @@ for (let r = 0; r < rows; r++) {
         const vValue = (minV + c * stepV).toFixed(2);
         const aValue = (maxA - r * stepA).toFixed(2);
         cell.className = 'grid-cell';
-        cell.setAttribute('v', vValue);
-        cell.setAttribute('a', aValue);
+        cell.setAttribute('v', c);
+        cell.setAttribute('a', rows-r);
         //cell.textContent = `v:${vValue}, a:${aValue}`;
         if(r == 3 || c == 3) {
             cell.classList.add('axis');

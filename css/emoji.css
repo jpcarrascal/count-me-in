@@ -30,14 +30,30 @@ table#grid {
 
 td.grid-cell {
     background-color: rgba(255, 255, 255, 0.3);
-    width: 4.43vw;
-    height: 4.43vw;
-    font-size: 3vw;
+    width: 10vw;
+    height: 10vw;
+    font-size: 8vw;
     text-align: center;
     line-height: 4.43vw;
     border-radius: .5vw;
     filter: grayscale(100%);
 }
+
+@media screen and (orientation:portrait) {
+    td.grid-cell {
+        width: 10vw;
+        height: 10vw;
+        font-size: 8vw;
+    }
+  }
+  
+  @media screen and (orientation:landscape) {
+    td.grid-cell {
+        width: 4.43vw;
+        height: 4.43vw;
+        font-size: 4vw;
+    }
+  }
 
 .axis {
     background-color: red;
