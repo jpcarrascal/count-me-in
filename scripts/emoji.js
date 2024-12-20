@@ -142,6 +142,7 @@ function updateNotes(notes, array) {
 var prompt = document.querySelector("#prompt");
 document.querySelector("#prompt-submit").addEventListener('click', function(){
   if(prompt.value != "") {
+    console.log("Prompt submitted: " + prompt.value);
     socket.emit('reload my sample', { track: myTrack, socketid: mySocketID, prompt: prompt.value } );
     prompt.value = "";
     prompt.setAttribute("placeholder", "Thanks! prompt sent. Another one?");

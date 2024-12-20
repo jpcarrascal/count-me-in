@@ -287,7 +287,6 @@ io.on('connection', (socket) => {
         logger.info("#" + session + " @" + initials + " reload sample for track " + msg.track +
                     " with prompt: " + msg.value);
         */
-        socket.broadcast.to(session).emit('reload track sample notice', msg);
         fetch("https://stardate69-stableaudioopenendpoint2.hf.space/generate?prompt=" + msg.prompt)
         .then(response => response.arrayBuffer())
         .then(buffer => {
@@ -304,6 +303,7 @@ io.on('connection', (socket) => {
                 socket.broadcast.to(session).emit('reload track sample', msg);
             });
         }).catch(error => console.error('Error:', error));
+        socket.broadcast.to(session).emit('reload sample notice', msg);
     });
     
 
