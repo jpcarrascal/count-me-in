@@ -7,7 +7,7 @@ var method = findGetParameter("method") || "random";
 var extClock = findGetParameter("extclock") || false;
 var role = "secondary";
 var stepSequencer = new Sequencer(NUM_TRACKS, NUM_STEPS);
-var playAudio = true;
+var audioPlay = true;
 if(isSeq) {
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
@@ -34,7 +34,7 @@ if(isSeq) {
   });
 
   if(hideInfo || extClock) {
-    playAudio = false;
+    audioPlay = false;
     document.getElementById("play-audio").checked = false;
     info.style.display = "none";
   } else {

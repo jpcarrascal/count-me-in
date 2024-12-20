@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 //const cors = require('cors');
 //app.use(cors()); // Enable CORS
-
+const FileReader = require('filereader');
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -119,6 +119,10 @@ app.get('/audiomock', (req, res) => {
     setTimeout(() => {
         res.send(response);
     }, 0);
+});
+
+app.get('/testaudio', (req, res) => {
+
 });
 
 app.use('/scripts', express.static(__dirname + '/scripts/'));
@@ -272,10 +276,29 @@ io.on('connection', (socket) => {
     }); 
 
     socket.on('reload my sample', (msg) => {
+        /*
         socket.broadcast.to(session).emit('reload track sample', msg);
         logger.info("#" + session + " @" + initials + " reload sample for track " + msg.track +
                     " with prompt: " + msg.value);
+        */
+        fetch("https://stardate69-stableaudioopenendpoint2.hf.space/generate?prompt=techno+kick")
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+            // write the blob to a file
+            const reader = new FileReader();
+            const name = generateRandomString() + '.wav';
+            console.log("Prompt: " + msg.value);
+            fs.writeFile( path.resolve('./sounds/cache/'+name) , Buffer.from(buffer), 'binary', function(err) {
+                console.log('trying to save....');
+                if (err) throw err;
+                console.log('File saved.');
+                msg.sample = "sounds/cache/" + name;
+                console.log("Sample saved to: " + msg.sample);
+                socket.broadcast.to(session).emit('reload track sample', msg);
+            });
+        }).catch(error => console.error('Error:', error));
     });
+    
 
     socket.on('track solo', (msg) => {
         console.log("Solo: " + msg.value);
@@ -319,6 +342,24 @@ function exitHandler(options, exitCode) {
 process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 
 //////// Experimental: Music AI Workshop
+
+// This function fetches a sound from a given URL and stores it in the sounds/cached folder
+// then returns the path to the cached sound file:
+
+
+    //fetch('http://localhost:3000/audiomock?prompt=' + req.query.prompt)
+
+
+
+function generateRandomString(length = 16) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 
 
 function getMatchingSequences(valence, arousal) {

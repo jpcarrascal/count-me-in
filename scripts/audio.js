@@ -84,7 +84,7 @@ function playStepNotes(counter) {
     var value = notesToPlay[i].vel;
     var note = parseInt(notesToPlay[i].note);
     if(MIDIout) MIDIplayNote(note, value, MIDIout);
-    if(playAudio) audioPlayStep(i, note, value);
+    if(audioPlay) audioPlayStep(i, note, value);
     if(extClock) {
       try{
         if(value > 0) {
@@ -161,13 +161,17 @@ if(extClock) {
       stopButton.click();
     });
 
+    window.max.bindInlet("audio-play", function(maxCounter) {
+      audioPlay = !audioPlay;
+    });
+
   } catch(e) {
     console.log("Max not loaded");
   }
 }
 
 playAudioCheck.addEventListener('change', function() {
-  playAudio = this.checked;
+  audioPlay = this.checked;
 });
 
 playButton.addEventListener('click', function() {
