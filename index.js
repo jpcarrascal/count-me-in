@@ -287,13 +287,14 @@ io.on('connection', (socket) => {
         logger.info("#" + session + " @" + initials + " reload sample for track " + msg.track +
                     " with prompt: " + msg.value);
         */
-        fetch("https://stardate69-stableaudioopenendpoint2.hf.space/generate?prompt=techno+kick")
+        socket.broadcast.to(session).emit('reload track sample notice', msg);
+        fetch("https://stardate69-stableaudioopenendpoint2.hf.space/generate?prompt=" + msg.prompt)
         .then(response => response.arrayBuffer())
         .then(buffer => {
             // write the blob to a file
             const reader = new FileReader();
             const name = generateRandomString() + '.wav';
-            console.log("Prompt: " + msg.value);
+            console.log("Prompt: " + msg.prompt);
             fs.writeFile( path.resolve('./sounds/cache/'+name) , Buffer.from(buffer), 'binary', function(err) {
                 console.log('trying to save....');
                 if (err) throw err;

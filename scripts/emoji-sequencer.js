@@ -24,4 +24,7 @@ socket.on('reload track sample', function(msg) {
     
 });
 
+socket.on('reload track sample', function(msg) {
+    console.log("Track " + t + "requested new sample with prompt: " + msg.prompt);
+});
 
