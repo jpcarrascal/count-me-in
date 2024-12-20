@@ -6,7 +6,6 @@
         "cookie": "^0.4.2",
         "cors": "^2.8.5",
         "express": "^4.17.1",
-        "filereader": "^0.10.3",
         "FileReader": "^0.10.2",
         "socket.io": "^4.4.0",
         "winston": "^3.5.0"

@@ -4,7 +4,6 @@ const express = require('express');
 const app = express();
 //const cors = require('cors');
 //app.use(cors()); // Enable CORS
-const FileReader = require('filereader');
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -291,7 +290,6 @@ io.on('connection', (socket) => {
         .then(response => response.arrayBuffer())
         .then(buffer => {
             // write the blob to a file
-            const reader = new FileReader();
             const name = generateRandomString() + '.wav';
             console.log("Prompt: " + msg.prompt);
             fs.writeFile( path.resolve('./sounds/cache/'+name) , Buffer.from(buffer), 'binary', function(err) {
