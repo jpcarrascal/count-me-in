@@ -16,7 +16,7 @@ socket.on('reload track sample', function(msg) {
     document.querySelectorAll("audio").forEach((elem) => {
         var t = elem.getAttribute("track");
         if(parseInt(msg.track) == parseInt(t)) {
-            console.log("Reloading track " + t + " sample");
+            console.log("Reloading track " + t + " sample: " + msg.sample);
             elem.src = msg.sample;
             elem.load();
         }

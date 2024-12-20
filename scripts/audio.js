@@ -147,7 +147,7 @@ function tick(extCounter) {
 if(extClock) {
   stopButton.click();
   try {
-
+    socket.emit('audio-play', { socketID: mySocketID, value: audioPlay });
     window.max.bindInlet("tick", function(maxCounter) {
       console.log("Max detected!");
       tick(maxCounter);
@@ -162,8 +162,9 @@ if(extClock) {
     });
 
     window.max.bindInlet("audio-play", function(value) {
-      audioPlay = value;
-      socket.emit('audio-play', { value: audioPlay });
+      audioPlay = (value==1 ? true : false);
+      socket.emit('audio-play', { socketID: mySocketID, value: audioPlay });
+      window.max.outlet("audio-play-echo", audioPlay);
     });
 
   } catch(e) {
