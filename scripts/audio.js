@@ -161,8 +161,9 @@ if(extClock) {
       stopButton.click();
     });
 
-    window.max.bindInlet("audio-play", function(maxCounter) {
-      audioPlay = !audioPlay;
+    window.max.bindInlet("audio-play", function(value) {
+      audioPlay = value;
+      socket.emit('audio-play', { value: audioPlay });
     });
 
   } catch(e) {

@@ -271,6 +271,12 @@ io.on('connection', (socket) => {
         socket.broadcast.to(session).emit('track mute', msg);
     }); 
 
+    socket.on('audio play', (msg) => {
+        console.log("Audio play:");
+        console.log(msg);
+        //socket.broadcast.to(session).emit('audio play', msg);
+    });
+
     socket.on('expert-mode', (msg) => {
         logger.info("#" + session + " @" + initials + " set expert mode to: " + msg.value);
     }); 
