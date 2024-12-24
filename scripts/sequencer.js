@@ -1,10 +1,10 @@
 // Am I a sequencer?
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
-var experiment = findGetParameter("experiment") || false;
 var session = findGetParameter("session") || DEFAULT_ROOM;
 var method = findGetParameter("method") || "random";
 var extClock = findGetParameter("extclock") || false;
+var experimentSwitch = document.getElementById("experiment-switch");
 var role = "secondary";
 var stepSequencer = new Sequencer(NUM_TRACKS, NUM_STEPS);
 var audioPlay = true;
@@ -16,22 +16,38 @@ if(isSeq) {
   var trackURL = document.location.origin +
                 "/track?session=" + session +
                 "&lang=" + lang;
-  if(experiment) trackURL += "&experiment=true";
   //var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
   let qrcodeURL = "https://qrcode.azurewebsites.net/qr?width=300&margin=1&string=" + encodeURIComponent(trackURL);
   var qrcode = document.createElement("img");
   qrcode.setAttribute("src",qrcodeURL);
   qrcode.setAttribute("id","qrcode");
   document.getElementById("qrcode-wrapper").appendChild(qrcode);
-  document.getElementById("track-url").setAttribute("href",trackURL);
-  document.getElementById("track-url").innerText = trackURL;
-  document.getElementById("url-copy").innerText = trackURL;
+  updateTrackURL(trackURL);
   document.getElementById("copy").addEventListener("click", function(e) {
     copyURL("url-copy");
     this.innerText = "COPIED!";
     p=setTimeout( function() { document.getElementById("copy").innerText = "COPY TO CLIPBOARD" }, 2000);
     console.log(p)
   });
+
+  experimentSwitch.addEventListener("click", function(e) {
+    if(this.checked) {
+      //window.location.href = "/sequencer?session=" + session + "&experiment=true";
+      trackURL += "&experiment=true";
+      updateTrackURL(trackURL);
+    } else {
+      //window.location.href = "/sequencer?session=" + session;
+      //trackURL += "&experiment=true";
+      trackURL = removeAllSubstrings(trackURL, "&experiment=true");
+      updateTrackURL(trackURL);
+    }
+  });
+  
+  function updateTrackURL(url) {
+    document.getElementById("track-url").setAttribute("href",url);
+    document.getElementById("track-url").innerText = url;
+    document.getElementById("url-copy").innerText
+  }
 
   if(hideInfo || extClock) {
     audioPlay = false;

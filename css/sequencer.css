@@ -63,6 +63,11 @@ body {
     margin: 1vw;
 }
 
+.session-info #experiment-switch {
+    width: 1.5vw;
+    height: 1.5vw;
+}
+
 #copy {
     background-color: white;
     color: dodgerblue;

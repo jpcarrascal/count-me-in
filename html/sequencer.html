@@ -23,17 +23,25 @@
         Session name: <span id="session-name"></span>
         </span>
       </div>
-      <div class="session-info">Use this URL to join this session</div>
+
+
+      <div class="session-info">Scan this QR code to join session:</div>
+      <div class="session-info" id="qrcode-wrapper"></div>
+
+      <div class="session-info">Or use this URL:</div>
       <div class="session-info">
         <a id="track-url" target="_blank"></a>
       </div>
+      
       <div class="session-info">
         <div id="copy">COPY TO CLIPBOARD</div>
       </div>
-      <div class="session-info">Or scan this QR code:</div>
-      <div class="session-info" id="qrcode-wrapper">
 
+      <div class="session-info">
+        <input type="checkbox" name="experiment-switch" id="experiment-switch" />
+        <label for="experiment-switch">Use experimental features (emotion melodic input, AI-generated samples)</label>
       </div>
+
       <textarea id="url-copy"></textarea>
     </div>
 
