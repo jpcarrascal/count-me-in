@@ -149,7 +149,7 @@ io.on('connection', (socket) => {
         } catch (error) {
             logger.info("#" + session + "main @SEQUENCER joined session.");
         }
-        const exists = sessions.findSession(session);
+        const exists = sessions.select(session);
         if(exists >= 0) {
             logger.info("#" + session + " additional @SEQUENCER joined session.");
             io.to(socket.id).emit('sequencer role', {role: "secondary", session: session});
@@ -158,24 +158,24 @@ io.on('connection', (socket) => {
         else {
             sessions.addSession(session, numTracks, config.NUM_STEPS, allocationMethod, config.MAX_NUM_ROUNDS);
             console.log("Session ID: " + session);
-            sessions.setSeqID(session,socket.id);
+            sessions.select(session).setSeqID(socket.id);
             io.to(socket.id).emit('sequencer role', {role: "main", session: session});
             socket.on('disconnect', () => {
                 logger.info("#" + session + " @SEQUENCER disconnected (sequencer). Clearing session");
                 socket.broadcast.to(session).emit('exit session',{reason: "Sequencer disconnected!"});
-                sessions.clearSession(session);
+                sessions.select(session).clearSession();
             });
         }
     } else if(hootbeat) {
-        if(sessions.isReady(session)) {
+        if(sessions.select(session).isReady()) {
             logger.info("#" + session + " @" + initials + " joined session as HootBeat");
         } else {
             io.to(socket.id).emit('exit session', {reason: "Session has not started..."});
         }
     } else {
-        if(sessions.isReady(session)) {
+        if(sessions.select(session).isReady()) {
             if(initials) {
-                var track = sessions.allocateAvailableParticipant(session, socket.id, initials);
+                var track = sessions.select(session).allocateAvailableParticipant(socket.id, initials);
                 if(track < 0) { // No available tracks in session
                     logger.info("#" + session + " @" + initials + " rejected, no available tracks ");
                     io.to(socket.id).emit('exit session', {reason: "No available tracks! Please wait a bit..."});
@@ -183,10 +183,12 @@ io.on('connection', (socket) => {
                     logger.info("#" + session + " @" + initials + " joined session on track " + track);
                     socket.broadcast.to(session).emit('track joined', { initials: initials, track:track, socketid: socket.id });
                     socket.on('disconnect', () => {
-                        var track2delete = sessions.getParticipantNumber(session, socket.id);
-                        sessions.releaseParticipant(session, socket.id);
-                        io.to(session).emit('clear track', {track: track2delete, initials: initials});
-                        logger.info("#" + session + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
+                        var track2delete = sessions.select(session).getParticipantNumber(socket.id);
+                        if(track2delete >= 0) {
+                            sessions.select(session).releaseParticipant(socket.id);
+                            io.to(session).emit('clear track', {track: track2delete, initials: initials});
+                            logger.info("#" + session + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
+                        }
                     });
                     io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
                 }
@@ -203,9 +205,9 @@ io.on('connection', (socket) => {
         io.to(session).emit('step update', msg);
 // ----------------------------------------------------------Restore this!--------------------//
         //sessions.participantStartCounting(session, socket.id);
-        let initials = sessions.getParticipantInitials(session, socket.id);
+        let initials = sessions.select(session).getParticipantInitials(socket.id);
         var event = {step: msg.step, note: msg.note, value: msg.value};
-        sessions.seqUpdateStep(session, msg.track, event);
+        sessions.select(session).seqUpdateStep(msg.track, event);
         if(seq) initials = "seq";
         logger.info("#" + session + " @" + initials + " step_update event: " + msg.action +
                         " track: " + msg.track + " step: " +msg.step +
@@ -224,7 +226,7 @@ io.on('connection', (socket) => {
         var notes = msg.notes;
         for(var i=0; i<notes.length; i++) {
             var event = {step: i, note: notes[i].note, value: notes[i].vel};
-            sessions.seqUpdateStep(session, msg.track, event);
+            sessions.select(session).seqUpdateStep(msg.track, event);
             newMsg = {track: msg.track, step: i, note: notes[i].note, value: notes[i].vel, action: "ai-update", socketid: msg.socketid};
             io.to(session).emit('step update', newMsg);
         }
@@ -235,7 +237,7 @@ io.on('connection', (socket) => {
         socket.broadcast.to(session).emit('step tick', msg);
         var expired = new Array();
         if(msg.counter == config.NUM_STEPS-1) {
-            expired = sessions.incrementAllCounters(session);
+            expired = sessions.select(session).incrementAllCounters();
         }
         if(expired.length > 0) {
             for(var i=0; i<expired.length; i++) {

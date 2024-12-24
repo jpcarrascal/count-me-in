@@ -203,6 +203,45 @@ class Session {
     
     ////////////
 
+    getSeqID(seqID) {
+        return this.seqID;
+    }
+
+    setSeqID(seqID) {
+        this.seqID = seqID;
+    }
+
+    clearSeqID() {
+        this.seqID = "";
+    }
+
+    isReady(sessionName) {
+        if(this.seqID != "") return true;
+        return false;
+    }
+
+    play() {
+        this.playing = true;
+    }
+
+    stop() {
+        var sessionId = this.findSession(sessionName);
+        if(sessionId < 0) return false;
+        this.playing = false;
+    }
+
+    isPlaying() {
+        return this.playing;
+    }
+
+    clearSession() {
+        this.seqID = "";
+        this.name = "";
+        this.releaseAllParticipants();
+    }
+
+    ///////////
+
     setAttribute(k, v) {
         this.attributes[k] = v;
     }
@@ -215,6 +254,7 @@ class Session {
 class AllSessions {
     constructor(numTracks)  {
         this.sessions = Array();
+        this.sessions[-1] = new Session("default", numTracks, 16, "sequential", 100);
     }
 
     addSession(sessionName, numTracks, numSteps, allocationMethod, maxNumRounds) {
@@ -235,125 +275,16 @@ class AllSessions {
         return -1;
     }
 
-    getSeqID(sessionName, seqID) {
+    select(sessionName) {
         var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        var seqID = this.sessions[sessionId].seqID;
-        return seqID;
-    }
-
-    setSeqID(sessionName, seqID) {
-        var sessionId = this.findSession(sessionName);
-        this.sessions[sessionId].seqID = seqID;
-    }
-
-    clearSeqID(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        this.sessions[sessionId].seqID = "";
-    }
-
-    isReady(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId < 0) return false;
-        if(this.sessions[sessionId].seqID != "") return true;
-        return false;
-    }
-
-    play(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId < 0) return false;
-        this.sessions[sessionId].playing = true;
-    }
-
-    stop(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId < 0) return false;
-        this.sessions[sessionId].playing = false;
-    }
-
-    isPlaying(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId < 0) return false;
-        return this.sessions[sessionId].playing;
-    }
-
-    clearSession(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        this.sessions[sessionId].seqID = "";
-        this.sessions[sessionId].name = "";
-        this.sessions[sessionId].releaseAllParticipants();
+        //if(sessionId == -1) return -1;
+        return this.sessions[sessionId];
     }
 
     removeSession(sessionName) {
         var sessionId = this.findSession(sessionName);
         if(sessionId == -1) return -1;
         this.sessions.splice(sessionId, 1);
-    }
-
-    allocateAvailableParticipant(sessionName, socketID, initials) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return(this.sessions[sessionId].allocateAvailableParticipant(socketID, initials));
-    }
-
-    releaseParticipant(sessionName, socketID) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return(this.sessions[sessionId].releaseParticipant(socketID));
-    }
-
-    getParticipantNumber(sessionName, socketID) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return(this.sessions[sessionId].getParticipantNumber(socketID));
-    }
-
-    getParticipantInitials(sessionName, socketID) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return(this.sessions[sessionId].getParticipantInitials(socketID));
-    }
-
-    participantStartCounting(sessionName, socketID) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        this.sessions[sessionId].participantStartCounting(socketID);
-    }
-
-    participantIncrementRounds(sessionName, socketID) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        this.sessions[sessionId].incrementParticipantRound(socketID);
-    }
-
-    getAllParticipants(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return this.sessions[sessionId].participants;
-    }
-
-    incrementAllCounters(sessionName) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return this.sessions[sessionId].incrementAllCounters();
-    }
-
-    seqUpdateStep(sessionName, track, event) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        this.sessions[sessionId].seqUpdateStep(track, event);
-    }
-
-    setAttribute(sessionName, k, v) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return this.sessions[sessionId].setAttribute(k, v);
-    }
-
-    getAttribute(sessionName, k) {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId == -1) return -1;
-        return this.sessions[sessionId].getAttribute(k);
     }
 }
 
