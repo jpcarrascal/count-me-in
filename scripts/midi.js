@@ -43,7 +43,7 @@ function connectMIDI(midi) {
 }
 
 function processMIDIinTMP(midiMsg) {
-    if(isCC(midiMsg.data[0])) { //&& !infoOnOff) {  // Is a controller
+    if(isCC(midiMsg.data[0])) {
         switch (midiMsg.data[1]) {
             /*
             case 70: // Play

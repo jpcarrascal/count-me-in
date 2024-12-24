@@ -50,12 +50,14 @@
                 </td>
               </tr>
             </table>
-            <input type="hidden" name="sounds" id="sounds" placeholder="tr808" />
             <input type="hidden" name="lang" id="lang" placeholder="EN" />
+            <input type="hidden" name="experiment" id="experiment" placeholder="" />
           </form>
+          <!--
           <div class="rotate-me">
             <img src="images/rotatephone.gif" alt="Please rotate your device" />
           </div>
+          -->
         </div>
       
     </div>
@@ -73,7 +75,10 @@
 
       var session = findGetParameter("session");
       document.getElementById("lang").value = findGetParameter("lang");
-      document.getElementById("sounds").value =  findGetParameter("sounds");
+      var experiment = findGetParameter("experiment") || false;
+      if(experiment) document.getElementById("experiment").value = experiment;
+      else document.getElementById("experiment").remove
+      
       if(!session) document.querySelectorAll(".intro-session-hide").forEach(elem => {
         elem.style.display = "block";
       });

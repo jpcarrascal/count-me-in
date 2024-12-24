@@ -1,3 +1,4 @@
+var experiment = findGetParameter("experiment") || false;
 var counter = document.getElementById("counter");
 var rounds = 0;
 var inLobby = true;

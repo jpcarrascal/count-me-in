@@ -104,8 +104,7 @@ body {
 
 @media screen and (orientation:portrait) {
     .rotate-me {
-        /* display: flex; */
-        display: none;
+        display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;

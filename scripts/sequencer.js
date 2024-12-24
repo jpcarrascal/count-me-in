@@ -1,7 +1,7 @@
 // Am I a sequencer?
 var isSeq = location.pathname.includes("sequencer");
 var initials = "";
-//var infoOnOff = true;
+var experiment = findGetParameter("experiment") || false;
 var session = findGetParameter("session") || DEFAULT_ROOM;
 var method = findGetParameter("method") || "random";
 var extClock = findGetParameter("extclock") || false;
@@ -15,8 +15,8 @@ if(isSeq) {
   var info = document.getElementById("session-info");
   var trackURL = document.location.origin +
                 "/track?session=" + session +
-                "&sounds=" + soundParam +
                 "&lang=" + lang;
+  if(experiment) trackURL += "&experiment=true";
   //var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
   let qrcodeURL = "https://qrcode.azurewebsites.net/qr?width=300&margin=1&string=" + encodeURIComponent(trackURL);
   var qrcode = document.createElement("img");
@@ -231,11 +231,9 @@ if(isSeq) {
     var info = document.getElementById("session-info");
     if(info.style.display == "flex") {
       info.style.display = "none";
-      //infoOnOff = false;
       if(!playing && !extClock) document.getElementById("play").click();
     } else {
       info.style.display = "flex";
-      //infoOnOff = true;
     }
   }
 
