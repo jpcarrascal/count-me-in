@@ -6,7 +6,7 @@
 ![image](https://raw.githubusercontent.com/jpcarrascal/count-me-in/gh-pages/assets/images/tryout.jpg)
 
 
-**Count-Me-In** is a collaborative music sequencer that uses a distributed Web architecture to promote audience participation in music performances, installations, and other similar contexts. Audience members take control of individual sequencer tracks using their mobile phones (or any networked device), collaboratively building a music loop or phrase. This dialog represents a disruption in the traditional role played by the audience in a music performance: instead of being passive listeners, attendees become active performers. In the future, we plan to include the capacity to synchronize with any DAW or hardware device that generates MIDI Clock messages, allowing collaboration between performers and audience.
+The first iteration of **Count-Me-In** is a collaborative music sequencer that uses a distributed Web architecture to promote audience participation in music performances, installations, and other similar contexts. Audience members take control of individual sequencer tracks using their mobile phones (or any networked device), collaboratively building a music loop or phrase. This dialog represents a disruption in the traditional role played by the audience in a music performance: instead of being passive listeners, attendees become active performers. In the future, we plan to include the capacity to synchronize with any DAW or hardware device that generates MIDI Clock messages, allowing collaboration between performers and audience.
 
 ![image](https://user-images.githubusercontent.com/1902661/160303272-272b6496-3829-451b-bb03-e5f96321e3b2.png)
 
