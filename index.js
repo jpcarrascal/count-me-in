@@ -39,7 +39,7 @@ var sessions = new AllSessions();
 
 app.get('/', (req, res) => {
     // req.query.seq
-    var page = '/html/index-track.html';
+    var page = '/html/index-sequencer.html';
     res.sendFile(__dirname + page);
 });
 
