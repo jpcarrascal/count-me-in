@@ -201,8 +201,13 @@ if(isSeq) {
   });
 
   var closeInfo = document.getElementById("close-info");
+  var startSession = document.getElementById("start-session");
   
   closeInfo.addEventListener("click", function() {
+    hideAndPLay();
+  });
+
+  startSession.addEventListener("click", function() {
     hideAndPLay();
   });
 

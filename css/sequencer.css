@@ -29,7 +29,7 @@ body {
     z-index: 10;
     box-shadow: rgba(0,0,0,0.5) 1vw 1vw;
     padding: 2vw;
-    font-size: 2vw;
+    font-size: 1.8vw;
     width: 100%;
     height: 100%;
 }
@@ -68,16 +68,27 @@ body {
     height: 1.5vw;
 }
 
-#copy {
+#copy, .ui-button {
     background-color: white;
     color: dodgerblue;
     width: 10em;
     font-size: .8em;
     margin: 0;
     text-align: center;
+    border: none;
 }
 
-#copy:active {
+#copy {
+    background-color: dodgerblue;
+    color: white;
+    width: 10em;
+    font-size: .8em;
+    margin: 0;
+    text-align: center;
+    border: 2px solid white;
+}
+
+#copy:active, .ui-button:active {
     margin-top: 0.1vh;
     margin-bottom: -0.1vh;
     background-color: #EEE;
