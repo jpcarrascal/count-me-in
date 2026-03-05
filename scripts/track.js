@@ -78,7 +78,7 @@ socket.on('create track', function(msg) {
             }
             var matrix = document.getElementById("matrix");
             matrix.appendChild(tr);
-            tr.style.backgroundColor = color;
+            setTrackMetaColor(track, color);
             document.body.style.backgroundColor = color;
             var trackName = document.getElementById("track"+track+"-name");
             var bigInitials = document.getElementById("big-initials");

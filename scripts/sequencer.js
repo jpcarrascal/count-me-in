@@ -196,7 +196,7 @@ if(isSeq) {
     var trackName = document.getElementById("track"+msg.track+"-name");
     var track = document.getElementById("track"+msg.track);
     if(track) {
-      track.style.backgroundColor = EMPTY_COLOR;
+      setTrackMetaColor(msg.track, EMPTY_COLOR);
       trackName.innerText = "---";
       if(getColor(msg.track) == "black") {
         document.getElementById("track" + msg.track + "-name").style.color = "black";
@@ -211,7 +211,7 @@ if(isSeq) {
     var track = document.getElementById("track" + msg.track);
     trackName.innerText = msg.initials;
     var color = getColor(msg.track);
-    track.style.backgroundColor = color;
+    setTrackMetaColor(msg.track, color);
     if(color == "black") {
       document.getElementById("track" + msg.track + "-name").style.color = "white";
       document.getElementById("track" + msg.track + "-icon").style.filter = "invert(1)";

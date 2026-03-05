@@ -227,6 +227,10 @@ tr.track {
     padding: 0;
 }
 
+.track-meta {
+    background-color: #AAA;
+}
+
 tr.synth-track {
     color: white;
 }

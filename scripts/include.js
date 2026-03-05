@@ -369,6 +369,13 @@ function showStepControls(track, soundType) {
   });
 }
 
+function setTrackMetaColor(trackNumber, color) {
+  var trackID = "track" + trackNumber;
+  document.querySelectorAll("#" + trackID + " .track-meta").forEach(elem => {
+    elem.style.backgroundColor = color;
+  });
+}
+
 function valueToBGColor(value) {
   if(parseInt(value) === 0) return "#AAA";
   var tmp = 255 - value*2;
