@@ -40,7 +40,7 @@ function getColor(index) {
 
 const drumNotes = [36, 38, 39, 41, 43, 45, 42, 46];
 const onColor = "rgb(128,128,128)";
-const offColor = "white";
+const offColor = "#AAA";
 var mouseStepDownVal = 0;
 
 function createHeader(table) {
@@ -317,6 +317,7 @@ function faderWhileDragging(e) {
   var swColor = stepElem.firstChild.getAttribute("color");
   stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
   stepElem.style.backgroundColor = valueToBGColor(value);
+  stepElem.style.borderColor = valueToBorderColor(value);
 }
 
 function updateStep(stepElem, note, value, action) {
@@ -335,6 +336,7 @@ function updateStep(stepElem, note, value, action) {
     } else note = stepElem.getAttribute("note");
     fader.value = value;
     stepElem.style.backgroundColor = valueToBGColor(value);
+    stepElem.style.borderColor = valueToBorderColor(value);
     var swColor = stepElem.firstChild.getAttribute("color");
     stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
     socket.emit('step update', { track: track, step: step, note: note, value: value, action: action, socketID: mySocketID } );
@@ -368,8 +370,14 @@ function showStepControls(track, soundType) {
 }
 
 function valueToBGColor(value) {
+  if(parseInt(value) === 0) return "#AAA";
   var tmp = 255 - value*2;
   return "rgb("+[tmp,tmp,tmp].join(",")+")";
+}
+
+function valueToBorderColor(value) {
+  if(parseInt(value) === 0) return "#666";
+  return "transparent";
 }
 
 function valueToSWColor(value, c) {

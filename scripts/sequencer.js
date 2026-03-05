@@ -147,6 +147,7 @@ socket.on('step update', function(msg) {
     step.setAttribute("value", value);
     step.setAttribute("note", note);
     step.style.backgroundColor = valueToBGColor(value);
+    step.style.borderColor = valueToBorderColor(value);
     var swColor = step.firstChild.getAttribute("color");
     step.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
     fader.value = value;
@@ -320,6 +321,7 @@ function clearTrack(track) {
   steps.forEach(step =>{
     step.setAttribute("value",0);
     step.style.backgroundColor = offColor;
+    step.style.borderColor = valueToBorderColor(0);
     step.firstChild.style.backgroundColor = "transparent";
   });
 }
@@ -341,6 +343,7 @@ function clearAllSteps(emitUpdates) {
 
     step.setAttribute("value", 0);
     step.style.backgroundColor = valueToBGColor(0);
+    step.style.borderColor = valueToBorderColor(0);
     step.firstChild.style.backgroundColor = valueToSWColor(0, swColor);
     if(fader) fader.value = 0;
     if(kb) kb.unsetNote();
@@ -364,6 +367,7 @@ function updateCursor(counter) {
     prevPos.forEach(step => {
       step.parentElement.classList.remove("cursor");
       step.style.backgroundColor = valueToBGColor(step.getAttribute("value"));
+      step.style.borderColor = valueToBorderColor(step.getAttribute("value"));
       step.style.borderRadius = "10%";
     });
     stepPos.forEach(step => {
@@ -372,6 +376,7 @@ function updateCursor(counter) {
       step.parentElement.classList.add("cursor");
       if(step.getAttribute("value") > 0){
         step.style.backgroundColor = hlColor;
+        step.style.borderColor = valueToBorderColor(step.getAttribute("value"));
         step.style.borderRadius = "50%";
       }
     });
@@ -380,6 +385,7 @@ function updateCursor(counter) {
     all.forEach(step => {
       step.parentElement.classList.remove("cursor");
       step.style.backgroundColor = valueToBGColor(step.getAttribute("value"));
+      step.style.borderColor = valueToBorderColor(step.getAttribute("value"));
       step.style.borderRadius = "10%";
     })
   }

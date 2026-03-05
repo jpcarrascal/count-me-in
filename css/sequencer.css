@@ -347,9 +347,9 @@ tr.synth-track {
 
 
 .step {
-    background-color: white;
+    background-color: #AAA;
     border-radius: 0.3vw;
-    border: 0;
+    border: 0.12vw solid #666;
     margin: 0.6vw;
 }
 

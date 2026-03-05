@@ -120,12 +120,14 @@ socket.on('update track notes', function(msg) {
         if(notes[i].vel > 0) {
             stepElem.setAttribute("value", value);
             stepElem.style.backgroundColor = valueToBGColor(value);
+            stepElem.style.borderColor = valueToBorderColor(value);
             stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
             fader.value = value;
             kb.setNote(notes[i].note);
         } else {
             stepElem.setAttribute("value", 0);
-            stepElem.style.backgroundColor = "white";
+            stepElem.style.backgroundColor = valueToBGColor(0);
+            stepElem.style.borderColor = valueToBorderColor(0);
             stepElem.firstChild.style.backgroundColor = valueToSWColor(0, swColor);
             fader.value = 0;
             kb.unsetNote();
