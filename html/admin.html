@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>COUNT·ME·IN Admin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
+  </head>
+  <body>
+    <main id="admin-app">
+      <h1>COUNT·ME·IN Admin</h1>
+
+      <section class="panel">
+        <div class="meta-row">
+          <span class="meta-label">Session:</span>
+          <span id="session-name">(missing)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Status:</span>
+          <span id="session-status">Waiting...</span>
+        </div>
+      </section>
+
+      <section class="panel controls-panel">
+        <h2>Transport</h2>
+        <div class="row">
+          <button id="play-pause" class="admin-button">Play</button>
+          <button id="clear-all" class="admin-button warn">Clear all steps</button>
+        </div>
+      </section>
+
+      <section class="panel controls-panel">
+        <h2>Tempo</h2>
+        <div class="row">
+          <input id="tempo" type="number" min="60" max="250" value="98" />
+          <button id="set-tempo" class="admin-button">Set tempo</button>
+          <button id="random-tempo" class="admin-button">Random 80-115</button>
+        </div>
+      </section>
+
+      <section class="panel controls-panel">
+        <h2>Clients</h2>
+        <div class="row">
+          <button id="refresh-clients" class="admin-button">Refresh list</button>
+          <button id="disconnect-all" class="admin-button danger">Disconnect all tracks</button>
+        </div>
+        <div id="clients-summary">Active track clients: <span id="clients-count">0</span></div>
+        <table id="clients-table">
+          <thead>
+            <tr>
+              <th>Track</th>
+              <th>Initials</th>
+              <th>Socket ID</th>
+            </tr>
+          </thead>
+          <tbody id="clients-body"></tbody>
+        </table>
+      </section>
+
+      <p id="admin-message"></p>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="scripts/admin.js"></script>
+  </body>
+</html>

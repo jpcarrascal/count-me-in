@@ -72,14 +72,30 @@ socket.on("connect", () => {
 });
 
 socket.on('play', function(msg) {
-  veilPlay();
+  if(typeof veilPlay === "function") {
+    veilPlay();
+  }
   console.log("Remote play!" + msg.socketID);
 });
 
 socket.on('stop', function(msg) {
   console.log("Remote stop!" + msg.socketID);
   //updateCursor(-1);
-  veilStop();
+  if(typeof veilStop === "function") {
+    veilStop();
+  }
+});
+
+socket.on('admin play', function() {
+  if(!isSeq) return;
+  var play = document.getElementById("play");
+  if(play) play.click();
+});
+
+socket.on('admin stop', function() {
+  if(!isSeq) return;
+  var stop = document.getElementById("stop");
+  if(stop) stop.click();
 });
 
 socket.on('veil-play', function(msg) {
@@ -96,6 +112,20 @@ socket.on('veil-up', function(msg) {
 
 socket.on('step tick', function(msg) {
   updateCursor(msg.counter);
+});
+
+socket.on('tempo update', function(msg) {
+  if(!isSeq || !tempoBox) return;
+  var nextTempo = parseInt(msg.tempo);
+  if(Number.isNaN(nextTempo)) return;
+  tempoBox.value = nextTempo;
+  tempoBox.setAttribute('value', nextTempo);
+  tempo = nextTempo;
+  interval = 60000/(4*tempo);
+});
+
+socket.on('clear all', function() {
+  clearAllSteps(false);
 });
 
 socket.on('track volume', function(msg) {
@@ -134,6 +164,7 @@ var matrix = document.getElementById("matrix");
 createHeader(matrix);
 
 if(isSeq) {
+  var clearAllButton = document.getElementById("clear-all");
   socket.on('sequencer role', function(msg) {
     console.log("Role: " + msg.role);
     if(msg.role == "main") {
@@ -154,6 +185,7 @@ if(isSeq) {
       extClock = true;
       stopButton.style.display = "none";
       playButton.style.display = "none";
+      clearAllButton.style.display = "none";
       document.querySelectorAll(".play-audio").forEach(e => e.style.display = "none");
       tempoBox.setAttribute("readonly", true);
     }
@@ -275,6 +307,10 @@ if(isSeq) {
   document.getElementById("show-session-link").addEventListener("click",function(e){
     document.getElementById("session-info").style.display = "flex";
   });
+
+  clearAllButton.addEventListener("click", function() {
+    clearAllSteps(true);
+  });
 }
 
 function clearTrack(track) {
@@ -285,6 +321,36 @@ function clearTrack(track) {
     step.setAttribute("value",0);
     step.style.backgroundColor = offColor;
     step.firstChild.style.backgroundColor = "transparent";
+  });
+}
+
+function clearAllSteps(emitUpdates) {
+  if(emitUpdates === undefined) emitUpdates = true;
+  document.querySelectorAll(".step").forEach(step => {
+    if(emitUpdates) {
+      updateStep(step, false, 0, "clearAll");
+      return;
+    }
+
+    var track = parseInt(step.getAttribute("track"));
+    var stepNumber = parseInt(step.getAttribute("step"));
+    var note = parseInt(step.getAttribute("note"));
+    var swColor = step.firstChild.getAttribute("color");
+    var fader = document.getElementById(step.getAttribute("id") + "fader");
+    var kb = document.getElementById(step.getAttribute("id") + "kb");
+
+    step.setAttribute("value", 0);
+    step.style.backgroundColor = valueToBGColor(0);
+    step.firstChild.style.backgroundColor = valueToSWColor(0, swColor);
+    if(fader) fader.value = 0;
+    if(kb) kb.unsetNote();
+
+    if(stepSequencer && stepSequencer.tracks[track] && stepSequencer.tracks[track].notes[stepNumber]) {
+      stepSequencer.tracks[track].notes[stepNumber].vel = 0;
+      if(!Number.isNaN(note)) {
+        stepSequencer.tracks[track].notes[stepNumber].note = note;
+      }
+    }
   });
 }
 

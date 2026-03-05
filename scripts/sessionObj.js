@@ -155,7 +155,7 @@ class Session {
 
     releaseAllParticipants() {
         for(var i=0; i<this.participants.length; i++) {
-            this.participants[i] == "";
+            this.participants[i] = "";
             this.sequencer.clearTrackInitials(i);
         }
     }
@@ -225,8 +225,6 @@ class Session {
     }
 
     stop() {
-        var sessionId = this.findSession(sessionName);
-        if(sessionId < 0) return false;
         this.playing = false;
     }
 

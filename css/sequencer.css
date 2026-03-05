@@ -185,6 +185,7 @@ audio {
 }
 
 table#matrix {
+    margin-top: 2em;
     width: 100%;
     border-collapse: collapse;
 }

@@ -68,6 +68,11 @@ app.get('/track', (req, res) => {
     res.sendFile(__dirname + page);
 });
 
+app.get('/admin', (req, res) => {
+    var page = '/html/admin.html';
+    res.sendFile(__dirname + page);
+});
+
 app.get('/emoji', (req, res) => {
     if(req.query.session && (req.query.initials || req.query.initials==="") )
         var page = '/html/emoji.html';
@@ -132,6 +137,7 @@ app.use('/sounds', express.static(__dirname + '/sounds/'));
 io.on('connection', (socket) => {
     var seq = false;
     var hootbeat = false;
+    var admin = socket.handshake.query.admin !== undefined;
     if(socket.handshake.headers.referer.includes("sequencer"))
         seq = true;
     else if(socket.handshake.query.hootbeat !== undefined)
@@ -159,13 +165,21 @@ io.on('connection', (socket) => {
             sessions.addSession(session, numTracks, config.NUM_STEPS, allocationMethod, config.MAX_NUM_ROUNDS);
             console.log("Session ID: " + session);
             sessions.select(session).setSeqID(socket.id);
+            sessions.select(session).setAttribute("tempo", 98);
             io.to(socket.id).emit('sequencer role', {role: "main", session: session});
             socket.on('disconnect', () => {
                 logger.info("#" + session + " @SEQUENCER disconnected (sequencer). Clearing session");
                 socket.broadcast.to(session).emit('exit session',{reason: "Sequencer disconnected!"});
                 sessions.select(session).clearSession();
+                emitAdminState(session);
             });
         }
+        emitAdminState(session);
+    } else if(admin) {
+        socket.join(`admin:${session}`);
+        logger.info("#" + session + " @ADMIN connected");
+        io.to(socket.id).emit('admin state', getAdminState(session));
+        io.to(socket.id).emit('admin clients', {session: session, clients: getActiveTrackClients(session)});
     } else if(hootbeat) {
         if(sessions.select(session).isReady()) {
             logger.info("#" + session + " @" + initials + " joined session as HootBeat");
@@ -188,9 +202,11 @@ io.on('connection', (socket) => {
                             sessions.select(session).releaseParticipant(socket.id);
                             io.to(session).emit('clear track', {track: track2delete, initials: initials});
                             logger.info("#" + session + " @" + initials + " (" + socket.id + ") disconnected, clearing track " + track2delete);
+                            emitAdminClients(session);
                         }
                     });
                     io.to(socket.id).emit('create track', {track: track, maxNumRounds: config.MAX_NUM_ROUNDS});
+                    emitAdminClients(session);
                 }
             } else {
                 io.to(socket.id).emit('session paused', {reason: "Session has not started..."});
@@ -248,13 +264,23 @@ io.on('connection', (socket) => {
     });
 
     socket.on('play', (msg) => {
+        var currentSession = sessions.select(session);
+        if(currentSession) {
+            currentSession.play();
+        }
         socket.broadcast.to(session).emit('play', msg);
         logger.info("#" + session + " Playing...");
+        emitAdminState(session);
     });
 
     socket.on('stop', (msg) => {
+        var currentSession = sessions.select(session);
+        if(currentSession) {
+            currentSession.stop();
+        }
         socket.broadcast.to(session).emit('stop', msg);
         logger.info("#" + session + " Stopped.");
+        emitAdminState(session);
     });
 
     socket.on('veil-up', (msg) => {
@@ -320,7 +346,155 @@ io.on('connection', (socket) => {
         socket.broadcast.to(session).emit('hide toggle track', {value: msg.value});
     });
 
+    socket.on('admin request state', () => {
+        if(!admin) return;
+        io.to(socket.id).emit('admin state', getAdminState(session));
+    });
+
+    socket.on('admin request clients', () => {
+        if(!admin) return;
+        io.to(socket.id).emit('admin clients', {session: session, clients: getActiveTrackClients(session)});
+    });
+
+    socket.on('admin play', () => {
+        if(!admin) return;
+        var currentSession = sessions.select(session);
+        if(!currentSession || !currentSession.isReady()) {
+            io.to(socket.id).emit('admin error', {reason: "Session has not started..."});
+            return;
+        }
+        var seqID = currentSession.getSeqID();
+        io.to(seqID).emit('admin play', {socketID: socket.id, source: 'admin'});
+        logger.info("#" + session + " @ADMIN requested play");
+    });
+
+    socket.on('admin stop', () => {
+        if(!admin) return;
+        var currentSession = sessions.select(session);
+        if(!currentSession || !currentSession.isReady()) {
+            io.to(socket.id).emit('admin error', {reason: "Session has not started..."});
+            return;
+        }
+        var seqID = currentSession.getSeqID();
+        io.to(seqID).emit('admin stop', {socketID: socket.id, source: 'admin'});
+        logger.info("#" + session + " @ADMIN requested stop");
+    });
+
+    socket.on('admin set tempo', (msg) => {
+        if(!admin) return;
+        var currentSession = sessions.select(session);
+        if(!currentSession || !currentSession.isReady()) {
+            io.to(socket.id).emit('admin error', {reason: "Session has not started..."});
+            return;
+        }
+        var tempo = parseInt(msg.tempo);
+        if(Number.isNaN(tempo)) {
+            io.to(socket.id).emit('admin error', {reason: "Invalid tempo"});
+            return;
+        }
+        if(tempo < 60) tempo = 60;
+        if(tempo > 250) tempo = 250;
+        currentSession.setAttribute("tempo", tempo);
+        io.to(session).emit('tempo update', {tempo: tempo, socketID: socket.id, source: 'admin'});
+        logger.info("#" + session + " @ADMIN set tempo to " + tempo);
+        emitAdminState(session);
+    });
+
+    socket.on('admin clear all', () => {
+        if(!admin) return;
+        var currentSession = sessions.select(session);
+        if(!currentSession || !currentSession.isReady()) {
+            io.to(socket.id).emit('admin error', {reason: "Session has not started..."});
+            return;
+        }
+        for(var i=0; i<currentSession.sequencer.nTracks; i++) {
+            currentSession.seqClearTrack(i);
+        }
+        io.to(session).emit('clear all', {socketID: socket.id, source: 'admin'});
+        logger.info("#" + session + " @ADMIN cleared all steps");
+    });
+
+    socket.on('admin disconnect all', () => {
+        if(!admin) return;
+        var currentSession = sessions.select(session);
+        if(!currentSession) {
+            io.to(socket.id).emit('admin error', {reason: "Session not found"});
+            return;
+        }
+
+        for(var i=0; i<currentSession.participants.length; i++) {
+            var participant = currentSession.participants[i];
+            if(participant !== "") {
+                io.to(participant.socketID).emit('exit session', {reason: "Disconnected by admin"});
+                currentSession.releaseParticipant(participant.socketID);
+                io.to(session).emit('clear track', {track: i, initials: participant.initials});
+                var participantSocket = io.sockets.sockets.get(participant.socketID);
+                if(participantSocket) {
+                    participantSocket.disconnect(true);
+                }
+            }
+        }
+
+        logger.info("#" + session + " @ADMIN disconnected all tracks");
+        emitAdminClients(session);
+        emitAdminState(session);
+    });
+
 });
+
+function getActiveTrackClients(sessionName) {
+    var currentSession = sessions.select(sessionName);
+    if(!currentSession) return [];
+    var clients = [];
+    for(var i=0; i<currentSession.participants.length; i++) {
+        var participant = currentSession.participants[i];
+        if(participant !== "") {
+            clients.push({
+                track: i,
+                initials: participant.initials,
+                socketID: participant.socketID,
+            });
+        }
+    }
+    return clients;
+}
+
+function getAdminState(sessionName) {
+    var currentSession = sessions.select(sessionName);
+    if(!currentSession) {
+        return {
+            session: sessionName,
+            exists: false,
+            ready: false,
+            playing: false,
+            tempo: 98,
+            clients: [],
+        };
+    }
+
+    var tempo = parseInt(currentSession.getAttribute("tempo"));
+    if(Number.isNaN(tempo)) tempo = 98;
+
+    return {
+        session: sessionName,
+        exists: true,
+        ready: currentSession.isReady(),
+        playing: currentSession.isPlaying(),
+        tempo: tempo,
+        clients: getActiveTrackClients(sessionName),
+    };
+}
+
+function emitAdminState(sessionName) {
+    io.to(`admin:${sessionName}`).emit('admin state', getAdminState(sessionName));
+}
+
+function emitAdminClients(sessionName) {
+    io.to(`admin:${sessionName}`).emit('admin clients', {
+        session: sessionName,
+        clients: getActiveTrackClients(sessionName),
+    });
+}
 
 function getNumTracks(soundSet) {
     try {
