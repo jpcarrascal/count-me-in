@@ -94,6 +94,7 @@ socket.on('create track', function(msg) {
             // Expert mode switch:
             var expertCheckbox = document.getElementById("expert-mode");
             document.getElementById("expert-mode").setAttribute("track", trackID);
+            expertCheckbox.style.setProperty("--track-color", color);
             expertCheckbox.addEventListener("change", function(e){
                 socket.emit('expert-mode', { track: track, socketid: mySocketID, value: this.checked } );
                 showStepControls(trackID, sound.type);

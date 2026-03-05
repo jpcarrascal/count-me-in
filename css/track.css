@@ -27,38 +27,30 @@
 }
 
 #expert-mode {
+    --track-color: rgb(129,129,129);
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    top: 0;
-    left: 0;
     height: 3vw;
     width: 3vw;
     margin: 0;
-    border-color: transparent; 
-    vertical-align: middle; 
-    position: relative;
+    vertical-align: middle;
     margin-right: 1vw;
     margin-left: 1vw;
-    background-color: white;
-    border-radius: 10%;
-    display: grid;
-    place-content: center;
+    background-color: #AAA;
+    border: 0.12vw solid #666;
+    border-radius: 0.3vw;
+    cursor: pointer;
 }
 
-#expert-mode:before {
-    content: "";
-    width: 2vw;
-    height: 2vw;
+#expert-mode:checked {
+    background-color: var(--track-color);
+    border-color: #666;
 }
-  
-#expert-mode:checked:before {
-    content: "✓";
-    color: white;
-    background-color: black;
-    font-size: 2vw;
-    text-align: center;
-    line-height: 110%;
+
+#expert-mode:focus-visible {
+    outline: 0.12vw solid white;
+    outline-offset: 0.12vw;
 }
 
 #counter {
