@@ -46,7 +46,7 @@ if(isSeq) {
   function updateTrackURL(url) {
     document.getElementById("track-url").setAttribute("href",url);
     document.getElementById("track-url").innerText = url;
-    document.getElementById("url-copy").innerText
+    document.getElementById("url-copy").innerText = url;
   }
 
   if(hideInfo || extClock) {
@@ -271,6 +271,9 @@ if(isSeq) {
         document.querySelector("#stop").dispatchEvent(e);
       else
         document.querySelector("#play").dispatchEvent(e);
+    } else if ((event.code == "Enter" || event.code == "NumpadEnter") && !extClock) {
+      event.preventDefault();
+      clearAllSteps(true);
     } else if (event.code == "KeyA") {
       event.preventDefault();
       hideAndPLay();
@@ -328,6 +331,17 @@ function clearTrack(track) {
 
 function clearAllSteps(emitUpdates) {
   if(emitUpdates === undefined) emitUpdates = true;
+
+  // Keep the groove fresh: each clear-all picks a new sequencer tempo.
+  if(isSeq && tempoBox) {
+    var randomizedTempo = Math.floor(Math.random() * (110 - 85 + 1)) + 85;
+    tempoBox.value = randomizedTempo;
+    tempoBox.setAttribute('value', randomizedTempo);
+    tempo = randomizedTempo;
+    interval = 60000/(4*tempo);
+    socket.emit('tempo update', { tempo: randomizedTempo });
+  }
+
   document.querySelectorAll(".step").forEach(step => {
     if(emitUpdates) {
       updateStep(step, false, 0, "clearAll");
