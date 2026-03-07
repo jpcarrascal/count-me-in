@@ -38,14 +38,13 @@
     margin-right: 1vw;
     margin-left: 1vw;
     background-color: #AAA;
-    border: 0.12vw solid #666;
+    border: 0.3vw solid #666;
     border-radius: 0.3vw;
     cursor: pointer;
 }
 
 #expert-mode:checked {
     background-color: var(--track-color);
-    border-color: #666;
 }
 
 #expert-mode:focus-visible {
@@ -60,6 +59,10 @@
 
 .name-header, .step-header, .step-td, .track-name-td, .track-icon-td {
     width: 5.5vw;
+}
+
+.step {
+    border: 0.5vw solid #666;
 }
 
 .sw {
