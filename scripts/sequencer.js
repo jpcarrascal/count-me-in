@@ -64,7 +64,7 @@ if(isSeq) {
 var counting = false;
 
 // Node stuff:
-var socket = io("", {query:{initials:initials, session:session, sequencer:isSeq, lang:lang, method:method, sounds: soundParam}});
+var socket = io("", {query:{initials:initials, session:session, role: (isSeq ? "host" : "participant"), lang:lang, method:method, sounds: soundParam}});
 var mySocketID;
 socket.on("connect", () => {
   console.log("Connected, my socketid: " + socket.id);
@@ -166,30 +166,32 @@ createHeader(matrix);
 
 if(isSeq) {
   var clearAllButton = document.getElementById("clear-all");
-  socket.on('sequencer role', function(msg) {
-    console.log("Role: " + msg.role);
-    if(msg.role == "main") {
-      role = "main";
-      console.log("I'm the main sequencer!");
-      console.log("Reseting steps...");
-      try{
-        for(var i=0; i<num_tracks; i++) {
-          var track = stepSequencer.tracks[i];
-          for(var j=0; j<NUM_STEPS; j++) {
-            window.max.outlet("step_update", i, j, 63, 0);
-          }
+  // Accepted as the session host: this is the main sequencer.
+  socket.on('host-accepted', function(msg) {
+    role = "main";
+    console.log("I'm the main sequencer!");
+    console.log("Reseting steps...");
+    try{
+      for(var i=0; i<num_tracks; i++) {
+        var track = stepSequencer.tracks[i];
+        for(var j=0; j<NUM_STEPS; j++) {
+          window.max.outlet("step_update", i, j, 63, 0);
         }
-      } catch(e) {
-        console.log("Max not loaded");
       }
-    } else {
-      extClock = true;
-      stopButton.style.display = "none";
-      playButton.style.display = "none";
-      clearAllButton.style.display = "none";
-      document.querySelectorAll(".play-audio").forEach(e => e.style.display = "none");
-      tempoBox.setAttribute("readonly", true);
+    } catch(e) {
+      console.log("Max not loaded");
     }
+  });
+
+  // Session already has a host: behave as a secondary (display-only) sequencer.
+  socket.on('host-exists', function(msg) {
+    console.log("Role: secondary");
+    extClock = true;
+    stopButton.style.display = "none";
+    playButton.style.display = "none";
+    clearAllButton.style.display = "none";
+    document.querySelectorAll(".play-audio").forEach(e => e.style.display = "none");
+    tempoBox.setAttribute("readonly", true);
   });
   
   socket.on('clear track', function(msg) {
@@ -223,14 +225,6 @@ if(isSeq) {
   socket.on('give me my notes', function(msg) {
     console.log(msg.socketid + " asked for their notes. sending them... ");
     socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
-  });
-
-  socket.on('sequencer exists', function(msg) {
-    //removeTrack();
-    var reason = "";
-    if(msg.reason)
-        reason = "?exitreason=" + msg.reason;
-    window.location.href = "/sequencer"+reason;
   });
 
   var closeInfo = document.getElementById("close-info");

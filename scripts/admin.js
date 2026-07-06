@@ -4,8 +4,21 @@ var session = (query.get("session") || "").trim();
 var socket = io("", {
   query: {
     session: session,
+    role: "public",
     admin: "true",
   },
+});
+
+// The session may not exist yet (the sequencer hasn't started it, or the
+// host is momentarily away). Show the not-found state and retry until it
+// becomes available.
+socket.on("session-unavailable", function() {
+  applyState({ session: session, exists: false, playing: false, tempo: 98 });
+  renderClients([]);
+  setTimeout(function() {
+    socket.disconnect();
+    socket.connect();
+  }, 3000);
 });
 
 var sessionNameElem = document.getElementById("session-name");

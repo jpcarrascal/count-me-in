@@ -141,6 +141,14 @@ socket.on('exit session', function(msg) {
     restartSession(reason);
 });
 
+// Core refusals: session missing/not ready, or torn down.
+socket.on('session-unavailable', function(msg) {
+    restartSession(msg && msg.reason);
+});
+socket.on('session-ended', function(msg) {
+    restartSession(msg && msg.reason);
+});
+
 
 function restartSession(r) {
     var reason = "";
