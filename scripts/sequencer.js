@@ -136,14 +136,12 @@ socket.on('track mute', function(msg) {
   trackMute[msg.track].gain.value = 1 - msg.value;
 });
 
-socket.on('step update', function(msg) {
-  var stepID = "track"+msg.track+"-step"+msg.step;
+function applyStepToUI(track, stepIndex, note, value) {
+  var stepID = "track"+track+"-step"+stepIndex;
   var step = document.getElementById(stepID);
   if(step) {
     var fader = document.getElementById(stepID+"fader");
     var kb = document.getElementById(stepID+"kb");
-    var value = msg.value;
-    var note = msg.note;
     step.setAttribute("value", value);
     step.setAttribute("note", note);
     step.style.backgroundColor = valueToBGColor(value);
@@ -153,11 +151,40 @@ socket.on('step update', function(msg) {
     fader.value = value;
     if(value) kb.setNote(note);
     else kb.unsetNote();
-    if(stepSequencer) {
-      stepSequencer.tracks[msg.track].notes[msg.step].vel = value;
-      stepSequencer.tracks[msg.track].notes[msg.step].note = note;
+    if(stepSequencer && stepSequencer.tracks[track]) {
+      stepSequencer.tracks[track].notes[stepIndex].vel = value;
+      stepSequencer.tracks[track].notes[stepIndex].note = note;
     }
   }
+}
+
+socket.on('step update', function(msg) {
+  applyStepToUI(msg.track, msg.step, msg.note, msg.value);
+});
+
+// The server's Pattern grid is authoritative: on (re)connect, fill the local
+// grid from the snapshot so late-joining/reloaded sequencers see the current
+// state instead of an empty matrix. The snapshot usually arrives before the
+// step grid DOM exists (rows are built once the sound set loads), so retry
+// until the matrix is there.
+function applyPatternSnapshot(snapshot, attempt) {
+  if(!snapshot || !snapshot.grid) return;
+  if(!document.getElementById("track0-step0")) {
+    if(attempt < 40) {
+      setTimeout(function() { applyPatternSnapshot(snapshot, attempt + 1); }, 250);
+    }
+    return;
+  }
+  for(var t=0; t<snapshot.grid.length; t++) {
+    for(var s=0; s<snapshot.grid[t].length; s++) {
+      var cell = snapshot.grid[t][s];
+      if(cell) applyStepToUI(t, s, cell.note, cell.vel);
+    }
+  }
+}
+
+socket.on('pattern-snapshot', function(snapshot) {
+  applyPatternSnapshot(snapshot, 0);
 });
 
 // UI stuff:
@@ -170,6 +197,12 @@ if(isSeq) {
   socket.on('host-accepted', function(msg) {
     role = "main";
     console.log("I'm the main sequencer!");
+    // A reloaded host reclaims a preserved session: restore track labels.
+    if(msg && msg.participants) {
+      msg.participants.forEach(function(p) {
+        applyTrackJoined({ track: p.slot, initials: p.initials });
+      });
+    }
     console.log("Reseting steps...");
     try{
       for(var i=0; i<num_tracks; i++) {
@@ -207,10 +240,10 @@ if(isSeq) {
     }
   });
 
-  socket.on('track joined', function(msg) {
-    //socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
+  function applyTrackJoined(msg) {
     var trackName = document.getElementById("track" + msg.track+"-name");
     var track = document.getElementById("track" + msg.track);
+    if(!trackName || !track) return;
     trackName.innerText = msg.initials;
     var color = getColor(msg.track);
     setTrackMetaColor(msg.track, color);
@@ -219,8 +252,9 @@ if(isSeq) {
       document.getElementById("track" + msg.track + "-icon").style.filter = "invert(1)";
     }
     stepSequencer.setTrackInitials(msg.track, msg.initials);
-    //clearTrack(msg.track);
-  });
+  }
+
+  socket.on('track joined', applyTrackJoined);
 
   socket.on('give me my notes', function(msg) {
     console.log(msg.socketid + " asked for their notes. sending them... ");
