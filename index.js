@@ -25,8 +25,8 @@ const server = createServer({
         hostDisconnect: 'preserve',
         hostOptional: false, // tracks need a live sequencer (it runs the audio)
         // Rounds-based eviction: one round = one full loop of the sequencer.
-        // No queue for now — evicted users are invited to rejoin (legacy UX).
-        turnTaking: { count: 'rounds', threshold: config.MAX_NUM_ROUNDS, queue: false }
+        // Evicted players and overflow joiners wait in line for a free track.
+        turnTaking: { count: 'rounds', threshold: config.MAX_NUM_ROUNDS, queue: true }
     },
     transport: { enabled: true, defaultTempo: 98 },
     // clearOnRelease false: the loop keeps sounding when someone leaves, and

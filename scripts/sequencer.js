@@ -166,10 +166,21 @@ socket.on('step update', function(msg) {
 // grid from the snapshot so late-joining/reloaded sequencers see the current
 // state instead of an empty matrix. The snapshot usually arrives before the
 // step grid DOM exists (rows are built once the sound set loads), so retry
-// until the matrix is there.
+// until some row is there. Track pages only build their own row, and ask for
+// a fresh snapshot once it exists; a newer snapshot cancels pending retries.
+var latestPatternSnapshot = null;
+
+function patternRowsExist(snapshot) {
+  for(var t=0; t<snapshot.grid.length; t++) {
+    if(document.getElementById("track"+t+"-step0")) return true;
+  }
+  return false;
+}
+
 function applyPatternSnapshot(snapshot, attempt) {
   if(!snapshot || !snapshot.grid) return;
-  if(!document.getElementById("track0-step0")) {
+  if(snapshot !== latestPatternSnapshot) return;
+  if(!patternRowsExist(snapshot)) {
     if(attempt < 40) {
       setTimeout(function() { applyPatternSnapshot(snapshot, attempt + 1); }, 250);
     }
@@ -184,6 +195,7 @@ function applyPatternSnapshot(snapshot, attempt) {
 }
 
 socket.on('pattern-snapshot', function(snapshot) {
+  latestPatternSnapshot = snapshot;
   applyPatternSnapshot(snapshot, 0);
 });
 
@@ -255,11 +267,6 @@ if(isSeq) {
   }
 
   socket.on('track joined', applyTrackJoined);
-
-  socket.on('give me my notes', function(msg) {
-    console.log(msg.socketid + " asked for their notes. sending them... ");
-    socket.emit('track notes', { track: msg.track, socketid: msg.socketid, notes:stepSequencer.tracks[msg.track].notes } );
-  });
 
   var closeInfo = document.getElementById("close-info");
   var startSession = document.getElementById("start-session");

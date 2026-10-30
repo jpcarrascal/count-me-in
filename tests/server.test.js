@@ -98,29 +98,107 @@ describe('count-me-in server', () => {
         await waitFor(reloaded, 'host-accepted');
     });
 
-    test('rounds eviction: participant who played is kicked after threshold loops', async () => {
-        const seq = await setupSequencer('c5');
-        const track = connect({ role: 'participant', session: 'c5', initials: 'JP' });
-        const created = await waitFor(track, 'create track');
+    async function joinTrack(sessionName, initials) {
+        const socket = connect({ role: 'participant', session: sessionName, initials });
+        const created = await waitFor(socket, 'create track');
+        return { socket, created };
+    }
 
-        // Interact so rounds start counting.
+    // Interact so rounds start counting.
+    async function editStep(seq, track, created) {
         const ackPromise = waitFor(seq, 'step update');
         track.emit('step update', { track: created.track, step: 0, note: 60, value: 100, action: 'on' });
         await ackPromise;
+    }
 
-        const exitPromise = waitFor(track, 'exit session');
+    function loops(seq, n) {
+        for (let i = 0; i < n; i++) seq.emit('step tick', { counter: 15 });
+    }
+
+    test('rounds eviction: participant who played is moved to the line after threshold loops', async () => {
+        const seq = await setupSequencer('c5');
+        const { socket: track, created } = await joinTrack('c5', 'JP');
+        await editStep(seq, track, created);
+
+        const exitSpy = jest.fn();
+        track.on('exit session', exitSpy);
+        const expiredPromise = waitFor(track, 'slot-expired');
+        const queuedPromise = waitFor(track, 'queue-status');
         const clearPromise = waitFor(seq, 'clear track');
         // threshold=16: 17 completed loops push rounds past it.
-        for (let i = 0; i < 17; i++) {
-            seq.emit('step tick', { counter: 15 });
-        }
-        const exit = await exitPromise;
-        expect(exit.reason).toBe('Join again?');
+        loops(seq, 17);
+        await expiredPromise;
+        expect((await queuedPromise).position).toBe(1);
         const cleared = await clearPromise;
         expect(cleared.track).toBe(created.track);
+        expect(exitSpy).not.toHaveBeenCalled();
         // The notes persist: the loop keeps sounding and the next occupant
         // inherits the pattern (clearOnRelease is off, legacy behavior).
         expect(server.sessions.get('c5').pattern.getCell(created.track, 0)).toEqual({ note: 60, vel: 100 });
+    });
+
+    test('evicted player alone in line gets a track back on the next loop', async () => {
+        const seq = await setupSequencer('c5b');
+        const { socket: track, created } = await joinTrack('c5b', 'JP');
+        await editStep(seq, track, created);
+
+        const expiredPromise = waitFor(track, 'slot-expired');
+        loops(seq, 17);
+        await expiredPromise;
+
+        const recreatedPromise = waitFor(track, 'create track');
+        loops(seq, 1);
+        expect((await recreatedPromise).maxNumRounds).toBe(16);
+    });
+
+    test('rounds update counts down only after the participant edits a step', async () => {
+        const seq = await setupSequencer('c5c');
+        const { socket: track, created } = await joinTrack('c5c', 'JP');
+
+        // Fetching the pattern on join is not interaction.
+        const snapshotPromise = waitFor(track, 'pattern-snapshot');
+        track.emit('request-pattern-snapshot');
+        await snapshotPromise;
+
+        let updatePromise = waitFor(track, 'rounds update');
+        loops(seq, 1);
+        expect(await updatePromise).toEqual({ remaining: 16 });
+
+        await editStep(seq, track, created);
+        updatePromise = waitFor(track, 'rounds update');
+        loops(seq, 1);
+        expect(await updatePromise).toEqual({ remaining: 15 });
+    });
+
+    test('idle participant is never evicted', async () => {
+        const seq = await setupSequencer('c5d');
+        const { socket: track } = await joinTrack('c5d', 'JP');
+        const expiredSpy = jest.fn();
+        track.on('slot-expired', expiredSpy);
+
+        const lastUpdate = new Promise(resolve => {
+            let count = 0;
+            track.on('rounds update', () => { if (++count === 20) resolve(); });
+        });
+        loops(seq, 20);
+        await lastUpdate;
+        expect(expiredSpy).not.toHaveBeenCalled();
+    });
+
+    test('overflow joiner waits in line and gets the track that frees up', async () => {
+        await setupSequencer('c5e');
+        const numTracks = server.sessions.get('c5e').config.numParticipants;
+        const players = [];
+        for (let i = 0; i < numTracks; i++) {
+            players.push(await joinTrack('c5e', `P${i}`));
+        }
+
+        const waiting = connect({ role: 'participant', session: 'c5e', initials: 'W' });
+        expect(await waitFor(waiting, 'queue-status')).toMatchObject({ position: 1, total: 1 });
+
+        const createdPromise = waitFor(waiting, 'create track');
+        players[0].socket.disconnect();
+        expect((await createdPromise).track).toBe(players[0].created.track);
     });
 
     test('play/stop from the sequencer update session and reach clients', async () => {

@@ -1,7 +1,9 @@
 var experiment = findGetParameter("experiment") || false;
 var counter = document.getElementById("counter");
-var rounds = 0;
-var inLobby = true;
+var pausedMessage = document.getElementById("lang-paused");
+var pausedIcon = document.getElementById("instrument-icon-paused");
+var hasTrack = false;
+var turnOver = false;
 // Fix these:
 var myNotes = [];
 var myTrack = -1;
@@ -13,20 +15,42 @@ if(screen.orientation.lock !== "undefined") {
 }
 */
 
+document.getElementById("small-initials").innerText = initials;
+
+function showPaused(message) {
+    document.getElementById("sequencer").style.display = "none";
+    document.getElementById("paused").style.display = "flex";
+    pausedMessage.innerText = message;
+}
+
+// Ticks reach everyone in the session, including people waiting in line:
+// only leave the paused screen once we hold a track.
 socket.on('step tick', function(msg) {
-    if(inLobby) {
-        console.log("in lobby");
+    if(hasTrack && document.getElementById("sequencer").style.display != "flex") {
         document.getElementById("paused").style.display = "none";
         document.getElementById("sequencer").style.display = "flex";
-        inLobby = false;
     }
-    if(msg.counter == 15 && counting) {
-        rounds--;
-        if(rounds >= 0)
-            counter.innerText = rounds;
-        else
-            counter.innerText = ":o";
-    }
+});
+
+// The server counts rounds (once we've interacted) and evicts on its count.
+socket.on('rounds update', function(msg) {
+    counter.innerText = msg.remaining;
+});
+
+socket.on('slot-expired', function() {
+    console.log("Turn over, moved to the line.");
+    removeTrack();
+    hasTrack = false;
+    turnOver = true;
+    showPaused(translate(lang, "Your turn is over!"));
+});
+
+socket.on('queue-status', function(msg) {
+    hasTrack = false;
+    pausedIcon.style.display = "none";
+    var line = translate(lang, "You are #{n} in line.").replace("{n}", msg.position);
+    var intro = turnOver ? translate(lang, "Your turn is over!") : translate(lang, "All tracks are taken.");
+    showPaused(intro + " " + line);
 });
 
 socket.on('hide toggle track', function(msg) {
@@ -50,8 +74,11 @@ function removeTrack() {
 socket.on('create track', function(msg) {
     removeTrack();
     console.log("Got my track: " + (msg.track));
-    if(msg.track == undefined) restartSession( translate(lang, "No available tracks! Please wait a bit...") );
     var track = msg.track;
+    myTrack = track;
+    myNotes = stepSequencer.tracks[track].notes;
+    hasTrack = true;
+    turnOver = false;
     var trackID = "track"+track;
     fetch(soundsJson)
         .then((response) => response.json())
@@ -62,12 +89,13 @@ socket.on('create track', function(msg) {
             var preIcon = document.getElementById("instrument-icon-paused");
             icon.setAttribute("src",imageURL);
             preIcon.setAttribute("src",imageURL);
+            preIcon.style.display = "";
+            pausedMessage.innerText = translate(lang, "The session will start in a bit.");
             counter.innerText = msg.maxNumRounds;
             var color = getColor(track);
             // Fix this:
             myColor = color;
             //counter.style.color = color;
-            rounds = msg.maxNumRounds;
             var tr = createTrack(track, sound);
             document.getElementById("track-header").style.backgroundColor = color;
             if(color == "black") {
@@ -82,10 +110,8 @@ socket.on('create track', function(msg) {
             document.body.style.backgroundColor = color;
             var trackName = document.getElementById("track"+track+"-name");
             var bigInitials = document.getElementById("big-initials");
-            var smallInitials = document.getElementById("small-initials");
             trackName.innerText = initials;
             bigInitials.innerText = initials;
-            smallInitials.innerText = initials;
             var selector = ".fader";
             if(sound.type == "synth") selector = ".keyboard"
             document.querySelectorAll(selector).forEach(element => {
@@ -95,45 +121,17 @@ socket.on('create track', function(msg) {
             var expertCheckbox = document.getElementById("expert-mode");
             document.getElementById("expert-mode").setAttribute("track", trackID);
             expertCheckbox.style.setProperty("--track-color", color);
-            expertCheckbox.addEventListener("change", function(e){
+            expertCheckbox.checked = false;
+            // Assigned (not added) so a re-promoted track doesn't stack handlers.
+            expertCheckbox.onchange = function(e){
                 socket.emit('expert-mode', { track: track, socketid: mySocketID, value: this.checked } );
                 showStepControls(trackID, sound.type);
-            });
-            console.log("asking for my notes!")
-            socket.emit('give me my notes', { track: track, socketid: mySocketID } );
+            };
+            // Fill the track from the server's Pattern grid (handled in
+            // sequencer.js). Unlike other events, this request doesn't count
+            // as interaction, so rounds only start once we edit a step.
+            socket.emit('request-pattern-snapshot');
         });
-});
-
-socket.on('update track notes', function(msg) {
-    console.log("receiving my notes :)")
-    var notes = msg.notes;
-    myNotes = notes;
-    var trackID = "track"+msg.track;
-    // Fix this:
-    myTrack = msg.track;
-    for(var i=0; i<notes.length; i++) {
-        var stepID = trackID+"-step"+i;
-        var value = notes[i].vel;
-        var stepElem = document.getElementById(stepID);
-        var fader = document.getElementById(stepID+"fader");
-        var kb = document.getElementById(stepID+"kb");
-        var swColor = stepElem.firstChild.getAttribute("color");
-        if(notes[i].vel > 0) {
-            stepElem.setAttribute("value", value);
-            stepElem.style.backgroundColor = valueToBGColor(value);
-            stepElem.style.borderColor = valueToBorderColor(value);
-            stepElem.firstChild.style.backgroundColor = valueToSWColor(value, swColor);
-            fader.value = value;
-            kb.setNote(notes[i].note);
-        } else {
-            stepElem.setAttribute("value", 0);
-            stepElem.style.backgroundColor = valueToBGColor(0);
-            stepElem.style.borderColor = valueToBorderColor(0);
-            stepElem.firstChild.style.backgroundColor = valueToSWColor(0, swColor);
-            fader.value = 0;
-            kb.unsetNote();
-        }
-    }
 });
 
 socket.on('exit session', function(msg) {
@@ -145,14 +143,14 @@ socket.on('exit session', function(msg) {
 socket.on('session-unavailable', function(msg) {
     restartSession(msg && msg.reason);
 });
-socket.on('session-ended', function(msg) {
-    restartSession(msg && msg.reason);
+socket.on('session-ended', function() {
+    restartSession("The session has ended."); // core sends a code, not text
 });
 
 
 function restartSession(r) {
     var reason = "";
-    if(r && r!== "") reason = "&exitreason=" + r;
+    if(r && r!== "") reason = "&exitreason=" + encodeURIComponent(r);
     window.location.href = "/track?session=" + session +
     "&sounds=" + findGetParameter("sounds")+
     "&lang=" + findGetParameter("lang") + reason;

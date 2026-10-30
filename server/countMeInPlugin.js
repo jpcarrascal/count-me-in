@@ -43,6 +43,18 @@ function emitAdminClients(ctx, session) {
     });
 }
 
+// The server's round count is the source of truth for each track's
+// "Remaining rounds" display. Rounds only count once the participant has
+// interacted; until then the full allowance is shown.
+function emitRemainingRounds(ctx, session) {
+    const threshold = session.config.turnTaking.threshold;
+    for (const { participant } of session.participants.activeEntries()) {
+        ctx.io.to(participant.socketID).emit('rounds update', {
+            remaining: Math.max(0, threshold - participant.rounds)
+        });
+    }
+}
+
 function generateRandomString(length = 16) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -55,7 +67,6 @@ function generateRandomString(length = 16) {
 module.exports = function countMeInPlugin(ctx) {
     // Pure passthroughs, legacy names kept.
     ctx.relay({
-        'give me my notes': 'broadcast',
         'track mute': 'broadcast',
         'track volume': 'broadcast',
         'veil-up': 'broadcast'
@@ -77,11 +88,10 @@ module.exports = function countMeInPlugin(ctx) {
         emitAdminClients(ctx, session);
     });
 
-    ctx.onRelease((session, { slot, socketID, initials, reason }) => {
+    // Evicted participants are not sent away: core moves them to the line
+    // ('slot-expired' + 'queue-status') and promotes them when a track frees.
+    ctx.onRelease((session, { slot, initials }) => {
         ctx.emitToSession(session.name, 'clear track', { track: slot, initials });
-        if (reason === 'evicted') {
-            ctx.io.to(socketID).emit('exit session', { reason: 'Join again?' });
-        }
         emitAdminClients(ctx, session);
     });
 
@@ -108,19 +118,19 @@ module.exports = function countMeInPlugin(ctx) {
         });
     });
 
-    ctx.on('track notes', (socket, session, msg) => { // sequencer -> one track
-        if (msg && msg.socketid) {
-            ctx.io.to(msg.socketid).emit('update track notes', msg);
-        }
-    });
-
     // --- clock: host-driven visual sync + rounds counting ----------------
 
     ctx.on('step tick', (socket, session, msg) => {
         if (!session || session.hostId !== socket.id) return;
         socket.broadcast.to(session.name).emit('step tick', msg);
         if (msg && msg.counter === session.config.pattern.steps - 1) {
+            // Core only promotes on release, and never into the slot the
+            // evicted player just left. Retry every loop so free tracks don't
+            // sit empty while people wait; doing it before the tick means an
+            // evicted player spends at least one loop in line.
+            ctx.turnTaking.tryPromote(session.name);
             ctx.turnTaking.tick(session.name); // one loop completed
+            emitRemainingRounds(ctx, session);
         }
     });
 

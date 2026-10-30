@@ -411,9 +411,6 @@ function translate(lang, text) {
   var result = text;
   if (lang == "ES") {
     switch (text) {
-      case "Join again?":
-        result = "¿Quieres entrar de nuevo?"
-        break;
       case "Session has not started...":
         result = "La sesión aún no ha empezado..."
         break;
@@ -444,8 +441,23 @@ function translate(lang, text) {
       case "Sequencer disconnected!":
         result = "El secuenciador se ha desconectado!"
         break;
-      case "No available tracks! Please wait a bit...":
-        result = "No hay pistas disponibles! Por favor espera un poco..."
+      case "All tracks are taken.":
+        result = "Todas las pistas están ocupadas.";
+        break;
+      case "You are #{n} in line.":
+        result = "Eres el número {n} en la fila.";
+        break;
+      case "Your turn is over!":
+        result = "¡Se acabó tu turno!";
+        break;
+      case "Session not available.":
+        result = "La sesión no está disponible.";
+        break;
+      case "The session has ended.":
+        result = "La sesión ha terminado.";
+        break;
+      case "Disconnected by admin":
+        result = "Desconectado por el administrador";
         break;
       default:
         break;

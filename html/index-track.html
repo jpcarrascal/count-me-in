@@ -85,9 +85,10 @@
 
       document.getElementById("session").value = session;
 
+      // Reasons arrive in English and are translated here, like page labels.
       var reason = findGetParameter("exitreason");
       if(reason && reason != "") {
-        document.getElementById("disconnect-message").innerText = reason;
+        document.getElementById("disconnect-message").innerText = translate(lang, reason);
       }
       
       var form = document.getElementById("intro");

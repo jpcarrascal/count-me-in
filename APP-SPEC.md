@@ -4,40 +4,49 @@
 `Count Me In` is a real-time collaborative step sequencer. One client acts as the sequencer host and multiple participant clients each control one track.
 
 ## Stack
-- Backend: Node.js + Express + Socket.IO (`index.js`)
+- Backend: Node.js on the `beatlink-core` framework (Express + Socket.IO) (`index.js`, `server/countMeInPlugin.js`)
 - Frontend: Vanilla JS + HTML + CSS (`html/`, `scripts/`, `css/`)
 - Audio: Web Audio API + HTML5 audio elements (`scripts/audio.js`)
 - MIDI: Web MIDI API (`scripts/midi.js`, `scripts/midi-device-select.js`)
 
 ## Runtime Entry Points
-- Server start: `node index.js` (no npm scripts currently defined)
+- Server start: `npm start` (tests: `npm test`)
 - Main pages:
 1. `/sequencer` -> sequencer host UI
 2. `/track` -> participant UI
 3. `/` -> same as index sequencer page
-4. `/latency` -> socket latency diagnostics
-
-Note: `index.js` also has routes for `/hootbeat` and `/emoji`, but corresponding HTML files are not in `html/`.
+4. `/admin` -> admin console
+5. `/latency` -> socket latency diagnostics
 
 ## High-Level Architecture
-- Server keeps in-memory session state using `AllSessions` (`scripts/sessionObj.js`).
-- Sequencer host creates/owns a session (`seqID`) and drives global clock/playback.
-- Participants are allocated to available tracks and update step notes/velocities.
-- State sync is done via Socket.IO broadcast events.
+- Sessions, roles (`host` / `participant` / `public`), track allocation, the waiting line and rounds-based eviction come from `beatlink-core`. State is in memory only.
+- The sequencer host connects as `host`, owns the session and drives the clock/playback (its browser runs the audio).
+- Participants are allocated a free track; when none is free they wait in line (see Turn-Taking).
+- The step grid is core's `Pattern` (authoritative, server-side); tempo is core's `Transport`.
+- `server/countMeInPlugin.js` keeps the legacy wire format the clients speak (`step update`, `create track`, `clear track`, ...).
 
 ## Key Server Components
 - `index.js`
-1. Express route serving and static assets (`/scripts`, `/css`, `/images`, `/sounds`)
-2. Socket.IO connection handling and event relay
-3. Session lifecycle (create, join, release, expire)
+1. `createServer` config: roles, session sizing (from the sound set), turn-taking, transport, pattern
+2. Page routes and static assets (`/scripts`, `/css`, `/images`, `/sounds`)
+- `server/countMeInPlugin.js`
+1. Slot lifecycle hooks -> `create track` / `track joined` / `clear track`
+2. Step grid, transport and clock events; rounds counting on loop wrap
+3. Admin events
 4. Experimental endpoints:
 	- `/randommock?v=&a=` returns generated melodic pattern from hardcoded sequence map
 	- `/audiomock?prompt=` returns mock animal sound path
-- `scripts/sessionObj.js`
-1. `Participant`: identity and round counters
-2. `Sequencer`: per-track/per-step note data
-3. `Session`: participant allocation and sequencer state
-4. `AllSessions`: session registry
+- `scripts/sessionObj.js`: browser-side `Sequencer` note store only (the server no longer uses this file)
+
+## Turn-Taking
+Configured as `turnTaking: { count: 'rounds', threshold: MAX_NUM_ROUNDS, queue: true }` (16 by default, `scripts/config.js`).
+1. A round is one full sequencer loop: the plugin calls `ctx.turnTaking.tick()` when the host's `step tick` reaches the last step.
+2. A participant's rounds only count once they interact (any app event, e.g. `step update`). Fetching the pattern with `request-pattern-snapshot` does not count.
+3. After each loop the server sends each active participant `rounds update { remaining }`; the track page shows it as "Remaining rounds". 0 means the current loop is the last.
+4. When rounds exceed the threshold, core evicts: the track is freed (`clear track`; its pattern keeps playing and passes to the next occupant), and the player gets `slot-expired` then `queue-status { position, total }`. They stay on the page, in line.
+5. Joiners who find no free track (or people already waiting) get `queue-status` and wait on the paused screen: "All tracks are taken. You are #N in line."
+6. Promotion: core promotes when a track is released; the plugin also retries at every loop wrap, before counting, so an evicted player waits at least one loop and free tracks never sit empty while someone waits. A promoted player receives `create track` as usual.
+7. Leaving to the join page (`exit session`, `session-unavailable`, `session-ended`, Exit button) passes an English reason in `exitreason`; the join page translates it.
 
 ## Client Composition
 - `html/sequencer.html`
@@ -61,16 +70,17 @@ Note: `index.js` also has routes for `/hootbeat` and `/emoji`, but corresponding
 3. External clock can drive ticking via MIDI start/stop/clock messages
 
 ## Socket Event Contract
-- Connection query: `initials`, `session`, `sequencer`, `lang`, `method`, `sounds`
+- Connection query: `role`, `initials`, `session`, `lang`, `method`, `sounds`
 - Core events:
 1. `sequencer role`: assigns host role (`main`/`secondary`)
 2. `create track` / `track joined` / `clear track`: participant lifecycle
 3. `step update`: single step note/velocity changes
-4. `track notes` / `give me my notes` / `update track notes`: per-track full sync
+4. `pattern-snapshot` / `request-pattern-snapshot` (core): full grid sync; the track page requests one once its row is built
 5. `step tick`: transport cursor sync and round counting
-6. `play` / `stop`
-7. `exit session`
-8. `track mute` / `track volume` / `hide toggle`
+6. `rounds update`, `slot-expired`, `queue-status` (core): turn-taking, see above
+7. `play` / `stop`
+8. `exit session` (admin disconnect)
+9. `track mute` / `track volume` / `hide toggle`
 - Experimental events:
 1. `update all track notes`
 2. `reload my sample` -> server fetches generated wav and emits `reload track sample`
@@ -116,22 +126,17 @@ Note: `index.js` also has routes for `/hootbeat` and `/emoji`, but corresponding
 3. Open with `?sounds=<name>`
 
 ## Known Quirks and Risks
-- Event name mismatch: client emits `audio-play` in `scripts/audio.js`, server listens for `audio play` in `index.js`.
-- `releaseAllParticipants` in `scripts/sessionObj.js` uses `==` instead of assignment (`=`), so full release may not clear participant slots correctly.
-- `Session.stop()` references undefined symbols (`sessionName`, `findSession`) and is effectively broken/unused.
-- Route handlers for `/hootbeat` and `/emoji` reference HTML files not present in this workspace.
+- Event name mismatch: client emits `audio-play` in `scripts/audio.js`, server listens for `audio play` in `server/countMeInPlugin.js`.
+- `scripts/sessionObj.js` still contains the unused legacy server classes (`Session`, `AllSessions`), with known bugs.
 - App state is in-memory only; server restart wipes sessions.
-- No automated tests currently present.
 
 ## Suggested Next Engineering Steps
-1. Add `npm` scripts (`start`, maybe `dev`) to `package.json`.
-2. Introduce a shared socket event constants file to avoid string drift.
-3. Add minimal integration tests for session join/play/stop and track allocation.
-4. Fix the known quirks before adding larger features.
+1. Introduce a shared socket event constants file to avoid string drift.
+2. Trim `scripts/sessionObj.js` to the browser-side `Sequencer`.
 
 ## Quick Dev Workflow
 1. Run `npm install`.
-2. Start server with `node index.js`.
+2. Start server with `npm start`; run tests with `npm test`.
 3. Open host page: `/sequencer?session=test`.
 4. Open participant page: `/track?session=test&initials=ABC`.
 
