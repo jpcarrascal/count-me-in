@@ -98,6 +98,16 @@ describe('count-me-in server', () => {
         await waitFor(reloaded, 'host-accepted');
     });
 
+    test('tracks are veiled while the sequencer is away and keep their slot', async () => {
+        const seq = await setupSequencer('c4b');
+        const { socket: track, created } = await joinTrack('c4b', 'JP');
+
+        const veilPromise = waitFor(track, 'veil-on');
+        seq.disconnect();
+        expect(await veilPromise).toEqual({ reason: 'host-away' });
+        expect(server.sessions.get('c4b').participants.slotOf(track.id)).toBe(created.track);
+    });
+
     async function joinTrack(sessionName, initials) {
         const socket = connect({ role: 'participant', session: sessionName, initials });
         const created = await waitFor(socket, 'create track');

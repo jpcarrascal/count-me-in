@@ -24,6 +24,7 @@ const server = createServer({
         allocation: 'random',
         hostDisconnect: 'preserve',
         hostOptional: false, // tracks need a live sequencer (it runs the audio)
+        veilWhileHostAway: true, // send tracks back to the paused screen meanwhile
         // Rounds-based eviction: one round = one full loop of the sequencer.
         // Evicted players and overflow joiners wait in line for a free track.
         turnTaking: { count: 'rounds', threshold: config.MAX_NUM_ROUNDS, queue: true }

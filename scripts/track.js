@@ -37,6 +37,14 @@ socket.on('rounds update', function(msg) {
     counter.innerText = msg.remaining;
 });
 
+// The sequencer closed or is reloading: we keep our track, but go back to
+// the paused screen until its ticks resume. People in line keep their
+// queue message (core also sends veil-on to them on join).
+socket.on('veil-on', function() {
+    if(!hasTrack) return;
+    showPaused(translate(lang, "The session will start in a bit."));
+});
+
 socket.on('slot-expired', function() {
     console.log("Turn over, moved to the line.");
     removeTrack();
