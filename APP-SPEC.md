@@ -45,7 +45,7 @@ Configured as `turnTaking: { count: 'rounds', threshold: MAX_NUM_ROUNDS, queue: 
 3. After each loop the server sends each active participant `rounds update { remaining }`; the track page shows it as "Remaining rounds". 0 means the current loop is the last.
 4. When rounds exceed the threshold, core evicts: the track is freed (`clear track`; its pattern keeps playing and passes to the next occupant), and the player gets `slot-expired` then `queue-status { position, total }`. They stay on the page, in line.
 5. Joiners who find no free track (or people already waiting) get `queue-status` and wait on the paused screen: "All tracks are taken. You are #N in line."
-6. Promotion: core promotes when a track is released; the plugin also retries at every loop wrap, before counting, so an evicted player waits at least one loop and free tracks never sit empty while someone waits. A promoted player receives `create track` as usual.
+6. Promotion (core): the head of the line gets a track when one is released or when someone joins while tracks are free. An evicted player goes behind everyone already waiting; if nobody else is waiting, they get a track back straight away with a fresh count. A promoted player receives `create track` as usual.
 7. Leaving to the join page (`exit session`, `session-unavailable`, `session-ended`, Exit button) passes an English reason in `exitreason`; the join page translates it.
 
 ## Client Composition

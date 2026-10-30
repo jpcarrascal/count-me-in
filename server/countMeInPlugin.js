@@ -124,11 +124,6 @@ module.exports = function countMeInPlugin(ctx) {
         if (!session || session.hostId !== socket.id) return;
         socket.broadcast.to(session.name).emit('step tick', msg);
         if (msg && msg.counter === session.config.pattern.steps - 1) {
-            // Core only promotes on release, and never into the slot the
-            // evicted player just left. Retry every loop so free tracks don't
-            // sit empty while people wait; doing it before the tick means an
-            // evicted player spends at least one loop in line.
-            ctx.turnTaking.tryPromote(session.name);
             ctx.turnTaking.tick(session.name); // one loop completed
             emitRemainingRounds(ctx, session);
         }

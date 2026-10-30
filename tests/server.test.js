@@ -137,17 +137,15 @@ describe('count-me-in server', () => {
         expect(server.sessions.get('c5').pattern.getCell(created.track, 0)).toEqual({ note: 60, vel: 100 });
     });
 
-    test('evicted player alone in line gets a track back on the next loop', async () => {
+    test('evicted player alone in line gets a track back right away', async () => {
         const seq = await setupSequencer('c5b');
         const { socket: track, created } = await joinTrack('c5b', 'JP');
         await editStep(seq, track, created);
 
         const expiredPromise = waitFor(track, 'slot-expired');
+        const recreatedPromise = waitFor(track, 'create track');
         loops(seq, 17);
         await expiredPromise;
-
-        const recreatedPromise = waitFor(track, 'create track');
-        loops(seq, 1);
         expect((await recreatedPromise).maxNumRounds).toBe(16);
     });
 
