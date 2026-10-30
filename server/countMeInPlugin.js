@@ -171,11 +171,13 @@ module.exports = function countMeInPlugin(ctx) {
     });
 
     ctx.on('track solo', (socket, session, msg) => {
-        ctx.logger.info(`Solo: ${msg && msg.value}`);
+        if (!session) return;
+        ctx.logger.info(`#${session.name} @seq solo: ${msg && msg.value}`);
     });
 
-    ctx.on('audio play', (socket, session, msg) => {
-        ctx.logger.info(`Audio play: ${JSON.stringify(msg)}`);
+    ctx.on('audio-play', (socket, session, msg) => {
+        if (!session) return;
+        ctx.logger.info(`#${session.name} @seq audio play: ${JSON.stringify(msg)}`);
     });
 
     // Experimental (Music AI workshop): generate a sample from a prompt,
@@ -188,14 +190,14 @@ module.exports = function countMeInPlugin(ctx) {
                 const name = generateRandomString() + '.wav';
                 fs.writeFile(path.resolve('./sounds/cache/' + name), Buffer.from(buffer), 'binary', (err) => {
                     if (err) {
-                        ctx.logger.error(`Sample cache write failed: ${err.message}`);
+                        ctx.logger.error(`#${session.name} Sample cache write failed: ${err.message}`);
                         return;
                     }
                     msg.sample = 'sounds/cache/' + name;
                     socket.broadcast.to(session.name).emit('reload track sample', msg);
                 });
             })
-            .catch(error => ctx.logger.error(`Sample generation failed: ${error.message}`));
+            .catch(error => ctx.logger.error(`#${session.name} Sample generation failed: ${error.message}`));
         socket.broadcast.to(session.name).emit('reload sample notice', msg);
     });
 

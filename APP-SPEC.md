@@ -126,7 +126,6 @@ Configured as `turnTaking: { count: 'rounds', threshold: MAX_NUM_ROUNDS, queue: 
 3. Open with `?sounds=<name>`
 
 ## Known Quirks and Risks
-- Event name mismatch: client emits `audio-play` in `scripts/audio.js`, server listens for `audio play` in `server/countMeInPlugin.js`.
 - `scripts/sessionObj.js` still contains the unused legacy server classes (`Session`, `AllSessions`), with known bugs.
 - App state is in-memory only; server restart wipes sessions.
 
