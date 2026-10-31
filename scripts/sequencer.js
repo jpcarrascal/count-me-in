@@ -235,6 +235,7 @@ if(isSeq) {
     stopButton.style.display = "none";
     playButton.style.display = "none";
     clearAllButton.style.display = "none";
+    startSession.style.display = "none";
     document.querySelectorAll(".play-audio").forEach(e => e.style.display = "none");
     tempoBox.setAttribute("readonly", true);
   });
