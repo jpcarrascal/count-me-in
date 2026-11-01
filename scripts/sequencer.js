@@ -16,8 +16,8 @@ if(isSeq) {
   var trackURL = document.location.origin +
                 "/track?session=" + session +
                 "&lang=" + lang;
-  //var qrcodeURL = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+trackURL;
-  let qrcodeURL = "https://qrcode.azurewebsites.net/qr?width=300&margin=1&string=" + encodeURIComponent(trackURL);
+  // Served by beatlink-core, so the session doesn't depend on an outside QR service.
+  let qrcodeURL = "/beatlink/qr.png?size=300&text=" + encodeURIComponent(trackURL);
   var qrcode = document.createElement("img");
   qrcode.setAttribute("src",qrcodeURL);
   qrcode.setAttribute("id","qrcode");
@@ -236,6 +236,7 @@ if(isSeq) {
     playButton.style.display = "none";
     clearAllButton.style.display = "none";
     startSession.style.display = "none";
+    bpm.style.display = "none";
     document.querySelectorAll(".play-audio").forEach(e => e.style.display = "none");
     tempoBox.setAttribute("readonly", true);
   });
@@ -331,7 +332,8 @@ if(isSeq) {
   }
 
   // Seq stuff:
-  var tempoBox = document.getElementById("tempo")
+  var tempoBox = document.getElementById("tempo");
+  var bpm = document.getElementById("bpm");
   var tempo = tempoBox.value;
   var playing = false;
   var interval = 60000/(4*tempo);
