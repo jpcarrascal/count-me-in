@@ -83,6 +83,28 @@ describe('count-me-in server', () => {
         expect(cell).toEqual({ note: 60, vel: 100 });
     });
 
+    test('notes sent as strings are saved and reach the next player on that track', async () => {
+        await setupSequencer('c3b', { method: 'asc' });
+        const first = await joinTrack('c3b', 'AA');
+
+        // The page reads track/step/note from DOM attributes: all strings.
+        const ackPromise = waitFor(first.socket, 'step update');
+        first.socket.emit('step update', {
+            track: `${first.created.track}`, step: '3', note: '36', value: 100, action: 'stepClick'
+        });
+        expect(await ackPromise).toMatchObject({ track: first.created.track, step: 3, note: 36, value: 100 });
+
+        first.socket.disconnect();
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const second = await joinTrack('c3b', 'BB');
+        expect(second.created.track).toBe(first.created.track);
+
+        const snapshotPromise = waitFor(second.socket, 'pattern-snapshot');
+        second.socket.emit('request-pattern-snapshot');
+        const snapshot = await snapshotPromise;
+        expect(snapshot.grid[second.created.track][3]).toEqual({ note: 36, vel: 100 });
+    });
+
     test('sequencer disconnect preserves the session; reload reclaims it', async () => {
         const seq = await setupSequencer('c4');
         const track = connect({ role: 'participant', session: 'c4', initials: 'JP' });

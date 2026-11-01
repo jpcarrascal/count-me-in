@@ -99,6 +99,10 @@ module.exports = function countMeInPlugin(ctx) {
 
     ctx.on('step update', (socket, session, msg) => {
         if (!session || !session.pattern || !msg) return;
+        // Clients read these from DOM attributes, so they arrive as strings;
+        // Pattern only stores integer coordinates.
+        msg = { ...msg, track: Number(msg.track), step: Number(msg.step),
+            note: Number(msg.note), value: Number(msg.value) };
         session.pattern.setCell(msg.track, msg.step, { note: msg.note, vel: msg.value });
         ctx.io.to(session.name).emit('step update', msg);
         let initials = session.participants.initialsOf(socket.id);
@@ -109,7 +113,7 @@ module.exports = function countMeInPlugin(ctx) {
 
     ctx.on('update all track notes', (socket, session, msg) => { // AI bulk update
         if (!session || !session.pattern || !msg || !Array.isArray(msg.notes)) return;
-        session.pattern.setRow(msg.track, msg.notes.map(n => ({ note: n.note, vel: n.vel })));
+        session.pattern.setRow(Number(msg.track), msg.notes.map(n => ({ note: Number(n.note), vel: Number(n.vel) })));
         msg.notes.forEach((n, step) => {
             ctx.io.to(session.name).emit('step update', {
                 track: msg.track, step, note: n.note, value: n.vel,
