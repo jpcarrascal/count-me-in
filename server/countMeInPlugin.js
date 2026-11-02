@@ -122,12 +122,28 @@ module.exports = function countMeInPlugin(ctx) {
         });
     });
 
-    // --- clock: host-driven visual sync + rounds counting ----------------
+    // --- session open/closed vs. clock ------------------------------------
+    // Whether players are let in is core's session state (session-play /
+    // session-pause, which veil and unveil tracks). The clock is separate:
+    // 'play'/'stop' only describe the transport. A browser sequencer opens
+    // and closes the session with Play/Stop; the Max for Live device does it
+    // with its Audience toggle, so Live's transport alone never opens it.
+
+    ctx.on('session-play', (socket, session) => {
+        if (!session || session.hostId !== socket.id) return;
+        emitAdminState(ctx, session);
+    });
+
+    ctx.on('session-pause', (socket, session) => {
+        if (!session || session.hostId !== socket.id) return;
+        emitAdminState(ctx, session);
+    });
 
     ctx.on('step tick', (socket, session, msg) => {
         if (!session || session.hostId !== socket.id) return;
         socket.broadcast.to(session.name).emit('step tick', msg);
-        if (msg && msg.counter === session.config.pattern.steps - 1) {
+        // Rounds only count while players are let in.
+        if (session.isPlaying() && msg && msg.counter === session.config.pattern.steps - 1) {
             ctx.turnTaking.tick(session.name); // one loop completed
             emitRemainingRounds(ctx, session);
         }
@@ -135,18 +151,14 @@ module.exports = function countMeInPlugin(ctx) {
 
     ctx.on('play', (socket, session, msg) => {
         if (!session || session.hostId !== socket.id) return;
-        session.play();
         socket.broadcast.to(session.name).emit('play', msg);
-        ctx.logger.info(`#${session.name} Playing...`);
-        emitAdminState(ctx, session);
+        ctx.logger.info(`#${session.name} Clock started.`);
     });
 
     ctx.on('stop', (socket, session, msg) => {
         if (!session || session.hostId !== socket.id) return;
-        session.pause();
         socket.broadcast.to(session.name).emit('stop', msg);
-        ctx.logger.info(`#${session.name} Stopped.`);
-        emitAdminState(ctx, session);
+        ctx.logger.info(`#${session.name} Clock stopped.`);
     });
 
     ctx.on('tempo update', (socket, session, msg) => {
@@ -205,6 +217,13 @@ module.exports = function countMeInPlugin(ctx) {
     ctx.onConnect((socket, session, role) => {
         if (!session) return;
         if (role === 'host') {
+            // A (re)connecting sequencer starts with the session closed: its
+            // players are already veiled while it was away, and it reopens
+            // the session itself (Play, or the device resending its toggle).
+            if (session.isPlaying()) {
+                session.pause();
+                ctx.io.to(session.name).emit('session-mode', { isPlaying: false });
+            }
             emitAdminState(ctx, session);
         } else if (role === 'public' && isAdmin(socket)) {
             socket.join(`admin:${session.name}`);

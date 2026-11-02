@@ -79,6 +79,8 @@ mainMute.gain.value = 1;
 mainMute.connect(audioContext.destination);
 
 function playStepNotes(counter) {
+  // Players' notes only sound while the session is open to them.
+  if(!sessionOpen) return;
   var notesToPlay = stepSequencer.getStepNotes(counter);
   for(var i=0; i<stepSequencer.nTracks; i++) {
     var value = notesToPlay[i].vel;
@@ -161,11 +163,21 @@ if(extClock) {
       stopButton.click();
     });
 
+    // The device's Audience toggle: `session 1` lets players in, `session 0`
+    // sends them back to the paused screen. Live's transport doesn't.
+    window.max.bindInlet("session", function(value) {
+      sessionOpen = (value == 1);
+      socket.emit(sessionOpen ? 'session-play' : 'session-pause');
+    });
+
     window.max.bindInlet("audio-play", function(value) {
       audioPlay = (value==1 ? true : false);
       socket.emit('audio-play', { socketID: mySocketID, value: audioPlay });
       window.max.outlet("audio-play-echo", audioPlay);
     });
+
+    maxInletsBound = true;
+    tellMaxReady();
 
   } catch(e) {
     console.log("Max not loaded");
@@ -184,6 +196,10 @@ playButton.addEventListener('click', function() {
     nextNotetime = audioContext.currentTime;
     counter = 0;
     socket.emit('play', { socketID: mySocketID });
+    if(!sessionFromMax) {
+      sessionOpen = true;
+      socket.emit('session-play');
+    }
     for(var i=0; i<num_tracks; i++) {
       trackGain[i].connect(mainMix);
     }
@@ -197,6 +213,10 @@ playButton.addEventListener('click', function() {
 stopButton.addEventListener('click', function() {
   if(playing) {
     socket.emit('stop', { socketID: mySocketID });
+    if(!sessionFromMax) {
+      sessionOpen = false;
+      socket.emit('session-pause');
+    }
     document.querySelector("#play").classList.remove("playing");
     for(var i=0; i<num_tracks; i++) {
       trackGain[i].disconnect();

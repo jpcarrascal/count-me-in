@@ -22,6 +22,7 @@
 - Sessions, roles (`host` / `participant` / `public`), track allocation, the waiting line and rounds-based eviction come from `beatlink-core`. State is in memory only.
 - The sequencer host connects as `host`, owns the session and drives the clock/playback (its browser runs the audio).
 - Participants are allocated a free track; when none is free they wait in line (see Turn-Taking).
+- Whether the session is open to players (core's session state) is separate from the clock (see Session Open/Closed).
 - The step grid is core's `Pattern` (authoritative, server-side); tempo is core's `Transport`.
 - `server/countMeInPlugin.js` keeps the legacy wire format the clients speak (`step update`, `create track`, `clear track`, ...).
 
@@ -40,13 +41,22 @@
 
 ## Turn-Taking
 Configured as `turnTaking: { count: 'rounds', threshold: MAX_NUM_ROUNDS, queue: true }` (16 by default, `scripts/config.js`).
-1. A round is one full sequencer loop: the plugin calls `ctx.turnTaking.tick()` when the host's `step tick` reaches the last step.
+1. A round is one full sequencer loop: the plugin calls `ctx.turnTaking.tick()` when the host's `step tick` reaches the last step, but only while the session is open.
 2. A participant's rounds only count once they interact (any app event, e.g. `step update`). Fetching the pattern with `request-pattern-snapshot` does not count.
 3. After each loop the server sends each active participant `rounds update { remaining }`; the track page shows it as "Remaining rounds". 0 means the current loop is the last.
 4. When rounds exceed the threshold, core evicts: the track is freed (`clear track`; its pattern keeps playing and passes to the next occupant), and the player gets `slot-expired` then `queue-status { position, total }`. They stay on the page, in line.
 5. Joiners who find no free track (or people already waiting) get `queue-status` and wait on the paused screen: "All tracks are taken. You are #N in line."
 6. Promotion (core): the head of the line gets a track when one is released or when someone joins while tracks are free. An evicted player goes behind everyone already waiting; if nobody else is waiting, they get a track back straight away with a fresh count. A promoted player receives `create track` as usual.
 7. Leaving to the join page (`exit session`, `session-unavailable`, `session-ended`, Exit button) passes an English reason in `exitreason`; the join page translates it.
+
+## Session Open/Closed
+Players are let in by core's session state, not by the clock.
+1. The host opens the session with `session-play` and closes it with `session-pause`. Core broadcasts `veil-off` / `veil-on` and `session-mode { isPlaying }`, and sends a joining or promoted player the current veil state before their `create track`.
+2. Track pages show the sequencer only while the session is open; otherwise the paused screen ("The session will start in a bit."). People in line keep their queue message.
+3. While closed, rounds don't count and the sequencer page doesn't play players' notes (browser audio, MIDI out or Max), even if the clock runs.
+4. Who opens it: in a browser sequencer, Play/Start Session opens it and Stop closes it. With `extclock=true` (the Max for Live device), only the device's Audience toggle does, via `session 1` / `session 0`; Live's transport only drives the clock.
+5. A (re)connecting sequencer starts with the session closed. On `host-accepted` the page sends Max `ready`, and the device answers with its toggle's current state, so a reload reopens the session if Audience is on.
+6. `play` / `stop` only describe the clock. The admin page's Playing/Stopped follows the session state.
 
 ## Client Composition
 - `html/sequencer.html`
@@ -76,11 +86,12 @@ Configured as `turnTaking: { count: 'rounds', threshold: MAX_NUM_ROUNDS, queue: 
 2. `create track` / `track joined` / `clear track`: participant lifecycle
 3. `step update`: single step note/velocity changes
 4. `pattern-snapshot` / `request-pattern-snapshot` (core): full grid sync; the track page requests one once its row is built
-5. `step tick`: transport cursor sync and round counting
+5. `step tick`: transport cursor sync and round counting (while open)
 6. `rounds update`, `slot-expired`, `queue-status` (core): turn-taking, see above
-7. `play` / `stop`
-8. `exit session` (admin disconnect)
-9. `track mute` / `track volume` / `hide toggle`
+7. `play` / `stop`: clock only
+8. `session-play` / `session-pause` (host to core), `veil-on` / `veil-off` / `session-mode` (core): session open/closed, see above
+9. `exit session` (admin disconnect)
+10. `track mute` / `track volume` / `hide toggle`
 - Experimental events:
 1. `update all track notes`
 2. `reload my sample` -> server fetches generated wav and emits `reload track sample`
@@ -92,7 +103,7 @@ Configured as `turnTaking: { count: 'rounds', threshold: MAX_NUM_ROUNDS, queue: 
 3. `sounds` (soundset folder, default `tr808`)
 - Sequencer page:
 1. `method` participant allocation strategy (`random`, `asc`, `desc`)
-2. `extclock`
+2. `extclock`: clock (`tick`, `play`, `stop`) and session (`session`) come from Max; the page sends Max `note`, `step_update` and `ready`
 3. `hideinfo`
 - Track page:
 1. `initials`

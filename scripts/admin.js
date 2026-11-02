@@ -156,16 +156,12 @@ socket.on("admin error", function(msg) {
   setMessage(msg.reason || "Admin request failed");
 });
 
-socket.on("play", function() {
-  isPlaying = true;
+// "Playing" means the session is open to players (the sequencer's clock
+// can run without it, e.g. Live playing with the device's Audience off).
+socket.on("session-mode", function(msg) {
+  isPlaying = !!(msg && msg.isPlaying);
   updatePlayPauseLabel();
-  sessionStatusElem.innerText = "Playing";
-});
-
-socket.on("stop", function() {
-  isPlaying = false;
-  updatePlayPauseLabel();
-  sessionStatusElem.innerText = "Stopped";
+  sessionStatusElem.innerText = isPlaying ? "Playing" : "Stopped";
 });
 
 playPauseButton.addEventListener("click", function() {

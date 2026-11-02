@@ -147,8 +147,16 @@ describe('count-me-in server', () => {
         for (let i = 0; i < n; i++) seq.emit('step tick', { counter: 15 });
     }
 
+    // Let players in (the browser's Play, or the device's Audience toggle).
+    async function openSession(seq) {
+        const modePromise = waitFor(seq, 'session-mode');
+        seq.emit('session-play');
+        expect(await modePromise).toEqual({ isPlaying: true });
+    }
+
     test('rounds eviction: participant who played is moved to the line after threshold loops', async () => {
         const seq = await setupSequencer('c5');
+        await openSession(seq);
         const { socket: track, created } = await joinTrack('c5', 'JP');
         await editStep(seq, track, created);
 
@@ -171,6 +179,7 @@ describe('count-me-in server', () => {
 
     test('evicted player alone in line gets a track back right away', async () => {
         const seq = await setupSequencer('c5b');
+        await openSession(seq);
         const { socket: track, created } = await joinTrack('c5b', 'JP');
         await editStep(seq, track, created);
 
@@ -183,6 +192,7 @@ describe('count-me-in server', () => {
 
     test('rounds update counts down only after the participant edits a step', async () => {
         const seq = await setupSequencer('c5c');
+        await openSession(seq);
         const { socket: track, created } = await joinTrack('c5c', 'JP');
 
         // Fetching the pattern on join is not interaction.
@@ -202,6 +212,7 @@ describe('count-me-in server', () => {
 
     test('idle participant is never evicted', async () => {
         const seq = await setupSequencer('c5d');
+        await openSession(seq);
         const { socket: track } = await joinTrack('c5d', 'JP');
         const expiredSpy = jest.fn();
         track.on('slot-expired', expiredSpy);
@@ -231,7 +242,7 @@ describe('count-me-in server', () => {
         expect((await createdPromise).track).toBe(players[0].created.track);
     });
 
-    test('play/stop from the sequencer update session and reach clients', async () => {
+    test('play/stop only describe the clock: they reach clients but leave the session closed', async () => {
         const seq = await setupSequencer('c6');
         const track = connect({ role: 'participant', session: 'c6', initials: 'JP' });
         await waitFor(track, 'create track');
@@ -239,12 +250,69 @@ describe('count-me-in server', () => {
         const playPromise = waitFor(track, 'play');
         seq.emit('play', { socketID: 'seq' });
         await playPromise;
-        expect(server.sessions.get('c6').isPlaying()).toBe(true);
+        expect(server.sessions.get('c6').isPlaying()).toBe(false);
 
         const stopPromise = waitFor(track, 'stop');
         seq.emit('stop', { socketID: 'seq' });
         await stopPromise;
         expect(server.sessions.get('c6').isPlaying()).toBe(false);
+    });
+
+    test('opening and closing the session unveils and veils tracks', async () => {
+        const seq = await setupSequencer('c6b');
+        const track = connect({ role: 'participant', session: 'c6b', initials: 'JP' });
+        // Joining a closed session: paused screen first.
+        const [veil] = await Promise.all([waitFor(track, 'veil-on'), waitFor(track, 'create track')]);
+        expect(veil).toMatchObject({ socketID: track.id });
+
+        const offPromise = waitFor(track, 'veil-off');
+        await openSession(seq);
+        await offPromise;
+
+        const onPromise = waitFor(track, 'veil-on');
+        seq.emit('session-pause');
+        await onPromise;
+        expect(server.sessions.get('c6b').isPlaying()).toBe(false);
+    });
+
+    test('a player joining an open session is unveiled', async () => {
+        const seq = await setupSequencer('c6c');
+        await openSession(seq);
+        const track = connect({ role: 'participant', session: 'c6c', initials: 'JP' });
+        await Promise.all([waitFor(track, 'veil-off'), waitFor(track, 'create track')]);
+    });
+
+    test('ticks while the session is closed neither count rounds nor evict', async () => {
+        const seq = await setupSequencer('c6d');
+        const { socket: track, created } = await joinTrack('c6d', 'JP');
+        await editStep(seq, track, created);
+        const roundsSpy = jest.fn();
+        const expiredSpy = jest.fn();
+        track.on('rounds update', roundsSpy);
+        track.on('slot-expired', expiredSpy);
+
+        // Live playing with the device's Audience off.
+        loops(seq, 20);
+        // The ticks themselves still reach the track (proof they were handled).
+        await new Promise(resolve => {
+            let count = 0;
+            track.on('step tick', () => { if (++count === 20) resolve(); });
+        });
+        expect(roundsSpy).not.toHaveBeenCalled();
+        expect(expiredSpy).not.toHaveBeenCalled();
+        expect(server.sessions.get('c6d').participants.get(created.track).rounds).toBe(0);
+    });
+
+    test('a reconnecting sequencer starts with the session closed', async () => {
+        const seq = await setupSequencer('c6e');
+        await openSession(seq);
+        seq.disconnect();
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const reloaded = connect({ role: 'host', session: 'c6e' });
+        const [, mode] = await Promise.all([waitFor(reloaded, 'host-accepted'), waitFor(reloaded, 'session-mode')]);
+        expect(mode).toEqual({ isPlaying: false });
+        expect(server.sessions.get('c6e').isPlaying()).toBe(false);
     });
 
     test('admin: state, tempo (clamped), and forwarding play to the sequencer', async () => {

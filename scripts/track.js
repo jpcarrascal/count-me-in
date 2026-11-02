@@ -23,13 +23,18 @@ function showPaused(message) {
     pausedMessage.innerText = message;
 }
 
-// Ticks reach everyone in the session, including people waiting in line:
-// only leave the paused screen once we hold a track.
-socket.on('step tick', function(msg) {
-    if(hasTrack && document.getElementById("sequencer").style.display != "flex") {
-        document.getElementById("paused").style.display = "none";
-        document.getElementById("sequencer").style.display = "flex";
-    }
+function showSequencer() {
+    document.getElementById("paused").style.display = "none";
+    document.getElementById("sequencer").style.display = "flex";
+}
+
+// The sequencer (Play/Stop, or the device's Audience toggle) opens and
+// closes the session; core tells everyone with veil-off/veil-on, and tells
+// joiners the current state before their track arrives. People waiting in
+// line only note it, so they keep their queue message.
+socket.on('veil-off', function() {
+    sessionOpen = true;
+    if(hasTrack) showSequencer();
 });
 
 // The server counts rounds (once we've interacted) and evicts on its count.
@@ -37,10 +42,10 @@ socket.on('rounds update', function(msg) {
     counter.innerText = msg.remaining;
 });
 
-// The sequencer closed or is reloading: we keep our track, but go back to
-// the paused screen until its ticks resume. People in line keep their
-// queue message (core also sends veil-on to them on join).
+// The session closed, or the sequencer closed or is reloading: we keep our
+// track, but go back to the paused screen until it reopens.
 socket.on('veil-on', function() {
+    sessionOpen = false;
     if(!hasTrack) return;
     showPaused(translate(lang, "The session will start in a bit."));
 });
@@ -139,6 +144,7 @@ socket.on('create track', function(msg) {
             // sequencer.js). Unlike other events, this request doesn't count
             // as interaction, so rounds only start once we edit a step.
             socket.emit('request-pattern-snapshot');
+            if(sessionOpen) showSequencer();
         });
 });
 

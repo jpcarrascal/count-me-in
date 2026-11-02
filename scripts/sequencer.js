@@ -4,6 +4,21 @@ var initials = "";
 var session = findGetParameter("session") || DEFAULT_ROOM;
 var method = findGetParameter("method") || "random";
 var extClock = findGetParameter("extclock") || false;
+// extclock=true (the Max for Live device): Max opens and closes the session
+// for players; otherwise Play/Stop do. Unlike extClock, this stays false on
+// secondary sequencers.
+var sessionFromMax = !!extClock;
+// Whether players are let in (core's session state); notes only play then.
+var sessionOpen = false;
+// The session starts closed; once we're the host and audio.js listens for
+// Max, ask the device to resend its Audience toggle. Either can come first.
+var maxInletsBound = false;
+function tellMaxReady() {
+  if(role !== "main" || !maxInletsBound) return;
+  try {
+    window.max.outlet("ready");
+  } catch(e) {}
+}
 var experimentSwitch = document.getElementById("experiment-switch");
 var role = "secondary";
 var stepSequencer = new Sequencer(NUM_TRACKS, NUM_STEPS);
@@ -76,6 +91,10 @@ socket.on('play', function(msg) {
     veilPlay();
   }
   console.log("Remote play!" + msg.socketID);
+});
+
+socket.on('session-mode', function(msg) {
+  sessionOpen = !!(msg && msg.isPlaying);
 });
 
 socket.on('stop', function(msg) {
@@ -226,6 +245,7 @@ if(isSeq) {
     } catch(e) {
       console.log("Max not loaded");
     }
+    tellMaxReady();
   });
 
   // Session already has a host: behave as a secondary (display-only) sequencer.
