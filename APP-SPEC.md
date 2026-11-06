@@ -34,9 +34,6 @@
 1. Slot lifecycle hooks -> `create track` / `track joined` / `clear track`
 2. Step grid, transport and clock events; rounds counting on loop wrap
 3. Admin events
-4. Experimental endpoints:
-	- `/randommock?v=&a=` returns generated melodic pattern from hardcoded sequence map
-	- `/audiomock?prompt=` returns mock animal sound path
 - `scripts/sessionObj.js`: browser-side `Sequencer` note store only (the server no longer uses this file)
 
 ## Turn-Taking
@@ -61,13 +58,13 @@ Players are let in by core's session state, not by the clock.
 ## Client Composition
 - `html/sequencer.html`
 1. Host matrix UI + transport controls + session info/QR modal
-2. Loads `sequencer.js`, `include.js`, `audio.js`, `midi.js`, optional experimental script
+2. Loads `sequencer.js`, `include.js`, `audio.js`, `midi.js`
 - `html/track.html`
-1. Participant single-track UI + expert mode + optional experimental controls
-2. Loads `track.js`, `include.js`, shared sequencer helpers, optional experimental script
+1. Participant single-track UI + expert mode
+2. Loads `track.js`, `include.js`, shared sequencer helpers
 - Shared helpers
 1. `scripts/include.js`: constants, matrix DOM builders, step update logic, cookies, i18n, URL helpers
-2. `scripts/noteOperations.js`: note frequency table, tonality/transpose helpers
+2. `scripts/noteOperations.js`: note frequency table (used by the synth in `audio.js`)
 
 ## Audio Model
 - Soundset is data-driven from `sounds/<set>/index.json`
@@ -92,9 +89,6 @@ Players are let in by core's session state, not by the clock.
 8. `session-play` / `session-pause` (host to core), `veil-on` / `veil-off` / `session-mode` (core): session open/closed, see above
 9. `exit session` (admin disconnect)
 10. `track mute` / `track volume` / `hide toggle`
-- Experimental events:
-1. `update all track notes`
-2. `reload my sample` -> server fetches generated wav and emits `reload track sample`
 
 ## Query Parameters Used
 - Common:
@@ -107,7 +101,6 @@ Players are let in by core's session state, not by the clock.
 3. `hideinfo`
 - Track page:
 1. `initials`
-2. `experiment`
 
 ## Data Shapes
 - Step object (session state):
@@ -130,7 +123,7 @@ Players are let in by core's session state, not by the clock.
 3. `scripts/track.js` (participant behavior)
 - Add new socket behavior:
 1. Server handler in `index.js`
-2. Client emit/listen points in `scripts/sequencer.js`, `scripts/track.js`, `scripts/midi.js`, or experimental scripts
+2. Client emit/listen points in `scripts/sequencer.js`, `scripts/track.js`, or `scripts/midi.js`
 - Add a new instrument/soundset:
 1. Add `sounds/<name>/index.json`
 2. Add files under `sounds/<name>/sounds/` and `sounds/<name>/images/`

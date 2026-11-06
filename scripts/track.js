@@ -1,4 +1,3 @@
-var experiment = findGetParameter("experiment") || false;
 var counter = document.getElementById("counter");
 var pausedMessage = document.getElementById("lang-paused");
 var pausedIcon = document.getElementById("instrument-icon-paused");

@@ -4,5 +4,3 @@ info.log
 *.wav.asd
 *.aif.asd
 .venv
-sounds/cache/*.wav
-sounds/cache/*.WAV

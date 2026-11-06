@@ -19,7 +19,6 @@ function tellMaxReady() {
     window.max.outlet("ready");
   } catch(e) {}
 }
-var experimentSwitch = document.getElementById("experiment-switch");
 var role = "secondary";
 var stepSequencer = new Sequencer(NUM_TRACKS, NUM_STEPS);
 var audioPlay = true;
@@ -45,19 +44,6 @@ if(isSeq) {
     console.log(p)
   });
 
-  experimentSwitch.addEventListener("click", function(e) {
-    if(this.checked) {
-      //window.location.href = "/sequencer?session=" + session + "&experiment=true";
-      trackURL += "&experiment=true";
-      updateTrackURL(trackURL);
-    } else {
-      //window.location.href = "/sequencer?session=" + session;
-      //trackURL += "&experiment=true";
-      trackURL = removeAllSubstrings(trackURL, "&experiment=true");
-      updateTrackURL(trackURL);
-    }
-  });
-  
   function updateTrackURL(url) {
     document.getElementById("track-url").setAttribute("href",url);
     document.getElementById("track-url").innerText = url;

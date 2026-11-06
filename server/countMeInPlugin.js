@@ -1,7 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-const { getMatchingSequences } = require('./sequences.js');
-
 // Count-Me-In's app-specific server logic as a beatlink-core plugin.
 // Sessions, roles, rounds-based turn-taking, the authoritative step grid
 // (Pattern) and tempo (Transport) come from core; this plugin keeps the
@@ -55,15 +51,6 @@ function emitRemainingRounds(ctx, session) {
     }
 }
 
-function generateRandomString(length = 16) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-}
-
 module.exports = function countMeInPlugin(ctx) {
     // Pure passthroughs, legacy names kept.
     ctx.relay({
@@ -109,17 +96,6 @@ module.exports = function countMeInPlugin(ctx) {
         if (session.hostId === socket.id) initials = 'seq';
         ctx.logger.info(`#${session.name} @${initials} step_update event: ${msg.action}` +
             ` track: ${msg.track} step: ${msg.step} note: ${msg.note} value: ${msg.value}`);
-    });
-
-    ctx.on('update all track notes', (socket, session, msg) => { // AI bulk update
-        if (!session || !session.pattern || !msg || !Array.isArray(msg.notes)) return;
-        session.pattern.setRow(Number(msg.track), msg.notes.map(n => ({ note: Number(n.note), vel: Number(n.vel) })));
-        msg.notes.forEach((n, step) => {
-            ctx.io.to(session.name).emit('step update', {
-                track: msg.track, step, note: n.note, value: n.vel,
-                action: 'ai-update', socketid: msg.socketid
-            });
-        });
     });
 
     // --- session open/closed vs. clock ------------------------------------
@@ -189,27 +165,6 @@ module.exports = function countMeInPlugin(ctx) {
     ctx.on('audio-play', (socket, session, msg) => {
         if (!session) return;
         ctx.logger.info(`#${session.name} @seq audio play: ${JSON.stringify(msg)}`);
-    });
-
-    // Experimental (Music AI workshop): generate a sample from a prompt,
-    // cache it locally, then tell the session to reload it.
-    ctx.on('reload my sample', (socket, session, msg) => {
-        if (!session || !msg) return;
-        fetch('https://stardate69-stableaudioopenendpoint2.hf.space/generate?prompt=' + msg.prompt)
-            .then(response => response.arrayBuffer())
-            .then(buffer => {
-                const name = generateRandomString() + '.wav';
-                fs.writeFile(path.resolve('./sounds/cache/' + name), Buffer.from(buffer), 'binary', (err) => {
-                    if (err) {
-                        ctx.logger.error(`#${session.name} Sample cache write failed: ${err.message}`);
-                        return;
-                    }
-                    msg.sample = 'sounds/cache/' + name;
-                    socket.broadcast.to(session.name).emit('reload track sample', msg);
-                });
-            })
-            .catch(error => ctx.logger.error(`#${session.name} Sample generation failed: ${error.message}`));
-        socket.broadcast.to(session.name).emit('reload sample notice', msg);
     });
 
     // --- admin surface (public role + `admin` handshake flag) ------------
@@ -287,18 +242,5 @@ module.exports = function countMeInPlugin(ctx) {
         });
         ctx.logger.info(`#${session.name} @ADMIN disconnected all tracks`);
         emitAdminState(ctx, session);
-    });
-
-    // --- HTTP: mood-matched sequences + audio mock ------------------------
-
-    ctx.route('get', '/randommock', (req, res) => {
-        const notes = getMatchingSequences(parseInt(req.query.v, 10), parseInt(req.query.a, 10));
-        res.send(JSON.stringify(notes ? notes.sequence : Array(16).fill(0)));
-    });
-
-    ctx.route('get', '/audiomock', (req, res) => {
-        const sounds = ['bird.wav', 'frog.wav', 'owl.wav', 'mouse.wav', 'sheep.wav'];
-        const soundUrl = 'sounds/seal/sounds/' + sounds[Math.floor(Math.random() * sounds.length)];
-        res.send(JSON.stringify({ sound: soundUrl, prompt: req.query.prompt }));
     });
 };

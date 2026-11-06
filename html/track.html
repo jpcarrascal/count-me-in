@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/sequencer.css">
     <link rel="stylesheet" href="css/track.css">
-    <link rel="stylesheet" href="css/emoji.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5JXMQXE0QJ"></script>
@@ -58,28 +57,6 @@
         <table id="matrix">
         </table>
 
-        <div id="emoji-container" class="experimental">
-          <table id="grid"></table>
-          <table id="emojis">
-              <tr>
-                  <td><div class="emoji" v="-1" a="1">😩</div></td>
-                  <td><div class="emoji" v="1" a="1">🤩</div></td>
-              </tr>
-              <tr>
-                  <td><div class="emoji" v="-1" a="-1">🙁</div></td>
-                  <td><div class="emoji" v="1" a="-1">🙂</div></td>
-              </tr>
-          </table>
-          <div id="pre-loader">
-            <img src="images/preloader.gif" class="pre-gif" />
-          </div>
-        </div>
-
-        <div id="prompt-container" class="experimental">
-          <input type="text" id="prompt" class="intro-form" placeholder="Type your prompt..."/>
-          <button id="prompt-submit" class="ui-button">Submit</button>
-        </div>
-        
         <button id="restart" class="ui-button"><span class="translate" id="lang-exit">Exit</span></button>
 
         <div class="rotate-me">
@@ -93,8 +70,6 @@
     <script src="scripts/sessionObj.js"></script>
     <script src="scripts/sequencer.js"></script>
     <script src="scripts/track.js"></script>
-    <script src="scripts/noteOperations.js"></script>
-    <script src="scripts/track-experimental.js"></script>
 
   </body>
 </html>

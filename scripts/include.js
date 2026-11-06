@@ -530,8 +530,3 @@ function enterFullscreen() {
     document.exitFullscreen();
   }*/
 }
-
-function removeAllSubstrings(str, substring) {
-  const regex = new RegExp(substring, 'g');
-  return str.replace(regex, '');
-}

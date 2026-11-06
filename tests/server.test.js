@@ -336,11 +336,4 @@ describe('count-me-in server', () => {
         const admin = connect({ role: 'public', session: 'ghost', admin: 'true' });
         await waitFor(admin, 'session-unavailable');
     });
-
-    test('mood-matched sequence endpoint still serves', async () => {
-        const response = await fetch(`http://localhost:${port}/randommock?v=6&a=5`);
-        const notes = await response.json();
-        expect(Array.isArray(notes)).toBe(true);
-        expect(notes).toHaveLength(16);
-    });
 });
