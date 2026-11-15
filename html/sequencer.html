@@ -18,29 +18,21 @@
 
     <div id="session-info">
       <div id="close-info">✕</div>
-      <div class="session-info">
-        <span id="session-title">
-        Session name: <span id="session-name"></span>
-        </span>
-      </div>
+      <div class="session-info instruction"><span class="step-num start-session-step">3</span><span>Share this QR code or link with the audience</span></div>
 
-
-<!--      <div class="session-info">Scan this QR code to join session:</div> -->
       <div class="session-info" id="qrcode-wrapper"></div>
 
-      <!-- <div class="session-info">Or use this URL:</div> -->
-      
       <div class="session-info">
         <a id="track-url" target="_blank"></a>
       </div>
       
       <div class="session-info">
-        <div id="copy">COPY TO CLIPBOARD</div>
+        <div id="copy">COPY LINK TO CLIPBOARD</div>
       </div>
 
-      <!-- <div class="session-info">And then...</div>-->
+      <div class="session-info instruction start-session-step"><span class="step-num">4</span><span>When everyone's in, start the session:</span></div>
 
-      <div class="session-info">
+      <div class="session-info start-session-step">
         <input type="button" class="ui-button" id="start-session" value="START SESSION" />
       </div>
 

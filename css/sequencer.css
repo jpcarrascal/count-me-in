@@ -39,13 +39,29 @@ body {
     font-weight: bold;
 }
 
-#session-title {
+.instruction {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
     font-weight: bold;
 }
 
+.step-num {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6em;
+    height: 1.6em;
+    border-radius: 50%;
+    background-color: white;
+    color: dodgerblue;
+}
+
 #qrcode-wrapper {
-    height: 40vh;
-    width: 40vh;
+    height: 46vh;
+    width: 46vh;
     display: block;
     margin: 0;
     padding: 0;
@@ -53,8 +69,8 @@ body {
 }
 
 #qrcode {
-    height: 40vh;
-    width: 40vh;
+    height: 46vh;
+    width: 46vh;
     display: block;
     margin: 0;
 }
@@ -66,26 +82,26 @@ body {
 #copy, .ui-button {
     background-color: white;
     color: dodgerblue;
-    width: 10em;
+    width: 15em;
     font-size: .8em;
     margin: 0;
     text-align: center;
     border: none;
+    border: 2px solid transparent;
 }
 
 #copy {
     background-color: dodgerblue;
     color: white;
-    width: 10em;
-    font-size: .8em;
-    margin: 0;
-    text-align: center;
-    border: 2px solid white;
+    border-color: white;
 }
 
 #copy:active, .ui-button:active {
     margin-top: 0.1vh;
     margin-bottom: -0.1vh;
+}
+
+#copy:hover, .ui-button:hover {
     background-color: #EEE;
 }
 

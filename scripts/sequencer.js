@@ -25,7 +25,6 @@ var audioPlay = true;
 if(isSeq) {
   initials = "SQ";
   var hideInfo = findGetParameter("hideinfo");
-  document.getElementById("session-name").innerText = session;
   var info = document.getElementById("session-info");
   var trackURL = document.location.origin +
                 "/track?session=" + session +
@@ -40,7 +39,7 @@ if(isSeq) {
   document.getElementById("copy").addEventListener("click", function(e) {
     copyURL("url-copy");
     this.innerText = "COPIED!";
-    p=setTimeout( function() { document.getElementById("copy").innerText = "COPY TO CLIPBOARD" }, 2000);
+    p=setTimeout( function() { document.getElementById("copy").innerText = "COPY LINK TO CLIPBOARD" }, 2000);
     console.log(p)
   });
 
@@ -241,7 +240,8 @@ if(isSeq) {
     stopButton.style.display = "none";
     playButton.style.display = "none";
     clearAllButton.style.display = "none";
-    startSession.style.display = "none";
+    // Hides step 4, its button, and step 3's number (step 3's text stays).
+    document.querySelectorAll(".start-session-step").forEach(e => e.style.display = "none");
     bpm.style.display = "none";
     document.querySelectorAll(".play-audio").forEach(e => e.style.display = "none");
     tempoBox.setAttribute("readonly", true);
