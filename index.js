@@ -67,10 +67,6 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'html/admin.html'));
 });
 
-app.get('/latency', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html/latency.html'));
-});
-
 app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.join(__dirname, 'images/favicon.ico'));
 });

@@ -336,4 +336,19 @@ describe('count-me-in server', () => {
         const admin = connect({ role: 'public', session: 'ghost', admin: 'true' });
         await waitFor(admin, 'session-unavailable');
     });
+
+    test('/latency works with no session open', async () => {
+        const page = await fetch(`http://localhost:${port}/latency`);
+        expect(page.status).toBe(200);
+        expect(await page.text()).toContain('/beatlink-latency');
+
+        const socket = Client(`http://localhost:${port}/beatlink-latency`, {
+            forceNew: true, transports: ['websocket']
+        });
+        clients.push(socket);
+        const pong = waitFor(socket, 'pong');
+        socket.emit('ping', 1);
+        expect(await pong).toBe(1);
+        expect(server.sessions.all()).toHaveLength(0);
+    });
 });
